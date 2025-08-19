@@ -22,9 +22,28 @@
     <div class="container">
         <div id="loginPanel">
             <h2>E-Banking Login</h2>
-            <input type="text" id="loginId" placeholder="ID or Phone Number">
-            <input type="password" id="loginPassword" placeholder="Password or PIN">
-            <button onclick="login()">Login</button>
+
+            <div id="roleSelection">
+                <h3>Select Your Role</h3>
+                <button onclick="showLoginForm('admin')">Admin</button>
+                <button onclick="showLoginForm('customer')">Customer</button>
+            </div>
+
+            <div id="adminLoginForm" class="hidden">
+                <h3>Admin Login</h3>
+                <input type="text" id="adminLoginId" placeholder="Admin ID">
+                <input type="password" id="adminLoginPassword" placeholder="Password">
+                <button onclick="login('admin')">Login as Admin</button>
+                <button onclick="backToRoleSelection()">Back</button>
+            </div>
+
+            <div id="customerLoginForm" class="hidden">
+                <h3>Customer Login</h3>
+                <input type="text" id="customerLoginId" placeholder="ID or Phone Number">
+                <input type="password" id="customerLoginPassword" placeholder="Password or PIN">
+                <button onclick="login('customer')">Login as Customer</button>
+                <button onclick="backToRoleSelection()">Back</button>
+            </div>
         </div>
 
         <div id="adminPanel" class="hidden">
@@ -127,24 +146,54 @@
         const loginPanel = document.getElementById('loginPanel');
         const adminPanel = document.getElementById('adminPanel');
         const customerPanel = document.getElementById('customerPanel');
-        const loginIdInput = document.getElementById('loginId');
-        const loginPasswordInput = document.getElementById('loginPassword');
+        
+        const roleSelection = document.getElementById('roleSelection');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const customerLoginForm = document.getElementById('customerLoginForm');
+
+        const adminLoginIdInput = document.getElementById('adminLoginId');
+        const adminLoginPasswordInput = document.getElementById('adminLoginPassword');
+        const customerLoginIdInput = document.getElementById('customerLoginId');
+        const customerLoginPasswordInput = document.getElementById('customerLoginPassword');
+
         const customerNameDisplay = document.getElementById('customerNameDisplay');
         const balanceDisplay = document.getElementById('balanceDisplay');
         const customerTransactionHistoryDisplay = document.getElementById('customerTransactionHistoryDisplay');
         const transactionHistoryDisplay = document.getElementById('transactionHistoryDisplay');
         const allAccountsDisplay = document.getElementById('allAccountsDisplay');
 
-        // Login function
-        const login = () => {
-            const id = loginIdInput.value;
-            const password = loginPasswordInput.value;
-
-            if (id === 'admin' && password === 'a123') {
-                currentUser = { type: 'admin' };
-                loginPanel.classList.add('hidden');
-                adminPanel.classList.remove('hidden');
+        // Functions to show/hide login forms
+        const showLoginForm = (role) => {
+            roleSelection.classList.add('hidden');
+            if (role === 'admin') {
+                adminLoginForm.classList.remove('hidden');
             } else {
+                customerLoginForm.classList.remove('hidden');
+            }
+        };
+
+        const backToRoleSelection = () => {
+            adminLoginForm.classList.add('hidden');
+            customerLoginForm.classList.add('hidden');
+            roleSelection.classList.remove('hidden');
+        };
+
+        // Login function
+        const login = (role) => {
+            let id, password;
+            if (role === 'admin') {
+                id = adminLoginIdInput.value;
+                password = adminLoginPasswordInput.value;
+                if (id === 'admin' && password === 'a123') {
+                    currentUser = { type: 'admin' };
+                    loginPanel.classList.add('hidden');
+                    adminPanel.classList.remove('hidden');
+                } else {
+                    alert('Invalid admin credentials.');
+                }
+            } else { // role === 'customer'
+                id = customerLoginIdInput.value;
+                password = customerLoginPasswordInput.value;
                 const user = accounts.find(acc => acc.mobile === id && acc.pin === password);
                 if (user) {
                     currentUser = { type: 'customer', data: user };
@@ -152,7 +201,7 @@
                     loginPanel.classList.add('hidden');
                     customerPanel.classList.remove('hidden');
                 } else {
-                    alert('Invalid credentials.');
+                    alert('Invalid customer credentials.');
                 }
             }
         };
@@ -163,8 +212,11 @@
             loginPanel.classList.remove('hidden');
             adminPanel.classList.add('hidden');
             customerPanel.classList.add('hidden');
-            loginIdInput.value = '';
-            loginPasswordInput.value = '';
+            backToRoleSelection();
+            adminLoginIdInput.value = '';
+            adminLoginPasswordInput.value = '';
+            customerLoginIdInput.value = '';
+            customerLoginPasswordInput.value = '';
         };
 
         // Admin functions
@@ -228,6 +280,146 @@
         };
 
         const viewAllAccounts = () => {
+            if (accounts.length === 0) {
+                allAccountsDisplay.innerHTML = '<p>No accounts have been created yet.</p>';
+                return;
+            }
+            
+            let tableHtml = '<table><tr><th>Name</th><th>Mobile</th><th>Account Number</th><th>PIN</th><th>Balance</th></tr>';
+            accounts.forEach(acc => {
+                tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
+            });
+            tableHtml += '</table>';
+            allAccountsDisplay.innerHTML = tableHtml;
+        };
+
+        const viewTransactions = () => {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            const filteredTransactions = transactions.filter(tx => {
+                const txDate = new Date(tx.date);
+                return txDate >= startDate && txDate <= endDate;
+            });
+
+            displayTransactions(filteredTransactions, transactionHistoryDisplay);
+        };
+
+        // Customer functions
+        const toggleOperation = (op) => {
+            document.getElementById('depositForm').classList.add('hidden');
+            document.getElementById('withdrawForm').classList.add('hidden');
+            document.getElementById('transferForm').classList.add('hidden');
+            document.getElementById(`${op}Form`).classList.remove('hidden');
+        };
+
+        const viewBalance = () => {
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            balanceDisplay.textContent = `Current Balance: $${customer.balance.toFixed(2)}`;
+        };
+
+        const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
+            const tx = {
+                date: new Date().toISOString().split('T')[0],
+                type,
+                amount,
+                fromAccount: fromAccNum,
+                toAccount: toAccNum
+            };
+            transactions.push(tx);
+            saveData();
+        };
+
+        const depositMoney = () => {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            if (amount <= 0 || isNaN(amount)) {
+                alert('Invalid amount.');
+                return;
+            }
+
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            customer.balance += amount;
+            saveData();
+            recordTransaction('deposit', amount, customer.accountNumber);
+            alert(`$${amount} deposited successfully.`);
+            viewBalance();
+        };
+
+        const withdrawMoney = () => {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            
+            if (amount <= 0 || isNaN(amount) || amount > customer.balance) {
+                alert('Invalid amount or insufficient balance.');
+                return;
+            }
+
+            customer.balance -= amount;
+            saveData();
+            recordTransaction('withdrawal', amount, null, customer.accountNumber);
+            alert(`$${amount} withdrawn successfully.`);
+            viewBalance();
+        };
+
+        const transferMoney = () => {
+            const toAccNum = document.getElementById('transferAccNum').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
+
+            if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) {
+                alert('Invalid amount or insufficient balance.');
+                return;
+            }
+
+            if (!toAcc) {
+                alert('Destination account not found.');
+                return;
+            }
+
+            fromAcc.balance -= amount;
+            toAcc.balance += amount;
+            saveData();
+            recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
+            alert(`$${amount} transferred successfully to account ${toAccNum}.`);
+            viewBalance();
+        };
+
+        const viewCustomerTransactions = () => {
+            const userTransactions = transactions.filter(tx => 
+                tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
+            );
+            displayTransactions(userTransactions, customerTransactionHistoryDisplay);
+        };
+
+        // Utility function to display transactions in a table
+        const displayTransactions = (txList, element) => {
+            if (txList.length === 0) {
+                element.innerHTML = '<p>No transactions found.</p>';
+                return;
+            }
+
+            let tableHtml = '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr>';
+            txList.forEach(tx => {
+                let details = '';
+                if (tx.type === 'transfer') {
+                    details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
+                } else if (tx.type === 'admin-deposit') {
+                    details = `To: ${tx.toAccount}`;
+                } else if (tx.type === 'deposit') {
+                    details = `To: ${tx.toAccount}`;
+                } else if (tx.type === 'withdrawal') {
+                    details = `From: ${tx.fromAccount}`;
+                }
+                tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+            });
+            tableHtml += '</table>';
+            element.innerHTML = tableHtml;
+        };
+    </script>
+</body>
+</html>
+     const viewAllAccounts = () => {
             if (accounts.length === 0) {
                 allAccountsDisplay.innerHTML = '<p>No accounts have been created yet.</p>';
                 return;
