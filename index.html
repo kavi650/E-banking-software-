@@ -334,6 +334,173 @@
     const screens = {
       landing: document.getElementById('screenLanding'),
       adminLogin: document.getElementById('screenAdminLogin'),
+      userLogin: document.getEleminput id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
+          </div>
+
+          <!-- All Accounts -->
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold">View All Accounts</h3>
+              <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
+            </div>
+            <div id="allAccountsDisplay" class="overflow-auto text-sm">
+              <!-- table renders here -->
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <h3 class="text-lg font-semibold">View All Transactions</h3>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div>
+                  <label class="block text-xs text-white/90 mb-1">Start date</label>
+                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                </div>
+                <div>
+                  <label class="block text-xs text-white/90 mb-1">End date</label>
+                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                </div>
+                <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View</button>
+              </div>
+            </div>
+            <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Dashboard (blue container sections) -->
+    <section id="screenUser" class="screen hidden">
+      <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
+          <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
+        </div>
+        <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Quick Actions -->
+        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
+          <h3 class="text-lg font-semibold">Account Operations</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Deposit</div>
+            </button>
+            <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Withdraw</div>
+            </button>
+            <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Transfer</div>
+            </button>
+          </div>
+
+          <!-- Forms -->
+          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+            <h4 class="font-medium">Deposit Money</h4>
+            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
+          </div>
+
+          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+            <h4 class="font-medium">Withdraw Money</h4>
+            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
+          </div>
+
+          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+            <h4 class="font-medium">Transfer Money</h4>
+            <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Destination Account Number"/>
+            <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Transfer</button>
+          </div>
+        </div>
+
+        <!-- Balance & History -->
+        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
+            <div id="balanceDisplay" class="text-2xl font-semibold"></div>
+          </div>
+          <div class="border-t border-white/25 pt-4">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-semibold">Transaction History</h3>
+              <button id="viewCustomerTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Refresh</button>
+            </div>
+            <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Profile (blue container) -->
+    <section id="screenProfile" class="screen hidden">
+      <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
+        <div>
+          <h2 class="text-2xl font-semibold">Profile</h2>
+          <p class="text-white/90">View your details and update your address.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Name</div>
+            <div id="profileName" class="text-lg font-medium"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Mobile</div>
+            <div id="profileMobile" class="text-lg font-medium"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Account Number</div>
+            <div id="profileAccount" class="text-lg font-medium"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Date of Birth</div>
+            <div id="profileDob" class="text-lg font-medium"></div>
+          </div>
+          <div class="space-y-1 md:col-span-2">
+            <label class="text-white/90 text-sm">Address</label>
+            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Update your address"/>
+          </div>
+          <div class="md:col-span-2">
+            <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (blue container) -->
+  <footer class="mt-16">
+    <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
+      2025 e‑bank — All rights reserved
+    </div>
+  </footer>
+
+  <!-- App Logic: same storage/flows -->
+  <script>
+    // Data store
+    const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
+    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
+    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    const saveData = () => { localStorage.setItem('accounts', JSON.stringify(accounts)); localStorage.setItem('transactions', JSON.stringify(transactions)); };
+    let currentUser = null;
+
+    // Screens
+    const screens = {
+      landing: document.getElementById('screenLanding'),
+      adminLogin: document.getElementById('screenAdminLogin'),
       userLogin: document.getElementById('screenUserLogin'),
       admin: document.getElementById('screenAdmin'),
       user: document.getElementById('screenUser'),
