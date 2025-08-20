@@ -1,816 +1,480 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF--8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Banking Software</title>
+    <title>e-Banking System</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        h1, h2 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        /* Profile Styles */
-        .profile-card {
-            background-color: #e9ecef;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: left;
-        }
-        .profile-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #ced4da;
-        }
-        .profile-item:last-child {
-            border-bottom: none;
-        }
-        .profile-label {
-            font-weight: bold;
-            color: #555;
-        }
-        
-        /* New Admin Dashboard Styles */
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .grid-item {
-            background-color: #f0f8ff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-
-        .grid-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .grid-item h3 {
-            color: #0056b3;
-            margin-top: 0;
-        }
-
-        .grid-item p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .logout-item {
-            background-color: #f8d7da;
-        }
-
-        .logout-item h3 {
-            color: #721c24;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        h2, h3, h4 { text-align: center; color: #333; }
+        input, button, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #007BFF; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }
+        .profile-info p { margin: 10px 0; font-size: 1.1em; }
+        .profile-info strong { color: #0056b3; }
+        .customer-nav { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .customer-nav button { width: 30%; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="login-screen">
-        <h1>Welcome to E-Banking</h1>
-        <h2>Admin Login</h2>
-        <form id="admin-login-form">
-            <input type="text" id="admin-id" placeholder="Admin ID" required>
-            <input type="password" id="admin-password" placeholder="Password" required>
-            <button type="submit">Admin Login</button>
-        </form>
+    <div class="container">
+        <div id="landingPage">
+            <h2>Welcome to Our E-Banking System</h2>
+            <p style="text-align: center;">Your trusted partner in digital finance. Please select your login portal to continue.</p>
+            <button onclick="showUserLogin()">User Login</button>
+            <button onclick="showAdminLogin()">Admin Login</button>
+        </div>
 
-        <h2>User Login</h2>
-        <form id="user-login-form">
-            <input type="text" id="user-account" placeholder="Account Number" required>
-            <input type="password" id="user-pin" placeholder="Security PIN" required>
-            <button type="submit">User Login</button>
-        </form>
-        <p class="message" id="login-message"></p>
+        <div id="userLoginPanel" class="hidden">
+            <h2>User Login</h2>
+            <input type="text" id="userLoginId" placeholder="Mobile Number">
+            <input type="password" id="userLoginPin" placeholder="PIN">
+            <button onclick="loginUser()">Login</button>
+            <button class="btn-secondary" onclick="goHome()">Back to Home</button>
+        </div>
+
+        <div id="adminLoginPanel" class="hidden">
+            <h2>Admin Login</h2>
+            <input type="text" id="adminLoginId" placeholder="Admin ID">
+            <input type="password" id="adminLoginPassword" placeholder="Password">
+            <button onclick="loginAdmin()">Login</button>
+            <button class="btn-secondary" onclick="goHome()">Back to Home</button>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+            <h2>Admin Dashboard</h2>
+            <p>Welcome, Admin!</p>
+            
+            <div class="section">
+                <h3>Create New Account</h3>
+                <input type="text" id="custName" placeholder="Customer Name">
+                <input type="text" id="custMobile" placeholder="Mobile Number">
+                <input type="text" id="custAddress" placeholder="Address">
+                <input type="date" id="custDob">
+                <input type="text" id="custAadhar" placeholder="Aadhar Card Number">
+                <input type="password" id="custPin" placeholder="Set 4-digit PIN">
+                <button onclick="createAccount()">Create Account</button>
+            </div>
+            
+            <div class="section">
+                <h3>Deposit Money to Account</h3>
+                <input type="text" id="adminDepositAccNum" placeholder="Account Number">
+                <input type="number" id="adminDepositAmount" placeholder="Amount">
+                <button onclick="adminDeposit()">Deposit</button>
+            </div>
+            
+            <div class="section">
+                <h3>View All Accounts</h3>
+                <button onclick="viewAllAccounts()">Show All Accounts</button>
+                <div id="allAccountsDisplay"></div>
+            </div>
+
+            <div class="section">
+                <h3>View All Transactions</h3>
+                <input type="date" id="startDate">
+                <input type="date" id="endDate">
+                <button onclick="viewTransactions()">View Transactions</button>
+                <div id="transactionHistoryDisplay"></div>
+            </div>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div id="customerPanel" class="hidden">
+            <h2>Customer Dashboard</h2>
+            <p style="text-align: center; font-size: 1.2em;">Welcome, <span id="customerNameDisplay"></span>!</p>
+            <div id="balanceDisplay" style="text-align: center; font-size: 1.5em; margin: 20px 0; color: #007BFF; font-weight: bold;"></div>
+
+            <div class="customer-nav">
+                <button onclick="showCustomerView('operations')">Operations</button>
+                <button onclick="showCustomerView('profile')">Profile</button>
+                <button onclick="showCustomerView('history')">History</button>
+            </div>
+
+            <div id="profileView" class="section hidden">
+                <h3>Your Profile</h3>
+                <div class="profile-info">
+                    <p><strong>Name:</strong> <span id="profileName"></span></p>
+                    <p><strong>Account Number:</strong> <span id="profileAccNum"></span></p>
+                    <p><strong>Mobile Number:</strong> <span id="profileMobile"></span></p>
+                    <p><strong>Address:</strong> <span id="profileAddress"></span></p>
+                    <p><strong>Date of Birth:</strong> <span id="profileDob"></span></p>
+                    <p><strong>Aadhar Number:</strong> <span id="profileAadhar"></span></p>
+                </div>
+            </div>
+
+            <div id="operationsView" class="section">
+                <h3>Account Operations</h3>
+                <button onclick="toggleOperation('deposit')">Deposit</button>
+                <button onclick="toggleOperation('withdraw')">Withdrawal</button>
+                <button onclick="toggleOperation('transfer')">Transfer</button>
+                
+                <div id="depositForm" class="hidden">
+                    <h4>Deposit Money</h4>
+                    <input type="password" id="depositPin" placeholder="Enter PIN">
+                    <input type="number" id="depositAmount" placeholder="Amount">
+                    <button onclick="depositMoney()">Deposit</button>
+                </div>
+                
+                <div id="withdrawForm" class="hidden">
+                    <h4>Withdraw Money</h4>
+                    <input type="password" id="withdrawPin" placeholder="Enter PIN">
+                    <input type="number" id="withdrawAmount" placeholder="Amount">
+                    <button onclick="withdrawMoney()">Withdraw</button>
+                </div>
+                
+                <div id="transferForm" class="hidden">
+                    <h4>Transfer Money</h4>
+                    <input type="password" id="transferPin" placeholder="Enter PIN">
+                    <input type="text" id="transferAccNum" placeholder="Destination Account Number">
+                    <input type="number" id="transferAmount" placeholder="Amount">
+                    <button onclick="transferMoney()">Transfer</button>
+                </div>
+            </div>
+
+            <div id="historyView" class="section hidden">
+                <h3>Transaction History</h3>
+                <div id="customerTransactionHistoryDisplay"></div>
+            </div>
+
+            <button onclick="logout()">Logout</button>
+        </div>
     </div>
 
-    <div id="admin-dashboard" class="hidden">
-        <h1>Admin Dashboard</h1>
-        <div class="admin-grid">
-            <div class="grid-item" onclick="showCreateAccountForm()">
-                <h3>Create Account</h3>
-                <p>Set up a new customer account.</p>
-            </div>
-            <div class="grid-item" onclick="showTransactionsReport()">
-                <h3>Transactions Report</h3>
-                <p>Generate and view transaction history.</p>
-            </div>
-            <div class="grid-item" onclick="showAdminProfileSearch()">
-                <h3>Search Profiles</h3>
-                <p>Look up customer details by account number.</p>
-            </div>
-            <div class="grid-item logout-item" onclick="logout()">
-                <h3>Logout</h3>
-                <p>Securely log out of the admin panel.</p>
-            </div>
-        </div>
-        
-        <div id="create-account-form" class="hidden">
-            <h2>Create Account</h2>
-            <form id="new-account-form">
-                <input type="text" id="cust-name" placeholder="Customer Name" required>
-                <input type="tel" id="cust-mobile" placeholder="Mobile Number" required>
-                <input type="date" id="cust-dob" required>
-                <input type="text" id="cust-address" placeholder="Address" required>
-                <input type="text" id="cust-adhar" placeholder="Aadhar Number" required>
-                <button type="submit">Create Account</button>
-            </form>
-            <p class="message" id="admin-message"></p>
-        </div>
+    <script>
+        // Function to generate a random 8-digit number for the account
+        const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
 
-        <div id="transactions-report" class="hidden">
-            <h2>Transactions Report</h2>
-            <form id="report-form">
-                <input type="text" id="report-account" placeholder="Account Number (optional)">
-                <input type="date" id="report-start-date">
-                <input type="date" id="report-end-date">
-                <button type="submit">Generate Report</button>
-            </form>
-            <table id="transactions-table">
-                <thead>
-                    <tr>
-                        <th>Account</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <p class="message" id="report-message"></p>
-        </div>
+        // Load data from localStorage or initialize with default values
+        let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
-        <div id="admin-profile-search" class="hidden">
-            <h2>Search Customer Profile</h2>
-            <form id="profile-search-form">
-                <input type="text" id="search-account" placeholder="Enter Account Number" required>
-                <button type="submit">Search</button>
-            </form>
-            <div id="admin-profile-view" class="profile-card hidden">
-                <h3>Customer Profile</h3>
-                <div class="profile-item"><span class="profile-label">Name:</span> <span id="admin-profile-name"></span></div>
-                <div class="profile-item"><span class="profile-label">Account Number:</span> <span id="admin-profile-acc"></span></div>
-                <div class="profile-item"><span class="profile-label">Security PIN:</span> <span id="admin-profile-pin"></span></div>
-                <div class="profile-item"><span class="profile-label">Mobile Number:</span> <span id="admin-profile-mobile"></span></div>
-                <div class="profile-item"><span class="profile-label">Date of Birth:</span> <span id="admin-profile-dob"></span></div>
-                <div class="profile-item"><span class="profile-label">Age:</span> <span id="admin-profile-age"></span></div>
-                <div class="profile-item"><span class="profile-label">Aadhar Number:</span> <span id="admin-profile-adhar"></span></div>
-                <div class="profile-item"><span class="profile-label">Address:</span> <span id="admin-profile-address"></span></div>
-            </div>
-            <p class="message" id="profile-message"></p>
-        </div>
-    </div>
-    <div id="user-dashboard" class="hidden">
-        <h1>User Dashboard</h1>
-        <p>Welcome, <strong id="user-name"></strong>!</p>
-        <p>Account Number: <strong id="user-acc-num"></strong></p>
-        <button onclick="showUserProfile()">View Profile</button>
-        <button onclick="checkBalance()">Check Balance</button>
-        <button onclick="showTransferForm()">Transfer Money</button>
-        <button onclick="showWithdrawForm()">Withdraw</button>
-        <button onclick="logout()">Logout</button>
-
-        <div id="user-profile-view" class="profile-card">
-            <h3>My Profile</h3>
-            <div class="profile-item"><span class="profile-label">Name:</span> <span id="user-profile-name"></span></div>
-            <div class="profile-item"><span class="profile-label">Account Number:</span> <span id="user-profile-acc"></span></div>
-            <div class="profile-item"><span class="profile-label">Security PIN:</span> <span id="user-profile-pin"></span></div>
-            <div class="profile-item"><span class="profile-label">Mobile Number:</span> <span id="user-profile-mobile"></span></div>
-            <div class="profile-item"><span class="profile-label">Date of Birth:</span> <span id="user-profile-dob"></span></div>
-            <div class="profile-item"><span class="profile-label">Age:</span> <span id="user-profile-age"></span></div>
-            <div class="profile-item"><span class="profile-label">Aadhar Number:</span> <span id="user-profile-adhar"></span></div>
-            <div class="profile-item"><span class="profile-label">Address:</span> <span id="user-profile-address"></span></div>
-        </div>
-
-        <div id="balance-section" class="hidden">
-            <h2>Account Balance: $<span id="current-balance"></span></h2>
-        </div>
-
-        <div id="transfer-form" class="hidden">
-            <h2>Transfer Money</h2>
-            <form id="transfer-money-form">
-                <input type="text" id="receiver-account" placeholder="Receiver's Account Number" required>
-                <input type="number" id="transfer-amount" placeholder="Amount" required min="1">
-                <button type="submit">Transfer</button>
-            </form>
-        </div>
-
-        <div id="withdraw-form" class="hidden">
-            <h2>Withdraw</h2>
-            <form id="withdraw-money-form">
-                <input type="number" id="withdraw-amount" placeholder="Amount" required min="1">
-                <button type="submit">Withdraw</button>
-            </form>
-        </div>
-        <p class="message" id="user-message"></p>
-    </div>
-</div>
-
-<script>
-    // --- DATABASE SETUP (IndexedDB) ---
-    let db;
-    const DB_NAME = 'eBankingDB';
-    const DB_VERSION = 1;
-
-    function openDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-            request.onerror = (event) => {
-                console.error('Error opening database:', event.target.error);
-                reject('Database error');
-            };
-
-            request.onupgradeneeded = (event) => {
-                db = event.target.result;
-                if (!db.objectStoreNames.contains('customers')) {
-                    const customerStore = db.createObjectStore('customers', { keyPath: 'accountNumber' });
-                    customerStore.createIndex('mobile', 'mobile', { unique: true });
-                }
-                if (!db.objectStoreNames.contains('transactions')) {
-                    const transactionStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-                    transactionStore.createIndex('accountNumber', 'accountNumber');
-                    transactionStore.createIndex('date', 'date');
-                }
-            };
-
-            request.onsuccess = (event) => {
-                db = event.target.result;
-                resolve(db);
-            };
-        });
-    }
-
-    // --- APPLICATION STATE & UI MANAGEMENT ---
-    let currentLoggedInUser = null;
-    const screens = {
-        login: document.getElementById('login-screen'),
-        admin: document.getElementById('admin-dashboard'),
-        user: document.getElementById('user-dashboard')
-    };
-    const adminForms = {
-        createAccount: document.getElementById('create-account-form'),
-        report: document.getElementById('transactions-report'),
-        profileSearch: document.getElementById('admin-profile-search')
-    };
-    const userForms = {
-        profile: document.getElementById('user-profile-view'),
-        balance: document.getElementById('balance-section'),
-        transfer: document.getElementById('transfer-form'),
-        withdraw: document.getElementById('withdraw-form')
-    };
-
-    function showScreen(screen) {
-        Object.values(screens).forEach(s => s.classList.add('hidden'));
-        screens[screen].classList.remove('hidden');
-        if (screen === 'admin') {
-            showCreateAccountForm();
-        }
-        if (screen === 'user') {
-            showUserProfile();
-        }
-    }
-
-    function showAdminMessage(message, type) {
-        const msgElem = document.getElementById('admin-message');
-        msgElem.textContent = message;
-        msgElem.className = `message ${type}`;
-    }
-
-    function showUserMessage(message, type) {
-        const msgElem = document.getElementById('user-message');
-        msgElem.textContent = message;
-        msgElem.className = `message ${type}`;
-    }
-
-    function clearAdminForms() {
-        Object.values(adminForms).forEach(f => f.classList.add('hidden'));
-    }
-
-    function clearUserForms() {
-        Object.values(userForms).forEach(f => f.classList.add('hidden'));
-    }
-
-    function showCreateAccountForm() {
-        clearAdminForms();
-        adminForms.createAccount.classList.remove('hidden');
-    }
-
-    function showTransactionsReport() {
-        clearAdminForms();
-        adminForms.report.classList.remove('hidden');
-    }
-
-    function showAdminProfileSearch() {
-        clearAdminForms();
-        document.getElementById('admin-profile-view').classList.add('hidden');
-        adminForms.profileSearch.classList.remove('hidden');
-    }
-    
-    function showUserProfile() {
-        clearUserForms();
-        userForms.profile.classList.remove('hidden');
-        renderProfile(currentLoggedInUser, 'user');
-    }
-
-    function showTransferForm() {
-        clearUserForms();
-        userForms.transfer.classList.remove('hidden');
-    }
-    
-    function showWithdrawForm() {
-        clearUserForms();
-        userForms.withdraw.classList.remove('hidden');
-    }
-
-    // Helper function to calculate age from DOB
-    function calculateAge(dob) {
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    }
-
-    // New function to render profile data
-    function renderProfile(customer, dashboardType) {
-        const prefix = dashboardType === 'admin' ? 'admin-' : 'user-';
-        document.getElementById(`${prefix}profile-name`).textContent = customer.name;
-        document.getElementById(`${prefix}profile-acc`).textContent = customer.accountNumber;
-        document.getElementById(`${prefix}profile-pin`).textContent = customer.securityPin;
-        document.getElementById(`${prefix}profile-mobile`).textContent = customer.mobile;
-        document.getElementById(`${prefix}profile-dob`).textContent = customer.dob;
-        document.getElementById(`${prefix}profile-age`).textContent = calculateAge(customer.dob);
-        document.getElementById(`${prefix}profile-adhar`).textContent = customer.adhar;
-        document.getElementById(`${prefix}profile-address`).textContent = customer.address;
-        document.getElementById(`${prefix}profile-view`).classList.remove('hidden');
-    }
-
-
-    // --- ADMIN LOGIC ---
-    // The credentials are now hidden within the JavaScript and not in the HTML placeholder.
-    const adminUser = {
-        id: 'admin',
-        password: 'a123'
-    };
-
-    document.getElementById('admin-login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = document.getElementById('admin-id').value;
-        const password = document.getElementById('admin-password').value;
-        if (id === adminUser.id && password === adminUser.password) {
-            showScreen('admin');
-        } else {
-            document.getElementById('login-message').textContent = 'Invalid admin credentials.';
-            document.getElementById('login-message').className = 'message error';
-        }
-    });
-
-    document.getElementById('new-account-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const customerData = {
-            name: document.getElementById('cust-name').value,
-            mobile: document.getElementById('cust-mobile').value,
-            dob: document.getElementById('cust-dob').value,
-            address: document.getElementById('cust-address').value,
-            adhar: document.getElementById('cust-adhar').value
+        // Save data to localStorage
+        const saveData = () => {
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
         };
-        try {
-            const newCustomer = await createAccount(customerData);
-            showAdminMessage(`Account created for ${newCustomer.name}. Acc #: ${newCustomer.accountNumber}, PIN: ${newCustomer.securityPin}`, 'success');
-            document.getElementById('new-account-form').reset();
-        } catch (error) {
-            showAdminMessage(error, 'error');
-        }
-    });
 
-    document.getElementById('report-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const accountNumber = document.getElementById('report-account').value;
-        const startDate = document.getElementById('report-start-date').value;
-        const endDate = document.getElementById('report-end-date').value;
+        // Current logged-in user
+        let currentUser = null;
 
-        try {
-            const transactions = await viewTransactions(accountNumber, startDate, endDate);
-            renderTransactionsTable(transactions);
-            showAdminMessage(`Found ${transactions.length} transactions.`, 'success');
-        } catch (error) {
-            showAdminMessage('Failed to fetch transactions.', 'error');
-        }
-    });
+        // --- DOM Elements ---
+        const landingPage = document.getElementById('landingPage');
+        const userLoginPanel = document.getElementById('userLoginPanel');
+        const adminLoginPanel = document.getElementById('adminLoginPanel');
+        const adminPanel = document.getElementById('adminPanel');
+        const customerPanel = document.getElementById('customerPanel');
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        
+        const allPanels = [landingPage, userLoginPanel, adminLoginPanel, adminPanel, customerPanel];
 
-    document.getElementById('profile-search-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const accountNumber = document.getElementById('search-account').value;
-        try {
-            const customer = await findCustomerByAccount(accountNumber);
-            renderProfile(customer, 'admin');
-            document.getElementById('profile-message').textContent = '';
-        } catch (error) {
-            document.getElementById('admin-profile-view').classList.add('hidden');
-            document.getElementById('profile-message').textContent = 'Customer not found.';
-            document.getElementById('profile-message').className = 'message error';
-        }
-    });
+        // --- Navigation Functions ---
+        const hideAllPanels = () => allPanels.forEach(p => p.classList.add('hidden'));
 
-    // --- USER LOGIC ---
-    document.getElementById('user-login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const accountNumber = document.getElementById('user-account').value;
-        const securityPin = document.getElementById('user-pin').value;
-        try {
-            const user = await userLogin(accountNumber, securityPin);
-            currentLoggedInUser = user;
-            document.getElementById('user-name').textContent = user.name;
-            document.getElementById('user-acc-num').textContent = user.accountNumber;
-            showScreen('user');
-        } catch (error) {
-            document.getElementById('login-message').textContent = 'Invalid account number or PIN.';
-            document.getElementById('login-message').className = 'message error';
-        }
-    });
+        const showUserLogin = () => {
+            hideAllPanels();
+            userLoginPanel.classList.remove('hidden');
+        };
 
-    async function checkBalance() {
-        try {
-            const balance = await getUserBalance(currentLoggedInUser.accountNumber);
-            document.getElementById('current-balance').textContent = balance.toFixed(2);
-            clearUserForms();
-            userForms.balance.classList.remove('hidden');
-        } catch (error) {
-            showUserMessage('Failed to retrieve balance.', 'error');
-        }
-    }
+        const showAdminLogin = () => {
+            hideAllPanels();
+            adminLoginPanel.classList.remove('hidden');
+        };
 
-    document.getElementById('transfer-money-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const receiverAcc = document.getElementById('receiver-account').value;
-        const amount = parseFloat(document.getElementById('transfer-amount').value);
-        if (isNaN(amount) || amount <= 0) {
-            showUserMessage('Please enter a valid amount.', 'error');
-            return;
-        }
-        try {
-            await transferMoney(currentLoggedInUser.accountNumber, receiverAcc, amount);
-            showUserMessage('Money transferred successfully.', 'success');
-            document.getElementById('transfer-money-form').reset();
-            checkBalance();
-        } catch (error) {
-            showUserMessage(error, 'error');
-        }
-    });
+        const goHome = () => {
+            hideAllPanels();
+            landingPage.classList.remove('hidden');
+        };
 
-    document.getElementById('withdraw-money-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const amount = parseFloat(document.getElementById('withdraw-amount').value);
-        if (isNaN(amount) || amount <= 0) {
-            showUserMessage('Please enter a valid amount.', 'error');
-            return;
-        }
-        try {
-            await withdrawMoney(currentLoggedInUser.accountNumber, amount);
-            showUserMessage('Withdrawal successful.', 'success');
-            document.getElementById('withdraw-money-form').reset();
-            checkBalance();
-        } catch (error) {
-            showUserMessage(error, 'error');
-        }
-    });
-    
-    // --- CORE DATABASE FUNCTIONS ---
-    async function createAccount(customerData) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['customers'], 'readwrite');
-            const store = transaction.objectStore('customers');
-            const accountNumber = 'ACC' + Math.floor(10000000 + Math.random() * 90000000);
-            const securityPin = Math.floor(1000 + Math.random() * 9000).toString();
-            const customer = {
-                ...customerData,
-                accountNumber,
-                securityPin,
-                balance: 0,
-                creationDate: new Date().toISOString()
-            };
-            const request = store.add(customer);
-            request.onsuccess = () => resolve(customer);
-            request.onerror = () => reject('Error creating account. Mobile number or Aadhar might already exist.');
-        });
-    }
+        // --- Login/Logout ---
+        const loginUser = () => {
+            const mobile = document.getElementById('userLoginId').value;
+            const pin = document.getElementById('userLoginPin').value;
+            const user = accounts.find(acc => acc.mobile === mobile && acc.pin === pin);
 
-    async function userLogin(accountNumber, securityPin) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['customers'], 'readonly');
-            const store = transaction.objectStore('customers');
-            const request = store.get(accountNumber);
-            request.onsuccess = (event) => {
-                const customer = event.target.result;
-                if (customer && customer.securityPin === securityPin) {
-                    resolve(customer);
-                } else {
-                    reject('Invalid account number or PIN');
-                }
-            };
-            request.onerror = () => reject('Error during login');
-        });
-    }
-    
-    async function findCustomerByAccount(accountNumber) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['customers'], 'readonly');
-            const store = transaction.objectStore('customers');
-            const request = store.get(accountNumber);
-            request.onsuccess = (event) => {
-                const customer = event.target.result;
-                if (customer) {
-                    resolve(customer);
-                } else {
-                    reject('Customer not found');
-                }
-            };
-            request.onerror = () => reject('Error fetching customer');
-        });
-    }
+            if (user) {
+                currentUser = { type: 'customer', data: user };
+                document.getElementById('customerNameDisplay').textContent = user.name;
+                hideAllPanels();
+                customerPanel.classList.remove('hidden');
+                showCustomerView('operations'); // Default to operations view
+                viewBalance();
+                populateProfile();
+            } else {
+                alert('Invalid mobile number or PIN.');
+            }
+        };
 
-    async function transferMoney(senderAcc, receiverAcc, amount) {
-        return new Promise((resolve, reject) => {
-            if (senderAcc === receiverAcc) {
-                reject('Cannot transfer to the same account.');
+        const loginAdmin = () => {
+            const id = document.getElementById('adminLoginId').value;
+            const password = document.getElementById('adminLoginPassword').value;
+
+            if (id === 'admin' && password === 'a123') {
+                currentUser = { type: 'admin' };
+                hideAllPanels();
+                adminPanel.classList.remove('hidden');
+            } else {
+                alert('Invalid admin credentials.');
+            }
+        };
+
+        const logout = () => {
+            currentUser = null;
+            document.getElementById('userLoginId').value = '';
+            document.getElementById('userLoginPin').value = '';
+            document.getElementById('adminLoginId').value = '';
+            document.getElementById('adminLoginPassword').value = '';
+            goHome();
+        };
+
+        // --- Admin Functions ---
+        const createAccount = () => {
+            const name = document.getElementById('custName').value;
+            const mobile = document.getElementById('custMobile').value;
+            const address = document.getElementById('custAddress').value;
+            const dob = document.getElementById('custDob').value;
+            const aadhar = document.getElementById('custAadhar').value;
+            const pin = document.getElementById('custPin').value;
+
+            if (!name || !mobile || !address || !dob || !aadhar || !pin) {
+                alert('Please fill all fields.');
                 return;
             }
-            const transaction = db.transaction(['customers', 'transactions'], 'readwrite');
-            const customerStore = transaction.objectStore('customers');
-            const transactionStore = transaction.objectStore('transactions');
-            
-            const senderReq = customerStore.get(senderAcc);
-            const receiverReq = customerStore.get(receiverAcc);
-            
-            senderReq.onsuccess = () => {
-                const sender = senderReq.result;
-                if (!sender || sender.balance < amount) {
-                    reject('Insufficient funds or invalid sender account.');
-                    return;
-                }
-                
-                receiverReq.onsuccess = () => {
-                    const receiver = receiverReq.result;
-                    if (!receiver) {
-                        reject('Receiver account not found.');
-                        return;
-                    }
-                    
-                    sender.balance -= amount;
-                    receiver.balance += amount;
-
-                    const updateSenderReq = customerStore.put(sender);
-                    const updateReceiverReq = customerStore.put(receiver);
-
-                    updateSenderReq.onsuccess = updateReceiverReq.onsuccess = () => {
-                        const transferDate = new Date().toISOString();
-                        transactionStore.add({ accountNumber: sender.accountNumber, type: 'debit', amount: amount, date: transferDate, details: `Transfer to ${receiver.accountNumber}` });
-                        transactionStore.add({ accountNumber: receiver.accountNumber, type: 'credit', amount: amount, date: transferDate, details: `Transfer from ${sender.accountNumber}` });
-                        resolve('Transfer successful.');
-                    };
-                };
-            };
-            transaction.onerror = () => reject('Transaction error');
-        });
-    }
-
-    async function withdrawMoney(accountNumber, amount) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['customers', 'transactions'], 'readwrite');
-            const customerStore = transaction.objectStore('customers');
-            const transactionStore = transaction.objectStore('transactions');
-
-            const customerReq = customerStore.get(accountNumber);
-            customerReq.onsuccess = () => {
-                const customer = customerReq.result;
-                if (!customer || customer.balance < amount) {
-                    reject('Insufficient funds.');
-                    return;
-                }
-                customer.balance -= amount;
-                const updateReq = customerStore.put(customer);
-                updateReq.onsuccess = () => {
-                    const withdrawalDate = new Date().toISOString();
-                    const txn = {
-                        accountNumber: customer.accountNumber,
-                        type: 'debit',
-                        amount: amount,
-                        date: withdrawalDate,
-                        details: 'Cash Withdrawal'
-                    };
-                    transactionStore.add(txn);
-                    resolve('Withdrawal successful.');
-                };
-            };
-            transaction.onerror = () => reject('Transaction error');
-        });
-    }
-
-    async function getUserBalance(accountNumber) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['customers'], 'readonly');
-            const store = transaction.objectStore('customers');
-            const request = store.get(accountNumber);
-            request.onsuccess = (event) => {
-                const customer = event.target.result;
-                if (customer) {
-                    resolve(customer.balance);
-                } else {
-                    reject('Account not found');
-                }
-            };
-            request.onerror = () => reject('Error retrieving balance');
-        });
-    }
-
-    async function viewTransactions(accountNumber, startDate, endDate) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['transactions'], 'readonly');
-            const store = transaction.objectStore('transactions');
-            const index = store.index('accountNumber');
-            const allTransactions = [];
-            const range = accountNumber ? IDBKeyRange.only(accountNumber) : null;
-            
-            const request = index.openCursor(range, 'prev');
-            if (!accountNumber) {
-                const requestAll = store.openCursor(null, 'prev');
-                requestAll.onsuccess = (event) => {
-                    let cursor = event.target.result;
-                    if (cursor) {
-                        allTransactions.push(cursor.value);
-                        cursor.continue();
-                    } else {
-                        filterAndResolveTransactions(allTransactions, startDate, endDate, resolve);
-                    }
-                };
-                requestAll.onerror = () => reject('Failed to fetch all transactions.');
-            } else {
-                request.onsuccess = (event) => {
-                    let cursor = event.target.result;
-                    if (cursor) {
-                        allTransactions.push(cursor.value);
-                        cursor.continue();
-                    } else {
-                        filterAndResolveTransactions(allTransactions, startDate, endDate, resolve);
-                    }
-                };
-                request.onerror = () => reject('Failed to fetch transactions for account.');
+            if (pin.length !== 4 || isNaN(pin)) {
+                alert('PIN must be a 4-digit number.');
+                return;
             }
-        });
-    }
+            if (accounts.some(acc => acc.mobile === mobile)) {
+                alert('Account with this mobile number already exists.');
+                return;
+            }
+            const accountNumber = generateAccountNumber();
+            const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
+            accounts.push(newAccount);
+            saveData();
+            alert(`Account created successfully!\nAccount Number: ${accountNumber}\nPIN: ${pin}`);
+            // Clear input fields
+            document.getElementById('custName').value = '';
+            document.getElementById('custMobile').value = '';
+            document.getElementById('custAddress').value = '';
+            document.getElementById('custDob').value = '';
+            document.getElementById('custAadhar').value = '';
+            document.getElementById('custPin').value = '';
+        };
+        
+        const adminDeposit = () => {
+            const accNum = document.getElementById('adminDepositAccNum').value;
+            const amount = parseFloat(document.getElementById('adminDepositAmount').value);
 
-    function filterAndResolveTransactions(transactions, startDate, endDate, resolve) {
-        const filteredTransactions = transactions.filter(txn => {
-            const txnDate = new Date(txn.date);
-            const start = startDate ? new Date(startDate) : null;
-            const end = endDate ? new Date(endDate) : null;
-            return (!start || txnDate >= start) && (!end || txnDate <= end);
-        });
-        resolve(filteredTransactions);
-    }
+            if (!accNum || isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid account number and amount.');
+                return;
+            }
+            const account = accounts.find(acc => acc.accountNumber === accNum);
+            if (!account) {
+                alert('Account not found.');
+                return;
+            }
+            account.balance += amount;
+            recordTransaction('admin-deposit', amount, accNum);
+            saveData();
+            alert(`₹${amount} deposited into account ${accNum} successfully.`);
+            document.getElementById('adminDepositAccNum').value = '';
+            document.getElementById('adminDepositAmount').value = '';
+        };
 
-    function renderTransactionsTable(transactions) {
-        const tableBody = document.querySelector('#transactions-table tbody');
-        tableBody.innerHTML = '';
-        if (transactions.length === 0) {
-            const row = tableBody.insertRow();
-            const cell = row.insertCell(0);
-            cell.textContent = 'No transactions found.';
-            cell.colSpan = 5;
-            return;
-        }
-        transactions.forEach(txn => {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = txn.accountNumber;
-            row.insertCell(1).textContent = txn.type;
-            row.insertCell(2).textContent = `$${txn.amount.toFixed(2)}`;
-            row.insertCell(3).textContent = new Date(txn.date).toLocaleString();
-            row.insertCell(4).textContent = txn.details;
-        });
-    }
+        const viewAllAccounts = () => {
+            const displayDiv = document.getElementById('allAccountsDisplay');
+            if (accounts.length === 0) {
+                displayDiv.innerHTML = '<p>No accounts have been created yet.</p>';
+                return;
+            }
+            let tableHtml = '<table><tr><th>Name</th><th>Mobile</th><th>Account Number</th><th>PIN</th><th>Balance</th></tr>';
+            accounts.forEach(acc => {
+                tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>₹${acc.balance.toFixed(2)}</td></tr>`;
+            });
+            tableHtml += '</table>';
+            displayDiv.innerHTML = tableHtml;
+        };
 
-    function logout() {
-        currentLoggedInUser = null;
-        showScreen('login');
-        document.getElementById('login-message').textContent = '';
-        document.getElementById('admin-login-form').reset();
-        document.getElementById('user-login-form').reset();
-    }
+        const viewTransactions = () => {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const displayDiv = document.getElementById('transactionHistoryDisplay');
+            if(!document.getElementById('startDate').value || !document.getElementById('endDate').value) {
+                alert("Please select a start and end date.");
+                return;
+            }
+            const filteredTransactions = transactions.filter(tx => {
+                const txDate = new Date(tx.date);
+                return txDate >= startDate && txDate <= endDate;
+            });
+            displayTransactions(filteredTransactions, displayDiv);
+        };
 
-    // Initialize the application
-    openDB().then(() => {
-        console.log('Database initialized.');
-    }).catch(console.error);
-</script>
+        // --- Customer Functions ---
+        const showCustomerView = (viewName) => {
+            document.getElementById('operationsView').classList.add('hidden');
+            document.getElementById('profileView').classList.add('hidden');
+            document.getElementById('historyView').classList.add('hidden');
 
+            document.getElementById(`${viewName}View`).classList.remove('hidden');
+
+            if(viewName === 'history') {
+                viewCustomerTransactions();
+            }
+        };
+
+        const populateProfile = () => {
+            const user = currentUser.data;
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileAccNum').textContent = user.accountNumber;
+            document.getElementById('profileMobile').textContent = user.mobile;
+            document.getElementById('profileAddress').textContent = user.address;
+            document.getElementById('profileDob').textContent = user.dob;
+            document.getElementById('profileAadhar').textContent = user.aadhar;
+        };
+
+        const toggleOperation = (op) => {
+            document.getElementById('depositForm').classList.add('hidden');
+            document.getElementById('withdrawForm').classList.add('hidden');
+            document.getElementById('transferForm').classList.add('hidden');
+            document.getElementById(`${op}Form`).classList.remove('hidden');
+        };
+
+        const viewBalance = () => {
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            currentUser.data = customer; // Refresh current user data
+            balanceDisplay.textContent = `Current Balance: ₹${customer.balance.toFixed(2)}`;
+        };
+
+        const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
+            transactions.push({
+                date: new Date().toISOString().split('T')[0],
+                type,
+                amount,
+                fromAccount: fromAccNum,
+                toAccount: toAccNum
+            });
+            saveData();
+        };
+
+        const depositMoney = () => {
+            const pin = document.getElementById('depositPin').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+
+            if (pin !== customer.pin) {
+                alert('Invalid PIN.');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                alert('Invalid amount.');
+                return;
+            }
+            customer.balance += amount;
+            recordTransaction('deposit', amount, customer.accountNumber);
+            saveData();
+            alert(`₹${amount} deposited successfully.`);
+            viewBalance();
+            document.getElementById('depositPin').value = '';
+            document.getElementById('depositAmount').value = '';
+        };
+
+        const withdrawMoney = () => {
+            const pin = document.getElementById('withdrawPin').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+
+            if (pin !== customer.pin) {
+                alert('Invalid PIN.');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0 || amount > customer.balance) {
+                alert('Invalid amount or insufficient balance.');
+                return;
+            }
+            customer.balance -= amount;
+            recordTransaction('withdrawal', amount, null, customer.accountNumber);
+            saveData();
+            alert(`₹${amount} withdrawn successfully.`);
+            viewBalance();
+            document.getElementById('withdrawPin').value = '';
+            document.getElementById('withdrawAmount').value = '';
+        };
+
+        const transferMoney = () => {
+            const pin = document.getElementById('transferPin').value;
+            const toAccNum = document.getElementById('transferAccNum').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+            
+            if (pin !== fromAcc.pin) {
+                alert('Invalid PIN.');
+                return;
+            }
+            if (fromAcc.accountNumber === toAccNum) {
+                alert("You cannot transfer money to your own account.");
+                return;
+            }
+            
+            const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
+
+            if (!toAcc) {
+                alert('Destination account not found.');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0 || amount > fromAcc.balance) {
+                alert('Invalid amount or insufficient balance.');
+                return;
+            }
+
+            fromAcc.balance -= amount;
+            toAcc.balance += amount;
+            recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
+            saveData();
+            alert(`₹${amount} transferred successfully to account ${toAccNum}.`);
+            viewBalance();
+            document.getElementById('transferPin').value = '';
+            document.getElementById('transferAccNum').value = '';
+            document.getElementById('transferAmount').value = '';
+        };
+
+        const viewCustomerTransactions = () => {
+            const userTransactions = transactions.filter(tx => 
+                tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
+            );
+            displayTransactions(userTransactions, document.getElementById('customerTransactionHistoryDisplay'));
+        };
+
+        // --- Utility Function ---
+        const displayTransactions = (txList, element) => {
+            if (txList.length === 0) {
+                element.innerHTML = '<p>No transactions found.</p>';
+                return;
+            }
+            let tableHtml = '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr>';
+            txList.forEach(tx => {
+                let details = '';
+                if (tx.type === 'transfer') {
+                    details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
+                } else if (['admin-deposit', 'deposit'].includes(tx.type)) {
+                    details = `To: ${tx.toAccount}`;
+                } else if (tx.type === 'withdrawal') {
+                    details = `From: ${tx.fromAccount}`;
+                }
+                tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>₹${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+            });
+            tableHtml += '</table>';
+            element.innerHTML = tableHtml;
+        };
+    </script>
 </body>
 </html>
