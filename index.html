@@ -1,605 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>e‑Bank Demo — White page, Blue containers</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { brand: "#0053ba" },
-          boxShadow: {
-            brandSoft: "0 10px 30px rgba(0,83,186,0.25)",
-            brandGlow: "0 12px 36px rgba(0,83,186,0.38)",
-            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)"
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Connect - Professional Job Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #e0f2fe;
+            --accent-blue: #81d4fa;
+            --dark-blue: #0277bd;
         }
-      }
-    };
-  </script>
-  <style>
-    /* Ripple effect */
-    .ripple { position: relative; overflow: hidden; isolation: isolate; }
-    .ripple::after { content:""; position:absolute; inset:0; border-radius:inherit; transform:scale(0); opacity:0; pointer-events:none; background: radial-gradient(circle at var(--rx,50%) var(--ry,50%), rgba(255,255,255,0.45), transparent 45%); }
-    .ripple[data-rippling="true"]::after { animation: ripple 600ms ease-out forwards; }
-    @keyframes ripple { 0%{transform:scale(0); opacity:.6} 100%{transform:scale(2); opacity:0} }
-
-    /* Hover lift + smooth */
-    .lift { transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease; }
-    .lift:hover { transform: translateY(-2px); }
-
-    /* Inputs on blue background */
-    .input-on-blue { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
-    .input-on-blue::placeholder { color: rgba(255,255,255,0.85); }
-    .input-on-blue:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,255,255,0.18); border-color: #fff; }
-
-    /* Tables inside blue containers */
-    .tbl th, .tbl td { padding: .6rem .75rem; border-bottom: 1px solid rgba(255,255,255,0.18); }
-    .tbl th { color: rgba(255,255,255,0.9); font-weight: 600; }
-    .tbl td { color: #fff; }
-    .tbl tr:hover { background: rgba(255,255,255,0.08); }
-
-    /* Eye toggle area */
-    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#fff; opacity:.9; }
-    .eye-btn:hover { opacity: 1; }
-  </style>
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .btn-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 119, 189, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        
+        .ai-gradient {
+            background: linear-gradient(135deg, #e0f2fe 0%, #81d4fa 100%);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-white text-slate-900">
-  <header class="sticky top-0 z-40 bg-brand text-white shadow-brandGlow">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shadow-whiteSoft">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 8l9-5 9 5v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2V8z"/>
-          </svg>
-        </div>
-        <div class="font-semibold text-lg tracking-wide">e‑bank</div>
-      </div>
-      <nav class="hidden md:flex items-center gap-2">
-        <button data-target="screenLanding" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Home</button>
-        <button data-target="screenAdminLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Admin</button>
-        <button data-target="screenUserLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">User</button>
-        <button id="logoutBtn" class="hidden ml-2 px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
-      </nav>
-      <div class="md:hidden flex items-center gap-2">
-        <button id="logoutBtnMobile" class="hidden px-3 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
-        <button id="mobileMenuBtn" class="px-3 py-2 rounded-lg bg-white/15 hover:bg-white/20 lift">Menu</button>
-      </div>
-    </div>
-    <div id="mobileMenu" class="md:hidden hidden border-t border-white/25">
-      <div class="max-w-6xl mx-auto px-6 py-3 flex flex-col gap-2">
-        <button data-target="screenLanding" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Home</button>
-        <button data-target="screenAdminLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Admin</button>
-        <button data-target="screenUserLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">User</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-6xl mx-auto px-6 py-10">
-    <section id="screenLanding" class="screen">
-      <div class="rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
-        <div class="grid lg:grid-cols-2 gap-8 items-center">
-          <div>
-            <h1 class="text-4xl font-semibold mb-3">Welcome to e‑bank</h1>
-            <p class="text-white/90 mb-6">A modern banking demo. Choose how you’d like to sign in.</p>
-            <div class="flex flex-col sm:flex-row gap-3">
-              <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">User Login</button>
-              <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Admin Login</button>
-            </div>
-            <div class="mt-6 text-sm text-white/90">Demo only. Data is stored locally on your device.</div>
-          </div>
-          <div class="hidden lg:block">
-            <div class="rounded-2xl border border-white/25 p-6 bg-white/10">
-              <div class="h-24 w-3/4 bg-white/20 rounded-xl mb-3"></div>
-              <div class="h-6 w-1/2 bg-white/20 rounded mb-2"></div>
-              <div class="h-6 w-1/3 bg-white/20 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="screenAdminLogin" class="screen hidden">
-      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
-        <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
-        <p class="text-white/90 mb-6">Use demo credentials: admin / a123</p>
-        <div class="space-y-4">
-          <input id="loginId" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Admin ID"/>
-          <div class="relative">
-            <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Password"/>
-            <button id="toggleAdminPwd" class="eye-btn" type="button" title="Show/Hide">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
-            </button>
-          </div>
-          <button id="adminLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="screenUserLogin" class="screen hidden">
-      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
-        <h2 class="text-2xl font-semibold mb-1">User Login</h2>
-        <p class="text-white/90 mb-6">Login with mobile number and PIN.</p>
-        <div class="space-y-4">
-          <input id="userLoginMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
-          <div class="relative">
-            <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="PIN"/>
-            <button id="togglePin" class="eye-btn" type="button" title="Show/Hide PIN">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
-            </button>
-          </div>
-          <button id="userLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="screenAdmin" class="screen hidden">
-      <div class="space-y-6">
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift">
-          <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
-          <p class="text-white/90">Welcome, Admin! Manage accounts, deposits, and view transactions.</p>
-        </div>
-
-        <div class="grid lg:grid-cols-2 gap-6">
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Create New Account</h3>
-              <span class="text-xs text-white/90">Demo</span>
-            </div>
-            <input id="custName" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Customer Name"/>
-            <input id="custMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
-            <input id="custAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Address"/>
-            <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-on-blue"/>
-            <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Aadhar Card Number"/>
-            <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
-            <p class="text-xs text-white/90">Save the Account Number and PIN to log in as this user.</p>
-          </div>
-
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
-            <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
-            <input id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Account Number"/>
-            <input id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
-          </div>
-
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">View All Accounts</h3>
-              <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
-            </div>
-            <div id="allAccountsDisplay" class="overflow-auto text-sm">
-              </div>
-          </div>
-
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <h3 class="text-lg font-semibold">View All Transactions</h3>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <div>
-                  <label class="block text-xs text-white/90 mb-1">Start date</label>
-                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+<body class="bg-gray-50 font-sans">
+    <!-- Login/Register Page -->
+    <div id="authPage" class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-briefcase text-2xl text-blue-600"></i>
                 </div>
-                <div>
-                  <label class="block text-xs text-white/90 mb-1">End date</label>
-                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                <h1 class="text-3xl font-bold text-gray-800">Job Connect</h1>
+                <p class="text-gray-600 mt-2">Professional Job Portal</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button id="loginTab" class="flex-1 py-2 px-4 rounded-md bg-white shadow-sm text-blue-600 font-medium">Login</button>
+                    <button id="registerTab" class="flex-1 py-2 px-4 rounded-md text-gray-600 font-medium">Register</button>
                 </div>
-                <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View</button>
-              </div>
+                
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your email" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium btn-hover">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                </form>
+                
+                <!-- Register Form -->
+                <form id="registerForm" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="registerName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your full name" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your email" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Create a password" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-300">
+                                <input type="radio" name="role" value="finder" class="mr-3" required>
+                                <div>
+                                    <i class="fas fa-search text-blue-600 mb-1"></i>
+                                    <div class="text-sm font-medium">Job Finder</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-300">
+                                <input type="radio" name="role" value="recruiter" class="mr-3" required>
+                                <div>
+                                    <i class="fas fa-building text-blue-600 mb-1"></i>
+                                    <div class="text-sm font-medium">Recruiter</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium btn-hover">
+                        <i class="fas fa-user-plus mr-2"></i>Register
+                    </button>
+                </form>
             </div>
-            <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
-          </div>
         </div>
-      </div>
-    </section>
-
-    <section id="screenUser" class="screen hidden">
-      <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
-        <div>
-          <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
-          <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
-        </div>
-        <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
-      </div>
-
-      <div class="grid lg:grid-cols-3 gap-6">
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
-          <h3 class="text-lg font-semibold">Account Operations</h3>
-          <div class="grid grid-cols-3 gap-2">
-            <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Deposit</div>
-            </button>
-            <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Withdraw</div>
-            </button>
-            <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Transfer</div>
-            </button>
-          </div>
-
-          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Deposit Money</h4>
-            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
-          </div>
-
-          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Withdraw Money</h4>
-            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
-          </div>
-
-          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Transfer Money</h4>
-            <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Destination Account Number"/>
-            <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Transfer</button>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
-            <div id="balanceDisplay" class="text-2xl font-semibold"></div>
-          </div>
-          <div class="border-t border-white/25 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-semibold">Transaction History</h3>
-              <button id="viewCustomerTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Refresh</button>
-            </div>
-            <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="screenProfile" class="screen hidden">
-      <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
-        <div>
-          <h2 class="text-2xl font-semibold">Profile</h2>
-          <p class="text-white/90">View your details and update your address.</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Name</div>
-            <div id="profileName" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Mobile</div>
-            <div id="profileMobile" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Account Number</div>
-            <div id="profileAccount" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Date of Birth</div>
-            <div id="profileDob" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <label class="text-white/90 text-sm">Address</label>
-            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Update your address"/>
-          </div>
-          <div class="md:col-span-2">
-            <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="mt-16">
-    <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
-      2025 e‑bank — All rights reserved
     </div>
-  </footer>
 
-  <script>
-    // Data store
-    const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    const saveData = () => { localStorage.setItem('accounts', JSON.stringify(accounts)); localStorage.setItem('transactions', JSON.stringify(transactions)); };
-    let currentUser = null;
+    <!-- Main Dashboard -->
+    <div id="mainApp" class="hidden min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-briefcase text-blue-600"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-800">Job Connect</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button id="aiBtn" class="p-2 text-gray-600 hover:text-blue-600 btn-hover">
+                            <i class="fas fa-robot text-xl"></i>
+                        </button>
+                        <button id="messagesBtn" class="p-2 text-gray-600 hover:text-blue-600 btn-hover relative">
+                            <i class="fas fa-comments text-xl"></i>
+                            <span id="messageNotification" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">3</span>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600 text-sm"></i>
+                            </div>
+                            <span id="userName" class="text-sm font-medium text-gray-700"></span>
+                        </div>
+                        <button id="logoutBtn" class="text-gray-600 hover:text-red-600 btn-hover">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-    // Screens
-    const screens = {
-        landing: document.getElementById('screenLanding'),
-        adminLogin: document.getElementById('screenAdminLogin'),
-        userLogin: document.getElementById('screenUserLogin'),
-        admin: document.getElementById('screenAdmin'),
-        user: document.getElementById('screenUser'),
-    };
-    const showScreen = (id) => {
-        Object.values(screens).forEach(screen => screen.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if (id === 'screenAdmin' || id === 'screenUser') {
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            document.getElementById('logoutBtnMobile').classList.remove('hidden');
-        } else {
-            document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('logoutBtnMobile').classList.add('hidden');
-        }
-        document.getElementById('mobileMenu').classList.add('hidden');
-    };
+        <!-- Dashboard Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+            <!-- Job Finder Dashboard -->
+            <div id="finderDashboard" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Find Your Perfect Job</h2>
+                    <p class="text-gray-600">Discover opportunities that match your skills</p>
+                </div>
+                
+                <!-- Search and Filters -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-1">
+                            <input type="text" id="jobSearch" placeholder="Search jobs..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select id="jobTypeFilter" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Job Types</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                        <button id="searchBtn" class="px-6 py-3 bg-blue-600 text-white rounded-lg btn-hover">
+                            <i class="fas fa-search mr-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Job Listings -->
+                <div id="jobListings" class="grid gap-6">
+                    <!-- Jobs will be populated here -->
+                </div>
+                
+                <!-- My Applications -->
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">My Applications</h3>
+                    <div id="myApplications" class="grid gap-4">
+                        <!-- Applications will be populated here -->
+                    </div>
+                </div>
+            </div>
 
-    // DOM elements
-    const loginIdInput = document.getElementById('loginId');
-    const loginPasswordInput = document.getElementById('loginPassword');
-    const userLoginMobile = document.getElementById('userLoginMobile');
-    const userLoginPin = document.getElementById('userLoginPin');
-    const customerNameDisplay = document.getElementById('customerNameDisplay');
-    const balanceDisplay = document.getElementById('balanceDisplay');
-    const customerTransactionHistoryDisplay = document.getElementById('customerTransactionHistoryDisplay');
-    const transactionHistoryDisplay = document.getElementById('transactionHistoryDisplay');
-    const allAccountsDisplay = document.getElementById('allAccountsDisplay');
+            <!-- Recruiter Dashboard -->
+            <div id="recruiterDashboard" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Recruiter Dashboard</h2>
+                    <p class="text-gray-600">Manage your job postings and applications</p>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Post New Job</h3>
+                                <p class="text-gray-600 text-sm">Create a new job listing</p>
+                            </div>
+                            <button id="postJobBtn" class="bg-blue-600 text-white p-3 rounded-lg btn-hover">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Active Jobs</h3>
+                                <p class="text-2xl font-bold text-blue-600" id="activeJobsCount">0</p>
+                            </div>
+                            <i class="fas fa-briefcase text-3xl text-blue-200"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Applications</h3>
+                                <p class="text-2xl font-bold text-green-600" id="applicationsCount">0</p>
+                            </div>
+                            <i class="fas fa-users text-3xl text-green-200"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Job Postings -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">My Job Postings</h3>
+                    <div id="myJobPostings" class="grid gap-6">
+                        <!-- Job postings will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Applications Received -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Applications Received</h3>
+                    <div id="receivedApplications" class="grid gap-4">
+                        <!-- Applications will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 
-    // UI Toggles
-    const toggleOperation = (op) => {
-        ['depositForm', 'withdrawForm', 'transferForm'].forEach(formId => {
-            document.getElementById(formId).classList.add('hidden');
-        });
-        document.getElementById(`${op}Form`).classList.remove('hidden');
-    };
+    <!-- Post Job Modal -->
+    <div id="postJobModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Post New Job</h3>
+                <button id="closePostJobModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="postJobForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                    <input type="text" id="jobTitle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="e.g., Experienced Mechanic" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
+                    <textarea id="jobDescription" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Describe the job requirements and responsibilities..." required></textarea>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Salary (₹)</label>
+                        <input type="number" id="jobSalary" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="25000" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                        <select id="jobType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            <option value="">Select Type</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <input type="text" id="jobLocation" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter job location (e.g., Coimbatore, Chennai)" required>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button type="button" id="cancelPostJob" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg btn-hover">Cancel</button>
+                    <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg btn-hover">
+                        <i class="fas fa-plus mr-2"></i>Post Job
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    // User Authentication
-    const login = (role) => {
-        if (role === 'admin') {
-            const id = loginIdInput.value;
-            const password = loginPasswordInput.value;
-            if (id === 'admin' && password === 'a123') {
-                currentUser = { type: 'admin' };
-                showScreen('screenAdmin');
-            } else {
-                alert('Invalid admin credentials.');
-            }
-        } else if (role === 'user') {
-            const id = userLoginMobile.value;
-            const password = userLoginPin.value;
-            const user = accounts.find(acc => acc.mobile === id && acc.pin === password);
-            if (user) {
-                currentUser = { type: 'customer', data: user };
-                customerNameDisplay.textContent = user.name;
-                showScreen('screenUser');
-            } else {
-                alert('Invalid customer credentials.');
-            }
-        }
-    };
-
-    const logout = () => {
-        currentUser = null;
-        loginIdInput.value = '';
-        loginPasswordInput.value = '';
-        userLoginMobile.value = '';
-        userLoginPin.value = '';
-        showScreen('screenLanding');
-    };
-
-    // Admin Functions
-    const createAccount = () => {
-        const name = document.getElementById('custName').value;
-        const mobile = document.getElementById('custMobile').value;
-        const address = document.getElementById('custAddress').value;
-        const dob = document.getElementById('custDob').value;
-        const aadhar = document.getElementById('custAadhar').value;
-
-        if (!name || !mobile || !address || !dob || !aadhar) {
-            alert('Please fill all fields.');
-            return;
-        }
-
-        if (accounts.some(acc => acc.mobile === mobile)) {
-            alert('Account with this mobile number already exists.');
-            return;
-        }
-
-        const accountNumber = generateAccountNumber();
-        const pin = generatePin();
-
-        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
-        accounts.push(newAccount);
-        saveData();
-        alert(`Account created successfully! Account Number: ${accountNumber}, PIN: ${pin}`);
-    };
-
-    const adminDeposit = () => {
-        const accNum = document.getElementById('adminDepositAccNum').value;
-        const amount = parseFloat(document.getElementById('adminDepositAmount').value);
-        if (!accNum || amount <= 0 || isNaN(amount)) {
-            alert('Please enter a valid account number and amount.');
-            return;
-        }
-        const account = accounts.find(acc => acc.accountNumber === accNum);
-        if (!account) {
-            alert('Account not found.');
-            return;
-        }
-        account.balance += amount;
-        saveData();
-        recordTransaction('admin-deposit', amount, accNum);
-        alert(`$${amount} deposited into account ${accNum} successfully.`);
-    };
-
-    const viewAllAccounts = () => {
-        if (accounts.length === 0) {
-            allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts have been created yet.</p>';
-            return;
-        }
-        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN</th><th>Balance</th></tr></thead><tbody>';
-        accounts.forEach(acc => {
-            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
-        });
-        tableHtml += '</tbody></table>';
-        allAccountsDisplay.innerHTML = tableHtml;
-    };
-
-    const viewTransactions = () => {
-        const startDate = new Date(document.getElementById('startDate').value);
-        const endDate = new Date(document.getElementById('endDate').value);
-        const filteredTransactions = transactions.filter(tx => {
-            const txDate = new Date(tx.date);
-            return txDate >= startDate && txDate <= endDate;
-        });
-        displayTransactions(filteredTransactions, transactionHistoryDisplay);
-    };
-
-    // Customer Functions
-    const viewBalance = () => {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        balanceDisplay.textContent = `$${customer.balance.toFixed(2)}`;
-    };
-
-    const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
-        const tx = {
-            date: new Date().toISOString().split('T')[0],
-            type,
-            amount,
-            fromAccount: fromAccNum,
-            toAccount: toAccNum
-        };
-        transactions.push(tx);
-        saveData();
-    };
-
-    const depositMoney = () => {
-        const amount = parseFloat(document.getElementById('depositAmount').value);
-        if (amount <= 0 || isNaN(amount)) {
-            alert('Invalid amount.');
-            return;
-        }
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        customer.balance += amount;
-        saveData();
-        recordTransaction('deposit', amount, customer.accountNumber);
-        alert(`$${amount} deposited successfully.`);
-        viewBalance();
-    };
-
-    const withdrawMoney = () => {
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        
-        if (amount <= 0 || isNaN(amount) || amount > customer.balance) {
-            alert('Invalid amount or insufficient balance.');
-            return;
-        }
-        customer.balance -= amount;
-        saveData();
-        recordTransaction('withdrawal', amount, null, customer.accountNumber);
-        alert(`$${amount} withdrawn successfully.`);
-        viewBalance();
-    };
-
-    const transferMoney = () => {
-        const toAccNum = document.getElementById('transferAccNum').value;
-        const amount = parseFloat(document.getElementById('transferAmount').value);
-        const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
-
-        if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) {
-            alert('Invalid amount or insufficient balance.');
-            return;
-        }
-
-        if (!toAcc) {
-            alert('Destination account not found.');
-            return;
-        }
-
-        fromAcc.balance -= amount;
-        toAcc.balance += amount;
-        saveData();
-        recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
-        alert(`$${amount} transferred successfully to account ${toAccNum}.`);
-        viewBalance();
-    };
-
-    const viewCustomerTransactions = () => {
-        const userTransactions = transactions.filter(tx => 
-            tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
-        );
-        displayTransactions(userTransactions, customerTransactionHistoryDisplay);
-    };
-
-    // Utility function to display transactions in a table
-    const displayTransactions = (txList, element) => {
-        if (txList.length === 0) {
-            element.innerHTML = '<p class="text-white/90">No transactions found.</p>';
-            return;
-        }
-        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr></thead><tbody>';
-        txList.forEach(tx => {
-            let details = '';
-            if (tx.type === 'transfer') {
-                details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
-            } else if (tx.type === 'admin-deposit') {
-                details = `To: ${tx.toAccount}`;
-            } else if (tx.type === 'deposit') {
-                details = `To: ${tx.toAccount}`;
-            } else if (tx.type === 'withdrawal') {
-                details = `From: ${tx.fromAccount}`;
-            }
-            tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
-        });
-        tableHtml += '</tbody></table>';
-        element.innerHTML = tableHtml;
-    };
-
-    // Event Listeners (using modern approach)
-    document.addEventListener('DOMContentLoaded', () => {
-        // Navigation Buttons
-        document.querySelectorAll('[data-target]').forEach(button => {
-            button.addEventListener('click', (e) => showScreen(e.target.dataset.target));
-        });
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        });
-        
-        // Login & Logout
-        document.getElementById('adminLoginBtn').addEventListener('click', () => login('admin'));
-        document.getElementById('userLoginBtn').addEventListener('click', () => login('user'));
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('logoutBtnMobile').addEventListener('click', logout);
-        document.getElementById('logoutBtnUserHeader').addEventListener('click', logout);
-
-        // Admin Functions
-        document.getElementById('createAccountBtn').addEventListener('click', createAccount);
-        document.getElementById('adminDepositBtn').addEventListener('click', adminDeposit);
-        document.getElementById('viewAllAccountsBtn').addEventListener('click', viewAllAccounts);
-        document.getElementById('viewTransactionsBtn').addEventListener('click', viewTransactions);
-
-        // Customer Functions
-        document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
-        document.getElementById('btnShowWithdraw').addEventListener('click', () => toggleOperation('withdraw'));
-        document.getElementById('btnShowTransfer').addEventListener('click', () => toggleOperation('transfer'));
-        document.getElementById('depositBtn').addEventListener('click', depositMoney);
-        document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
-        document.getElementById('transferBtn').addEventListener('click', transferMoney);
-        document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
-        document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
-
-        // Password Toggles
-        document.getElementById('toggleAdminPwd').addEventListener('click', () => {
-            const input = document.getElementById('loginPassword');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        });
-        document.getElementById('togglePin').addEventListener('click', () => {
-            const input = document.getElementById('userLoginPin');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        });
-    });
-  </script>
-</body>
-</html>
+    <!-- Messages Modal -->
+    <div id="messagesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl h-5/6 flex fade-in">
+            <!-- Conversations List -->
+            <div class="w-1/3 border-r border-gray-200 flex flex-col">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">Messages</h3>
+                        <button id="closeMessagesModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="conversationsList" class="flex-1 overflow-y-auto">
+                    <!-- Conversations will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Chat Area -->
+            <div class="flex-1 flex flex-col">
+                <div id="chatHeader" class="p-6 border-b border-gray-200 hidden">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h4 id="chatUserName" class="font-semibold text-gray-800"></h4>
+                            <p id="chatJobTitle" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-comments text-4xl mb-4"></i>
+                        <p>Select a conversation to start messaging</p>
+                    </div>
+                </div>
+                
+                <div id="chatInput" class="p-6 border-t border-gray-200 hidden">
+                    <div class="flex gap-3">
+                        <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                   
