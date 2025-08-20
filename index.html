@@ -150,9 +150,12 @@
 
     <section id="screenAdmin" class="screen hidden">
       <div class="space-y-6">
-        <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift">
-          <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
-          <p class="text-white/90">Welcome, Admin! Manage accounts and view transactions.</p>
+        <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
+            <p class="text-white/90">Welcome, Admin! Manage accounts and view transactions.</p>
+          </div>
+          <button id="resetDataBtn" class="px-4 py-2 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Reset All Data</button>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-6">
@@ -380,6 +383,18 @@
       localStorage.setItem('transactions', JSON.stringify(transactions));
       localStorage.setItem('wallets', JSON.stringify(wallets));
     };
+
+    const resetData = () => {
+        if (confirm("Are you sure you want to delete all account data? This cannot be undone.")) {
+            localStorage.clear();
+            accounts = [];
+            transactions = [];
+            wallets = {};
+            alert("All data has been reset successfully.");
+            logout();
+        }
+    };
+    
     let currentUser = null;
 
     // Screens
@@ -753,6 +768,8 @@
         document.getElementById('adminDepositBtn').addEventListener('click', adminDeposit);
         document.getElementById('viewAllAccountsBtn').addEventListener('click', viewAllAccounts);
         document.getElementById('viewTransactionsBtn').addEventListener('click', viewTransactions);
+        document.getElementById('resetDataBtn').addEventListener('click', resetData);
+
 
         // Customer Functions
         document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
