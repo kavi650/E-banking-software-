@@ -3,17 +3,46 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>e‑Bank Demo — White page, Blue containers</title>
+  <title>e‑Bank Demo — Enhanced with Wallet & Scan Features</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: { brand: "#0053ba" },
+          colors: { 
+            brand: "#0053ba",
+            wallet: "#4c1d95",
+            secondary: "#3b82f6"
+          },
           boxShadow: {
             brandSoft: "0 10px 30px rgba(0,83,186,0.25)",
             brandGlow: "0 12px 36px rgba(0,83,186,0.38)",
-            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)"
+            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)",
+            walletGlow: "0 12px 36px rgba(76,29,149,0.38)"
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+            'slide-up': 'slideUp 0.4s ease-out forwards',
+            'slide-down': 'slideDown 0.4s ease-out forwards',
+            'pulse-soft': 'pulseSoft 2s infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            pulseSoft: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.8' }
+            }
           }
         }
       }
@@ -44,6 +73,47 @@
     /* Eye toggle area */
     .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#fff; opacity:.9; }
     .eye-btn:hover { opacity: 1; }
+
+    /* Screen transitions */
+    .screen { display: none; }
+    .screen.active { 
+      display: block; 
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* Camera view styling */
+    #cameraView {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #cameraView.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+    #cameraView video {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 12px;
+    }
+    #cameraView .camera-controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+    }
+
+    /* Wallet pulse animation */
+    .wallet-pulse {
+      animation: pulseSoft 2s infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-white text-slate-900">
@@ -78,12 +148,12 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-6 py-10">
-    <section id="screenLanding" class="screen">
+    <section id="screenLanding" class="screen active">
       <div class="rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
         <div class="grid lg:grid-cols-2 gap-8 items-center">
           <div>
             <h1 class="text-4xl font-semibold mb-3">Welcome to e‑bank</h1>
-            <p class="text-white/90 mb-6">A modern banking demo. Choose how you’d like to sign in.</p>
+            <p class="text-white/90 mb-6">A modern banking demo with wallet and scan features.</p>
             <div class="flex flex-col sm:flex-row gap-3">
               <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">User Login</button>
               <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Admin Login</button>
@@ -101,7 +171,7 @@
       </div>
     </section>
 
-    <section id="screenAdminLogin" class="screen hidden">
+    <section id="screenAdminLogin" class="screen">
       <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
         <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
         <p class="text-white/90 mb-6">Use demo credentials: admin / a123</p>
@@ -118,7 +188,7 @@
       </div>
     </section>
 
-    <section id="screenUserLogin" class="screen hidden">
+    <section id="screenUserLogin" class="screen">
       <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
         <h2 class="text-2xl font-semibold mb-1">User Login</h2>
         <p class="text-white/90 mb-6">Login with mobile number and PIN.</p>
@@ -135,7 +205,7 @@
       </div>
     </section>
 
-    <section id="screenAdmin" class="screen hidden">
+    <section id="screenAdmin" class="screen">
       <div class="space-y-6">
         <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift">
           <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
@@ -154,7 +224,7 @@
             <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-on-blue"/>
             <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Aadhar Card Number"/>
             <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
-            <p class="text-xs text-white/90">Save the Account Number and PIN to log in as this user.</p>
+            <p class="text-xs text-white/90">Account number will be generated. User will set PIN on first login.</p>
           </div>
 
           <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
@@ -194,56 +264,49 @@
       </div>
     </section>
 
-    <section id="screenUser" class="screen hidden">
+    <section id="screenUser" class="screen">
       <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
         <div>
           <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
           <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
         </div>
-        <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
+        <div class="flex gap-3">
+          <button class="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white hover:text-brand lift ripple" data-target="screenProfile">Profile</button>
+          <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
+        </div>
       </div>
 
       <div class="grid lg:grid-cols-3 gap-6">
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
-          <h3 class="text-lg font-semibold">Account Operations</h3>
-          <div class="grid grid-cols-3 gap-2">
-            <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Deposit</div>
+        <div class="rounded-2xl bg-wallet text-white p-6 shadow-walletGlow lift lg:col-span-1 space-y-4">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Home Wallet
+          </h3>
+          <div class="bg-white/10 rounded-xl p-4 text-center wallet-pulse">
+            <div class="text-sm text-white/80 mb-1">Wallet Balance</div>
+            <div id="walletBalance" class="text-2xl font-bold">$0.00</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnAddToWallet" class="rounded-xl bg-white/10 hover:bg-white hover:text-wallet px-3 py-2 text-center lift ripple">
+              Add Money
             </button>
-            <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Withdraw</div>
-            </button>
-            <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Transfer</div>
+            <button id="btnWalletToAccount" class="rounded-xl bg-white/10 hover:bg-white hover:text-wallet px-3 py-2 text-center lift ripple">
+              Transfer to Account
             </button>
           </div>
 
-          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Deposit Money</h4>
-            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
+          <div id="addToWalletForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+            <h4 class="font-medium">Add Money to Wallet</h4>
+            <input id="walletAddAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white" placeholder="Amount"/>
+            <button id="addToWalletBtn" class="w-full px-4 py-3 rounded-xl bg-white text-wallet hover:shadow-whiteSoft lift ripple">Add</button>
           </div>
 
-          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Withdraw Money</h4>
-            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
-          </div>
-
-          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Transfer Money</h4>
-            <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Destination Account Number"/>
-            <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Transfer</button>
+          <div id="walletToAccountForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+            <h4 class="font-medium">Transfer to Account</h4>
+            <input id="walletTransferAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white" placeholder="Amount"/>
+            <button id="walletToAccountBtn" class="w-full px-4 py-3 rounded-xl bg-white text-wallet hover:shadow-whiteSoft lift ripple">Transfer</button>
           </div>
         </div>
 
@@ -252,6 +315,19 @@
             <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
             <div id="balanceDisplay" class="text-2xl font-semibold"></div>
           </div>
+          
+          <!-- Scan and Pay Section -->
+          <div class="border-t border-white/25 pt-4">
+            <h3 class="text-lg font-semibold mb-4 text-center">Scan & Pay</h3>
+            <div class="flex justify-center mb-4">
+              <button id="scanQRBtn" class="w-20 h-20 rounded-full bg-white/10 hover:bg-white hover:text-brand flex items-center justify-center lift ripple">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <div class="border-t border-white/25 pt-4">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-lg font-semibold">Transaction History</h3>
@@ -263,11 +339,11 @@
       </div>
     </section>
 
-    <section id="screenProfile" class="screen hidden">
+    <section id="screenProfile" class="screen">
       <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
         <div>
           <h2 class="text-2xl font-semibold">Profile</h2>
-          <p class="text-white/90">View your details and update your address.</p>
+          <p class="text-white/90">View your details and update your information.</p>
         </div>
         <div class="grid md:grid-cols-2 gap-4">
           <div class="space-y-1">
@@ -290,6 +366,14 @@
             <label class="text-white/90 text-sm">Address</label>
             <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Update your address"/>
           </div>
+          <div class="space-y-1 md:col-span-2">
+            <label class="text-white/90 text-sm">Change PIN</label>
+            <input id="profileNewPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Enter new PIN"/>
+          </div>
+          <div class="space-y-1 md:col-span-2">
+            <label class="text-white/90 text-sm">Confirm PIN</label>
+            <input id="profileConfirmPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Confirm new PIN"/>
+          </div>
           <div class="md:col-span-2">
             <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Save Changes</button>
           </div>
@@ -297,6 +381,15 @@
       </div>
     </section>
   </main>
+
+  <!-- Camera View for QR Scanning -->
+  <div id="cameraView">
+    <video id="cameraFeed" autoplay playsinline></video>
+    <div class="camera-controls">
+      <button id="closeCameraBtn" class="px-4 py-2 rounded-lg bg-red-600 text-white">Close</button>
+      <button id="captureQRBtn" class="px-4 py-2 rounded-lg bg-brand text-white">Scan QR Code</button>
+    </div>
+  </div>
 
   <footer class="mt-16">
     <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
@@ -307,11 +400,26 @@
   <script>
     // Data store
     const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
     let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
     let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    const saveData = () => { localStorage.setItem('accounts', JSON.stringify(accounts)); localStorage.setItem('transactions', JSON.stringify(transactions)); };
+    let wallets = JSON.parse(localStorage.getItem('wallets')) || [];
+    const saveData = () => { 
+      localStorage.setItem('accounts', JSON.stringify(accounts)); 
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      localStorage.setItem('wallets', JSON.stringify(wallets));
+    };
     let currentUser = null;
+
+    // Initialize wallets if not exists
+    if (wallets.length === 0) {
+      accounts.forEach(acc => {
+        wallets.push({
+          accountNumber: acc.accountNumber,
+          balance: 0
+        });
+      });
+      saveData();
+    }
 
     // Screens
     const screens = {
@@ -320,11 +428,19 @@
         userLogin: document.getElementById('screenUserLogin'),
         admin: document.getElementById('screenAdmin'),
         user: document.getElementById('screenUser'),
+        profile: document.getElementById('screenProfile')
     };
     const showScreen = (id) => {
-        Object.values(screens).forEach(screen => screen.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if (id === 'screenAdmin' || id === 'screenUser') {
+        Object.values(screens).forEach(screen => {
+          screen.classList.remove('active');
+          setTimeout(() => screen.classList.add('hidden'), 10);
+        });
+        setTimeout(() => {
+          document.getElementById(id).classList.remove('hidden');
+          setTimeout(() => document.getElementById(id).classList.add('active'), 10);
+        }, 10);
+        
+        if (id === 'screenAdmin' || id === 'screenUser' || id === 'screenProfile') {
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('logoutBtnMobile').classList.remove('hidden');
         } else {
@@ -341,16 +457,17 @@
     const userLoginPin = document.getElementById('userLoginPin');
     const customerNameDisplay = document.getElementById('customerNameDisplay');
     const balanceDisplay = document.getElementById('balanceDisplay');
+    const walletBalanceDisplay = document.getElementById('walletBalance');
     const customerTransactionHistoryDisplay = document.getElementById('customerTransactionHistoryDisplay');
     const transactionHistoryDisplay = document.getElementById('transactionHistoryDisplay');
     const allAccountsDisplay = document.getElementById('allAccountsDisplay');
 
     // UI Toggles
     const toggleOperation = (op) => {
-        ['depositForm', 'withdrawForm', 'transferForm'].forEach(formId => {
+        ['depositForm', 'withdrawForm', 'transferForm', 'addToWalletForm', 'walletToAccountForm'].forEach(formId => {
             document.getElementById(formId).classList.add('hidden');
         });
-        document.getElementById(`${op}Form`).classList.remove('hidden');
+        if (op) document.getElementById(`${op}Form`).classList.remove('hidden');
     };
 
     // User Authentication
@@ -365,15 +482,30 @@
                 alert('Invalid admin credentials.');
             }
         } else if (role === 'user') {
-            const id = userLoginMobile.value;
-            const password = userLoginPin.value;
-            const user = accounts.find(acc => acc.mobile === id && acc.pin === password);
+            const mobile = userLoginMobile.value;
+            const pin = userLoginPin.value;
+            const user = accounts.find(acc => acc.mobile === mobile);
+            
             if (user) {
-                currentUser = { type: 'customer', data: user };
-                customerNameDisplay.textContent = user.name;
-                showScreen('screenUser');
+                // Check if it's first login (no PIN set)
+                if (!user.pin) {
+                    // First login - set the PIN
+                    user.pin = pin;
+                    saveData();
+                    currentUser = { type: 'customer', data: user };
+                    customerNameDisplay.textContent = user.name;
+                    showScreen('screenUser');
+                    alert('PIN set successfully. Welcome to e-Bank!');
+                } else if (user.pin === pin) {
+                    // Regular login
+                    currentUser = { type: 'customer', data: user };
+                    customerNameDisplay.textContent = user.name;
+                    showScreen('screenUser');
+                } else {
+                    alert('Invalid PIN.');
+                }
             } else {
-                alert('Invalid customer credentials.');
+                alert('Account not found with this mobile number.');
             }
         }
     };
@@ -406,12 +538,16 @@
         }
 
         const accountNumber = generateAccountNumber();
-        const pin = generatePin();
+        // Don't set PIN - user will set it on first login
 
-        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
+        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin: null, balance: 0 };
         accounts.push(newAccount);
+        wallets.push({
+          accountNumber: accountNumber,
+          balance: 0
+        });
         saveData();
-        alert(`Account created successfully! Account Number: ${accountNumber}, PIN: ${pin}`);
+        alert(`Account created successfully! Account Number: ${accountNumber}. User will set PIN on first login.`);
     };
 
     const adminDeposit = () => {
@@ -437,9 +573,10 @@
             allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts have been created yet.</p>';
             return;
         }
-        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN</th><th>Balance</th></tr></thead><tbody>';
+        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>Balance</th><th>Status</th></tr></thead><tbody>';
         accounts.forEach(acc => {
-            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
+            const status = acc.pin ? 'Active' : 'Pending PIN setup';
+            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>$${acc.balance.toFixed(2)}</td><td>${status}</td></tr>`;
         });
         tableHtml += '</tbody></table>';
         allAccountsDisplay.innerHTML = tableHtml;
@@ -459,11 +596,19 @@
     const viewBalance = () => {
         const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
         balanceDisplay.textContent = `$${customer.balance.toFixed(2)}`;
+        updateWalletBalance();
+    };
+
+    const updateWalletBalance = () => {
+        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
+        if (wallet) {
+            walletBalanceDisplay.textContent = `$${wallet.balance.toFixed(2)}`;
+        }
     };
 
     const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
         const tx = {
-            date: new Date().toISOString().split('T')[0],
+            date: new Date().toISOString(),
             type,
             amount,
             fromAccount: fromAccNum,
@@ -526,11 +671,116 @@
         viewBalance();
     };
 
+    // Wallet Functions
+    const addToWallet = () => {
+        const amount = parseFloat(document.getElementById('walletAddAmount').value);
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
+        
+        if (amount <= 0 || isNaN(amount) || amount > customer.balance) {
+            alert('Invalid amount or insufficient balance.');
+            return;
+        }
+        
+        customer.balance -= amount;
+        wallet.balance += amount;
+        saveData();
+        recordTransaction('wallet-add', amount, null, customer.accountNumber);
+        alert(`$${amount} added to wallet successfully.`);
+        viewBalance();
+    };
+
+    const walletToAccount = () => {
+        const amount = parseFloat(document.getElementById('walletTransferAmount').value);
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
+        
+        if (amount <= 0 || isNaN(amount) || amount > wallet.balance) {
+            alert('Invalid amount or insufficient wallet balance.');
+            return;
+        }
+        
+        wallet.balance -= amount;
+        customer.balance += amount;
+        saveData();
+        recordTransaction('wallet-to-account', amount, customer.accountNumber);
+        alert(`$${amount} transferred from wallet to account successfully.`);
+        viewBalance();
+    };
+
+    // Camera/QR Functions
+    const openCamera = () => {
+        const cameraView = document.getElementById('cameraView');
+        cameraView.classList.add('active');
+        
+        // Simulate camera access (in a real app, we'd use the actual camera API)
+        const video = document.getElementById('cameraFeed');
+        video.srcObject = null; // In a real app, we'd get the actual camera stream
+        
+        // For demo purposes, we'll just show a placeholder
+        video.poster = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='375' viewBox='0 0 500 375'%3E%3Crect width='500' height='375' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='24'%3ECamera Feed%3C/text%3E%3C/svg%3E";
+    };
+
+    const closeCamera = () => {
+        const cameraView = document.getElementById('cameraView');
+        cameraView.classList.remove('active');
+        
+        // In a real app, we'd stop the camera stream here
+        const video = document.getElementById('cameraFeed');
+        if (video.srcObject) {
+            const tracks = video.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    };
+
+    const scanQRCode = () => {
+        // Simulate QR code scanning
+        alert('QR code scanned! In a real application, this would process a payment.');
+        closeCamera();
+    };
+
     const viewCustomerTransactions = () => {
         const userTransactions = transactions.filter(tx => 
             tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
         );
         displayTransactions(userTransactions, customerTransactionHistoryDisplay);
+    };
+
+    // Profile Functions
+    const loadProfile = () => {
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        document.getElementById('profileName').textContent = customer.name;
+        document.getElementById('profileMobile').textContent = customer.mobile;
+        document.getElementById('profileAccount').textContent = customer.accountNumber;
+        document.getElementById('profileDob').textContent = customer.dob;
+        document.getElementById('profileAddress').value = customer.address;
+    };
+
+    const saveProfile = () => {
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        const newAddress = document.getElementById('profileAddress').value;
+        const newPin = document.getElementById('profileNewPin').value;
+        const confirmPin = document.getElementById('profileConfirmPin').value;
+        
+        if (newAddress) {
+            customer.address = newAddress;
+        }
+        
+        if (newPin) {
+            if (newPin !== confirmPin) {
+                alert('PINs do not match.');
+                return;
+            }
+            if (newPin.length !== 4 || !/^\d+$/.test(newPin)) {
+                alert('PIN must be 4 digits.');
+                return;
+            }
+            customer.pin = newPin;
+        }
+        
+        saveData();
+        alert('Profile updated successfully.');
     };
 
     // Utility function to display transactions in a table
@@ -540,7 +790,9 @@
             return;
         }
         let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr></thead><tbody>';
-        txList.forEach(tx => {
+        txList.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(tx => {
+            const date = new Date(tx.date);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
             let details = '';
             if (tx.type === 'transfer') {
                 details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
@@ -550,8 +802,12 @@
                 details = `To: ${tx.toAccount}`;
             } else if (tx.type === 'withdrawal') {
                 details = `From: ${tx.fromAccount}`;
+            } else if (tx.type === 'wallet-add') {
+                details = `From account to wallet`;
+            } else if (tx.type === 'wallet-to-account') {
+                details = `From wallet to account`;
             }
-            tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+            tableHtml += `<tr><td>${formattedDate}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
         });
         tableHtml += '</tbody></table>';
         element.innerHTML = tableHtml;
@@ -589,6 +845,21 @@
         document.getElementById('transferBtn').addEventListener('click', transferMoney);
         document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
         document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
+
+        // Wallet Functions
+        document.getElementById('btnAddToWallet').addEventListener('click', () => toggleOperation('addToWallet'));
+        document.getElementById('btnWalletToAccount').addEventListener('click', () => toggleOperation('walletToAccount'));
+        document.getElementById('addToWalletBtn').addEventListener('click', addToWallet);
+        document.getElementById('walletToAccountBtn').addEventListener('click', walletToAccount);
+
+        // Camera/QR Functions
+        document.getElementById('scanQRBtn').addEventListener('click', openCamera);
+        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
+        document.getElementById('captureQRBtn').addEventListener('click', scanQRCode);
+
+        // Profile Functions
+        document.querySelector('button[data-target="screenProfile"]').addEventListener('click', loadProfile);
+        document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
 
         // Password Toggles
         document.getElementById('toggleAdminPwd').addEventListener('click', () => {
