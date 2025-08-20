@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>e-Banking System</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .hidden { display: none; }
         h2, h3, h4 { text-align: center; color: #333; }
         input, button, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
@@ -21,6 +21,18 @@
         .customer-nav button { width: 30%; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        
+        /* New Admin Dashboard Styles */
+        #adminPanel { min-height: 100vh; display: flex; flex-direction: column; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #0056b3; color: white; }
+        .admin-header h2 { margin: 0; color: white; }
+        .admin-nav { display: flex; justify-content: space-around; background-color: #007BFF; }
+        .admin-nav button { background-color: #007BFF; color: white; border: none; padding: 15px; font-size: 18px; cursor: pointer; transition: background-color 0.3s; }
+        .admin-nav button:hover { background-color: #0056b3; }
+        .admin-nav button.active { background-color: #0056b3; }
+        .admin-content { display: flex; flex-direction: column; padding: 20px; flex-grow: 1; }
+        .admin-page { max-width: 800px; margin: 20px auto; width: 100%; }
+        #searchProfileDisplay { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -50,41 +62,54 @@
         </div>
 
         <div id="adminPanel" class="hidden">
-            <h2>Admin Dashboard</h2>
-            <p>Welcome, Admin!</p>
-            
-            <div class="section">
-                <h3>Create New Account</h3>
-                <input type="text" id="custName" placeholder="Customer Name">
-                <input type="text" id="custMobile" placeholder="Mobile Number">
-                <input type="text" id="custAddress" placeholder="Address">
-                <input type="date" id="custDob">
-                <input type="text" id="custAadhar" placeholder="Aadhar Card Number">
-                <input type="password" id="custPin" placeholder="Set 4-digit PIN">
-                <button onclick="createAccount()">Create Account</button>
+            <div class="admin-header">
+                <h2>Admin Dashboard</h2>
+                <button onclick="logout()">Logout</button>
             </div>
             
-            <div class="section">
-                <h3>Deposit Money to Account</h3>
-                <input type="text" id="adminDepositAccNum" placeholder="Account Number">
-                <input type="number" id="adminDepositAmount" placeholder="Amount">
-                <button onclick="adminDeposit()">Deposit</button>
-            </div>
-            
-            <div class="section">
-                <h3>View All Accounts</h3>
-                <button onclick="viewAllAccounts()">Show All Accounts</button>
-                <div id="allAccountsDisplay"></div>
+            <div class="admin-nav">
+                <button id="navCreate" onclick="showAdminPage('createAccountPage')">Create New Account</button>
+                <button id="navTransactions" onclick="showAdminPage('transactionsPage')">View Transactions Report</button>
+                <button id="navSearch" onclick="showAdminPage('searchProfilesPage')">Search Profiles</button>
             </div>
 
-            <div class="section">
-                <h3>View All Transactions</h3>
-                <input type="date" id="startDate">
-                <input type="date" id="endDate">
-                <button onclick="viewTransactions()">View Transactions</button>
-                <div id="transactionHistoryDisplay"></div>
+            <div class="admin-content">
+                <div id="createAccountPage" class="admin-page">
+                    <div class="section">
+                        <h3>Create New Account</h3>
+                        <input type="text" id="custName" placeholder="Customer Name">
+                        <input type="text" id="custMobile" placeholder="Mobile Number">
+                        <input type="text" id="custAddress" placeholder="Address">
+                        <label for="custDob">Date of Birth:</label>
+                        <input type="date" id="custDob">
+                        <input type="text" id="custAadhar" placeholder="Aadhar Card Number">
+                        <input type="password" id="custPin" placeholder="Set 4-digit PIN">
+                        <button onclick="createAccount()">Create Account</button>
+                    </div>
+                </div>
+            
+                <div id="transactionsPage" class="admin-page hidden">
+                    <div class="section">
+                        <h3>View Transactions Report</h3>
+                        <input type="text" id="reportAccNum" placeholder="Account Number (Optional)">
+                        <label for="startDate">From Date:</label>
+                        <input type="date" id="startDate">
+                        <label for="endDate">To Date:</label>
+                        <input type="date" id="endDate">
+                        <button onclick="viewTransactions()">Generate Report</button>
+                        <div id="transactionHistoryDisplay"></div>
+                    </div>
+                </div>
+                
+                <div id="searchProfilesPage" class="admin-page hidden">
+                    <div class="section">
+                        <h3>Search Profiles</h3>
+                        <input type="text" id="searchAccNum" placeholder="Enter Account Number">
+                        <button onclick="searchProfile()">Search</button>
+                        <div id="searchProfileDisplay"></div>
+                    </div>
+                </div>
             </div>
-            <button onclick="logout()">Logout</button>
         </div>
 
         <div id="customerPanel" class="hidden">
@@ -174,6 +199,8 @@
         const balanceDisplay = document.getElementById('balanceDisplay');
         
         const allPanels = [landingPage, userLoginPanel, adminLoginPanel, adminPanel, customerPanel];
+        const adminPages = ['createAccountPage', 'transactionsPage', 'searchProfilesPage'];
+        const adminNavButtons = ['navCreate', 'navTransactions', 'navSearch'];
 
         // --- Navigation Functions ---
         const hideAllPanels = () => allPanels.forEach(p => p.classList.add('hidden'));
@@ -193,6 +220,14 @@
             landingPage.classList.remove('hidden');
         };
 
+        const showAdminPage = (pageId) => {
+            adminPages.forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            adminNavButtons.forEach(btn => document.getElementById(btn).classList.remove('active'));
+            document.getElementById(`nav${pageId.replace('Page', '')}`).classList.add('active');
+        };
+        
         // --- Login/Logout ---
         const loginUser = () => {
             const mobile = document.getElementById('userLoginId').value;
@@ -220,6 +255,7 @@
                 currentUser = { type: 'admin' };
                 hideAllPanels();
                 adminPanel.classList.remove('hidden');
+                showAdminPage('createAccountPage');
             } else {
                 alert('Invalid admin credentials.');
             }
@@ -269,54 +305,62 @@
             document.getElementById('custPin').value = '';
         };
         
-        const adminDeposit = () => {
-            const accNum = document.getElementById('adminDepositAccNum').value;
-            const amount = parseFloat(document.getElementById('adminDepositAmount').value);
-
-            if (!accNum || isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid account number and amount.');
-                return;
-            }
-            const account = accounts.find(acc => acc.accountNumber === accNum);
-            if (!account) {
-                alert('Account not found.');
-                return;
-            }
-            account.balance += amount;
-            recordTransaction('admin-deposit', amount, accNum);
-            saveData();
-            alert(`₹${amount} deposited into account ${accNum} successfully.`);
-            document.getElementById('adminDepositAccNum').value = '';
-            document.getElementById('adminDepositAmount').value = '';
-        };
-
-        const viewAllAccounts = () => {
-            const displayDiv = document.getElementById('allAccountsDisplay');
-            if (accounts.length === 0) {
-                displayDiv.innerHTML = '<p>No accounts have been created yet.</p>';
-                return;
-            }
-            let tableHtml = '<table><tr><th>Name</th><th>Mobile</th><th>Account Number</th><th>PIN</th><th>Balance</th></tr>';
-            accounts.forEach(acc => {
-                tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>₹${acc.balance.toFixed(2)}</td></tr>`;
-            });
-            tableHtml += '</table>';
-            displayDiv.innerHTML = tableHtml;
-        };
-
         const viewTransactions = () => {
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
+            const accNum = document.getElementById('reportAccNum').value;
+            const startDate = document.getElementById('startDate').value ? new Date(document.getElementById('startDate').value) : null;
+            const endDate = document.getElementById('endDate').value ? new Date(document.getElementById('endDate').value) : null;
             const displayDiv = document.getElementById('transactionHistoryDisplay');
-            if(!document.getElementById('startDate').value || !document.getElementById('endDate').value) {
-                alert("Please select a start and end date.");
+            
+            let filteredTransactions = transactions;
+            
+            // Filter by account number if provided
+            if (accNum) {
+                filteredTransactions = filteredTransactions.filter(tx => 
+                    tx.fromAccount === accNum || tx.toAccount === accNum
+                );
+            }
+
+            // Filter by date range if provided
+            if (startDate && endDate) {
+                filteredTransactions = filteredTransactions.filter(tx => {
+                    const txDate = new Date(tx.date);
+                    return txDate >= startDate && txDate <= endDate;
+                });
+            } else if (startDate || endDate) {
+                alert("Please select both a start and end date for filtering.");
                 return;
             }
-            const filteredTransactions = transactions.filter(tx => {
-                const txDate = new Date(tx.date);
-                return txDate >= startDate && txDate <= endDate;
-            });
+
             displayTransactions(filteredTransactions, displayDiv);
+        };
+        
+        const searchProfile = () => {
+            const accNum = document.getElementById('searchAccNum').value;
+            const displayDiv = document.getElementById('searchProfileDisplay');
+            const account = accounts.find(acc => acc.accountNumber === accNum);
+            
+            if (!accNum) {
+                alert("Please enter an account number.");
+                return;
+            }
+
+            if (!account) {
+                displayDiv.innerHTML = '<p>No profile found with this account number.</p>';
+                return;
+            }
+            
+            let profileHtml = `
+                <div class="profile-info">
+                    <h4>Profile Details for Account ${account.accountNumber}</h4>
+                    <p><strong>Name:</strong> ${account.name}</p>
+                    <p><strong>Mobile Number:</strong> ${account.mobile}</p>
+                    <p><strong>Address:</strong> ${account.address}</p>
+                    <p><strong>Date of Birth:</strong> ${account.dob}</p>
+                    <p><strong>Aadhar Number:</strong> ${account.aadhar}</p>
+                    <p><strong>Current Balance:</strong> ₹${account.balance.toFixed(2)}</p>
+                </div>
+            `;
+            displayDiv.innerHTML = profileHtml;
         };
 
         // --- Customer Functions ---
@@ -465,7 +509,7 @@
                 let details = '';
                 if (tx.type === 'transfer') {
                     details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
-                } else if (['admin-deposit', 'deposit'].includes(tx.type)) {
+                } else if (['deposit'].includes(tx.type)) {
                     details = `To: ${tx.toAccount}`;
                 } else if (tx.type === 'withdrawal') {
                     details = `From: ${tx.fromAccount}`;
