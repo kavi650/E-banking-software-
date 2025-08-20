@@ -165,6 +165,13 @@
             <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Aadhar Card Number"/>
             <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
           </div>
+          
+          <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4">
+            <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
+            <input type="text" id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Account Number">
+            <input type="number" id="adminDepositAmount" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Amount">
+            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
+          </div>
 
           <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
             <div class="flex items-center justify-between">
@@ -208,7 +215,6 @@
         </button>
       </div>
 
-      <!-- Wallet Display -->
       <div class="rounded-2xl bg-white border-2 border-brandLight p-4 shadow-brandSoft lift mb-6">
         <div class="flex items-center justify-between">
           <div>
@@ -226,7 +232,7 @@
       <div class="grid lg:grid-cols-2 gap-6">
         <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4">
           <h3 class="text-lg font-semibold">Account Operations</h3>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-4 text-center lift ripple">
               <div class="mx-auto mb-2 w-12 h-12 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
@@ -238,6 +244,12 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
               </div>
               <div class="text-sm font-medium">Withdraw</div>
+            </button>
+            <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-4 text-center lift ripple">
+              <div class="mx-auto mb-2 w-12 h-12 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M13 13h-2v2h2v-2zm0-4h-2v2h2v-2zm-2-4h2v2h-2v-2zm0 12h2v2h-2v-2zm0 4h-2v2h2v-2zm4-4h2v2h-2v-2zm0-4h-2v2h2v-2zm0-4h-2v2h2v-2zm0 12h2v2h-2v-2zm0 4h-2v2h2v-2zM5 5h2v2H5V5zm0 4h2v2H5V9zm0 4h2v2H5v-2zm0 4h2v2H5v-2zm0 4h2v2H5v-2zm-4-4h2v2H1v-2zm0-4h2v2H1V9zm0-4h2v2H1V5z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Transfer</div>
             </button>
           </div>
 
@@ -251,6 +263,13 @@
             <h4 class="font-medium">Withdraw to Wallet</h4>
             <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Enter amount"/>
             <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
+          </div>
+
+          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25 fade-in">
+            <h4 class="font-medium">Transfer Money</h4>
+            <input type="text" id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Destination Account Number">
+            <input type="number" id="transferAmount" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Amount">
+            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Transfer</button>
           </div>
         </div>
 
@@ -316,7 +335,6 @@
     </section>
   </main>
 
-  <!-- Footer with Scan & Pay -->
   <footer class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-brand/20 z-30" id="userFooter" style="display: none;">
     <div class="max-w-6xl mx-auto px-6 py-4">
       <div class="flex items-center justify-center">
@@ -332,7 +350,6 @@
     </div>
   </footer>
 
-  <!-- Camera Modal -->
   <div id="cameraModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 max-w-md w-full">
       <div class="flex items-center justify-between mb-4">
@@ -414,7 +431,7 @@
 
     // UI Toggles with animations
     const toggleOperation = (op) => {
-        ['depositForm', 'withdrawForm'].forEach(formId => {
+        ['depositForm', 'withdrawForm', 'transferForm'].forEach(formId => {
             const form = document.getElementById(formId);
             form.classList.add('hidden');
         });
@@ -477,12 +494,13 @@
         }
 
         const accountNumber = generateAccountNumber();
+        const pin = generatePin();
 
-        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin: '', balance: 0 };
+        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
         accounts.push(newAccount);
         wallets[accountNumber] = 0; // Initialize wallet
         saveData();
-        alert(`Account created successfully! Account Number: ${accountNumber}\nCustomer can set their PIN in profile.`);
+        alert(`Account created successfully!\nAccount Number: ${accountNumber}\nPIN: ${pin}`);
         
         // Clear form
         document.getElementById('custName').value = '';
@@ -492,14 +510,36 @@
         document.getElementById('custAadhar').value = '';
     };
 
+    const adminDeposit = () => {
+        const accNum = document.getElementById('adminDepositAccNum').value;
+        const amount = parseFloat(document.getElementById('adminDepositAmount').value);
+
+        if (!accNum || amount <= 0 || isNaN(amount)) {
+            alert('Please enter a valid account number and amount.');
+            return;
+        }
+
+        const account = accounts.find(acc => acc.accountNumber === accNum);
+
+        if (!account) {
+            alert('Account not found.');
+            return;
+        }
+
+        account.balance += amount;
+        saveData();
+        recordTransaction('admin-deposit', amount, accNum);
+        alert(`$${amount} deposited into account ${accNum} successfully.`);
+    };
+
     const viewAllAccounts = () => {
         if (accounts.length === 0) {
             allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts have been created yet.</p>';
             return;
         }
-        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN Set</th><th>Balance</th></tr></thead><tbody>';
+        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN</th><th>Balance</th></tr></thead><tbody>';
         accounts.forEach(acc => {
-            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin ? 'Yes' : 'No'}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
+            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
         });
         tableHtml += '</tbody></table>';
         allAccountsDisplay.innerHTML = tableHtml;
@@ -571,6 +611,33 @@
         updateWalletDisplay();
         document.getElementById('withdrawAmount').value = '';
     };
+    
+    const transferMoney = () => {
+        const toAccNum = document.getElementById('transferAccNum').value;
+        const amount = parseFloat(document.getElementById('transferAmount').value);
+        const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
+
+        if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) {
+            alert('Invalid amount or insufficient balance.');
+            return;
+        }
+
+        if (!toAcc) {
+            alert('Destination account not found.');
+            return;
+        }
+
+        fromAcc.balance -= amount;
+        toAcc.balance += amount;
+        saveData();
+        recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
+        alert(`$${amount} transferred successfully to account ${toAccNum}.`);
+        viewBalance();
+        document.getElementById('transferAccNum').value = '';
+        document.getElementById('transferAmount').value = '';
+    };
+
 
     const viewCustomerTransactions = () => {
         const userTransactions = transactions.filter(tx => 
@@ -653,6 +720,10 @@
                 details = `To: ${tx.toAccount}`;
             } else if (tx.type === 'withdrawal') {
                 details = `From: ${tx.fromAccount}`;
+            } else if (tx.type === 'transfer') {
+                details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
+            } else if (tx.type === 'admin-deposit') {
+                details = `To: ${tx.toAccount}`;
             }
             tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
         });
@@ -679,14 +750,17 @@
 
         // Admin Functions
         document.getElementById('createAccountBtn').addEventListener('click', createAccount);
+        document.getElementById('adminDepositBtn').addEventListener('click', adminDeposit);
         document.getElementById('viewAllAccountsBtn').addEventListener('click', viewAllAccounts);
         document.getElementById('viewTransactionsBtn').addEventListener('click', viewTransactions);
 
         // Customer Functions
         document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
         document.getElementById('btnShowWithdraw').addEventListener('click', () => toggleOperation('withdraw'));
+        document.getElementById('btnShowTransfer').addEventListener('click', () => toggleOperation('transfer'));
         document.getElementById('depositBtn').addEventListener('click', depositMoney);
         document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
+        document.getElementById('transferBtn').addEventListener('click', transferMoney);
         document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
         document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
 
@@ -725,5 +799,5 @@
         });
     });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972225f166c7a9c3',t:'MTc1NTY5NTYxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
