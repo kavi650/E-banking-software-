@@ -1,766 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>e‑Bank Demo</title>
-  <!-- Tailwind CSS CDN -->
+  <title>e‑Bank Demo — White page, Blue containers</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            ebg: { 900: "#0b1220", 800: "#0f1830", 700: "#122040" },
-            ebrand: { 500: "#3B82F6", 600: "#2563EB", 700: "#1D4ED8" },
-            card: "#0f1730",
-            soft: "#162244",
-            accent: "#22d3ee"
-          },
+          colors: { brand: "#0053ba" },
           boxShadow: {
-            glass: "0 8px 24px rgba(0,0,0,0.3)"
-          },
+            brandSoft: "0 10px 30px rgba(0,83,186,0.25)",
+            brandGlow: "0 12px 36px rgba(0,83,186,0.38)",
+            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)"
+          }
         }
       }
-    }
+    };
   </script>
   <style>
-    /* Subtle animated gradient background */
-    .bg-grid {
-      background-image: radial-gradient(transparent 1px, rgba(255,255,255,0.05) 1px);
-      background-size: 20px 20px;
-    }
-    .glass {
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      background: rgba(255,255,255,0.04);
-    }
+    /* Ripple effect */
+    .ripple { position: relative; overflow: hidden; isolation: isolate; }
+    .ripple::after { content:""; position:absolute; inset:0; border-radius:inherit; transform:scale(0); opacity:0; pointer-events:none; background: radial-gradient(circle at var(--rx,50%) var(--ry,50%), rgba(255,255,255,0.45), transparent 45%); }
+    .ripple[data-rippling="true"]::after { animation: ripple 600ms ease-out forwards; }
+    @keyframes ripple { 0%{transform:scale(0); opacity:.6} 100%{transform:scale(2); opacity:0} }
+
+    /* Hover lift + smooth */
+    .lift { transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease; }
+    .lift:hover { transform: translateY(-2px); }
+
+    /* Inputs on blue background */
+    .input-on-blue { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .input-on-blue::placeholder { color: rgba(255,255,255,0.85); }
+    .input-on-blue:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,255,255,0.18); border-color: #fff; }
+
+    /* Tables inside blue containers */
+    .tbl th, .tbl td { padding: .6rem .75rem; border-bottom: 1px solid rgba(255,255,255,0.18); }
+    .tbl th { color: rgba(255,255,255,0.9); font-weight: 600; }
+    .tbl td { color: #fff; }
+    .tbl tr:hover { background: rgba(255,255,255,0.08); }
+
+    /* Eye toggle area */
+    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#fff; opacity:.9; }
+    .eye-btn:hover { opacity: 1; }
   </style>
 </head>
-<body class="min-h-screen bg-ebg-900 text-white">
-  <!-- Header -->
-  <header class="sticky top-0 z-40 border-b border-white/10 bg-ebg-900/80 glass">
+<body class="min-h-screen bg-white text-slate-900">
+  <header class="sticky top-0 z-40 bg-brand text-white shadow-brandGlow">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- Simple SVG Logo -->
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-ebrAND-600 to-accent flex items-center justify-center shadow-glass"
-             style="background-image: linear-gradient(135deg, #2563EB 0%, #22d3ee 100%);">
+        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shadow-whiteSoft">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 7l9-5 9 5v10a2 2 0 0 1-2 2h-3v-7H8v7H5a2 2 0 0 1-2-2V7z"/>
+            <path d="M3 8l9-5 9 5v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2V8z"/>
           </svg>
         </div>
         <div class="font-semibold text-lg tracking-wide">e‑bank</div>
       </div>
-      <nav id="topNav" class="hidden md:flex items-center gap-2">
-        <button data-target="screenLanding" class="nav-btn px-3 py-2 rounded-lg hover:bg-white/10 transition">Home</button>
-        <button data-target="screenAdminLogin" class="nav-btn px-3 py-2 rounded-lg hover:bg-white/10 transition">Admin</button>
-        <button data-target="screenUserLogin" class="nav-btn px-3 py-2 rounded-lg hover:bg-white/10 transition">User</button>
-        <button id="logoutBtn" class="hidden px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">Logout</button>
-      </nav>
-      <button id="mobileMenuBtn" class="md:hidden px-3 py-2 rounded-lg bg-white/10">Menu</button>
-    </div>
-    <!-- Mobile menu -->
-    <div id="mobileMenu" class="md:hidden hidden border-t border-white/10">
-      <div class="max-w-6xl mx-auto px-6 py-3 flex flex-col gap-2">
-        <button data-target="screenLanding" class="nav-btn text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">Home</button>
-        <button data-target="screenAdminLogin" class="nav-btn text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">Admin</button>
-        <button data-target="screenUserLogin" class="nav-btn text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">User</button>
-        <button id="logoutBtnMobile" class="hidden text-left px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">Logout</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="max-w-6xl mx-auto px-6 py-10 bg-grid">
-    <!-- Landing: choose role -->
-    <section id="screenLanding" class="screen">
-      <div class="grid lg:grid-cols-2 gap-8 items-stretch">
-        <div class="glass rounded-2xl p-8 shadow-glass">
-          <h1 class="text-3xl font-semibold mb-3">Welcome to e‑bank</h1>
-          <p class="text-white/70 mb-6">A modern banking demo interface. Choose how you’d like to sign in.</p>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-              style="background-color:#2563EB">User Login</button>
-            <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition">Admin Login</button>
-          </div>
-          <div class="mt-6 text-sm text-white/60">
-            Demo only. Data is stored locally on your device.
-          </div>
-        </div>
-        <div class="hidden lg:block">
-          <div class="h-full rounded-2xl overflow-hidden relative bg-gradient-to-br from-ebrAND-700/40 to-accent/20 border border-white/10">
-            <div class="absolute inset-0 p-8 flex items-end">
-              <div class="space-y-3">
-                <div class="h-24 w-72 bg-white/5 rounded-xl"></div>
-                <div class="h-6 w-56 bg-white/5 rounded"></div>
-                <div class="h-6 w-40 bg-white/5 rounded"></div>
-              </div>
-            </div>
-            <div class="absolute top-8 right-8 text-right">
-              <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span class="text-sm">Secure Demo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Admin Login -->
-    <section id="screenAdminLogin" class="screen hidden">
-      <div class="max-w-md mx-auto glass rounded-2xl p-8 shadow-glass">
-        <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
-        <p class="text-white/70 mb-6">Use demo credentials: admin / a123</p>
-        <div class="space-y-4">
-          <input id="loginId" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Admin ID"/>
-          <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Password"/>
-          <button id="adminLoginBtn" class="w-full px-5 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-            style="background-color:#2563EB">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Login -->
-    <section id="screenUserLogin" class="screen hidden">
-      <div class="max-w-md mx-auto glass rounded-2xl p-8 shadow-glass">
-        <h2 class="text-2xl font-semibold mb-1">User Login</h2>
-        <p class="text-white/70 mb-6">Login with mobile number and PIN (from account creation).</p>
-        <div class="space-y-4">
-          <input id="userLoginMobile" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Mobile Number"/>
-          <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="PIN"/>
-          <button id="userLoginBtn" class="w-full px-5 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-            style="background-color:#2563EB">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Admin Dashboard -->
-    <section id="screenAdmin" class="screen hidden">
-      <div class="mb-6">
-        <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
-        <p class="text-white/60">Welcome, Admin!</p>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-6">
-        <!-- Create Account -->
-        <div class="glass rounded-2xl p-6 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Create New Account</h3>
-            <span class="text-xs text-white/60">Demo</span>
-          </div>
-          <input id="custName" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Customer Name"/>
-          <input id="custMobile" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Mobile Number"/>
-          <input id="custAddress" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Address"/>
-          <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition"/>
-          <input id="custAadhar" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Aadhar Card Number"/>
-          <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-            style="background-color:#2563EB">Create Account</button>
-          <p class="text-xs text-white/50">Tip: Save generated Account Number and PIN to log in as user.</p>
-        </div>
-
-        <!-- Admin Deposit -->
-        <div class="glass rounded-2xl p-6 space-y-4">
-          <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
-          <input id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Account Number"/>
-          <input id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Amount"/>
-          <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition">Deposit</button>
-        </div>
-
-        <!-- All Accounts -->
-        <div class="glass rounded-2xl p-6 space-y-4 lg:col-span-2">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">View All Accounts</h3>
-            <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Show All Accounts</button>
-          </div>
-          <div id="allAccountsDisplay" class="overflow-auto text-sm"></div>
-        </div>
-
-        <!-- Transactions -->
-        <div class="glass rounded-2xl p-6 space-y-4 lg:col-span-2">
-          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h3 class="text-lg font-semibold">View All Transactions</h3>
-            <div class="flex flex-col sm:flex-row gap-3">
-              <div>
-                <label class="block text-xs text-white/60 mb-1">Start date</label>
-                <input id="startDate" type="date" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition"/>
-              </div>
-              <div>
-                <label class="block text-xs text-white/60 mb-1">End date</label>
-                <input id="endDate" type="date" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition"/>
-              </div>
-              <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">View</button>
-            </div>
-          </div>
-          <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Dashboard -->
-    <section id="screenUser" class="screen hidden">
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
-          <p class="text-white/60">Welcome, <span id="customerNameDisplay"></span>!</p>
-        </div>
-        <div class="flex gap-2">
-          <button data-target="screenProfile" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Profile</button>
-          <button data-target="screenUser" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Accounts</button>
-        </div>
-      </div>
-
-      <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Quick Actions -->
-        <div class="glass rounded-2xl p-6 lg:col-span-1 space-y-3">
-          <h3 class="text-lg font-semibold">Account Operations</h3>
-          <div class="grid grid-cols-3 gap-2">
-            <button id="btnShowDeposit" class="px-3 py-2 rounded-lg bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-              style="background-color:#2563EB">Deposit</button>
-            <button id="btnShowWithdraw" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">Withdraw</button>
-            <button id="btnShowTransfer" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">Transfer</button>
-          </div>
-
-          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/10">
-            <h4 class="font-medium">Deposit Money</h4>
-            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Amount"/>
-            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-              style="background-color:#2563EB">Deposit</button>
-          </div>
-
-          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/10">
-            <h4 class="font-medium">Withdraw Money</h4>
-            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Amount"/>
-            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition">Withdraw</button>
-          </div>
-
-          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/10">
-            <h4 class="font-medium">Transfer Money</h4>
-            <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Destination Account Number"/>
-            <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Amount"/>
-            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition">Transfer</button>
-          </div>
-        </div>
-
-        <!-- Balance & History -->
-        <div class="glass rounded-2xl p-6 lg:col-span-2 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">View Balance</button>
-            <div id="balanceDisplay" class="text-2xl font-semibold"></div>
-          </div>
-          <div class="border-t border-white/10 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-semibold">Transaction History</h3>
-              <button id="viewCustomerTransactionsBtn" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Refresh</button>
-            </div>
-            <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Profile -->
-    <section id="screenProfile" class="screen hidden">
-      <div class="max-w-2xl mx-auto glass rounded-2xl p-6 shadow-glass space-y-5">
-        <div>
-          <h2 class="text-2xl font-semibold">Profile</h2>
-          <p class="text-white/60">View your details and update your address.</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <div class="text-white/60 text-sm">Name</div>
-            <div id="profileName" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/60 text-sm">Mobile</div>
-            <div id="profileMobile" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/60 text-sm">Account Number</div>
-            <div id="profileAccount" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/60 text-sm">Date of Birth</div>
-            <div id="profileDob" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <label class="text-white/60 text-sm">Address</label>
-            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent transition" placeholder="Update your address"/>
-          </div>
-          <div class="md:col-span-2">
-            <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-ebrAND-600 hover:bg-ebrAND-700 transition"
-              style="background-color:#2563EB">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="mt-16 border-t border-white/10">
-    <div class="max-w-6xl mx-auto px-6 py-6 text-center text-white/70">
-      2025 e‑bank — All rights reserved
-    </div>
-  </footer>
-
-  <!-- Script: keeps your original localStorage structure and flows -->
-  <script>
-    // Data store (unchanged)
-    const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    const saveData = () => {
-      localStorage.setItem('accounts', JSON.stringify(accounts));
-      localStorage.setItem('transactions', JSON.stringify(transactions));
-    };
-
-    // Current user
-    let currentUser = null;
-
-    // Screens
-    const screens = {
-      landing: document.getElementById('screenLanding'),
-      adminLogin: document.getElementById('screenAdminLogin'),
-      userLogin: document.getElementById('screenUserLogin'),
-      admin: document.getElementById('screenAdmin'),
-      user: document.getElementById('screenUser'),
-      profile: document.getElementById('screenProfile'),
-    };
-
-    // Navigation helpers
-    const showScreen = (id) => {
-      Object.values(screens).forEach(s => s.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      // Toggle logout buttons
-      const isLoggedIn = !!currentUser;
-      document.getElementById('logoutBtn').classList.toggle('hidden', !isLoggedIn);
-      document.getElementById('logoutBtnMobile').classList.toggle('hidden', !isLoggedIn);
-    };
-
-    // Header navigation
-    const attachNavHandlers = () => {
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = btn.getAttribute('data-target');
-          if (!target) return;
-          if (target === 'screenLanding') showScreen('screenLanding');
-          if (target === 'screenAdminLogin') showScreen('screenAdminLogin');
-          if (target === 'screenUserLogin') showScreen('screenUserLogin');
-          if (target === 'screenUser' && currentUser?.type === 'customer') showScreen('screenUser');
-          if (target === 'screenProfile' && currentUser?.type === 'customer') {
-            populateProfile();
-            showScreen('screenProfile');
-          }
-          if (target === 'screenAdmin' && currentUser?.type === 'admin') showScreen('screenAdmin');
-          // close mobile menu after navigation
-          mobileMenu.classList.add('hidden');
-        });
-      });
-    };
-
-    // Mobile menu
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-
-    // Login inputs (admin page)
-    const loginIdInput = document.getElementById('loginId');
-    const loginPasswordInput = document.getElementById('loginPassword');
-    // User login i      pointer-events: none;
-    }
-    .ripple[data-rippling="true"]::after {
-      animation: ripple 600ms ease-out forwards;
-    }
-    @keyframes ripple {
-      0% { transform: scale(0); opacity: 0.35; }
-      100% { transform: scale(1.75); opacity: 0; }
-    }
-
-    /* Hover lift + glow */
-    .lift:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(0,83,186,0.18);
-    }
-    .smooth { transition: all 200ms ease; }
-
-    /* Interactive card hover */
-    .card:hover { box-shadow: 0 14px 40px rgba(0,0,0,0.10); transform: translateY(-2px); }
-
-    /* Nice focus ring */
-    .focus-brand:focus { outline: none; box-shadow: 0 0 0 4px rgba(0,83,186,0.15); }
-
-    /* Decorative landing blobs */
-    .blob {
-      position: absolute;
-      filter: blur(28px);
-      opacity: .18;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-  </style>
-</head>
-<body class="min-h-screen bg-white text-slate-800">
-  <!-- Header -->
-  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <!-- e‑bank logo -->
-        <div class="w-9 h-9 rounded-xl bg-brand text-white flex items-center justify-center shadow-brand">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 8l9-5 9 5v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2V8z"/>
-          </svg>
-        </div>
-        <div class="font-semibold text-lg tracking-wide text-brand">e‑bank</div>
-      </div>
-
       <nav class="hidden md:flex items-center gap-2">
-        <button data-target="screenLanding" class="px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 smooth">Home</button>
-        <button data-target="screenAdminLogin" class="px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 smooth">Admin</button>
-        <button data-target="screenUserLogin" class="px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 smooth">User</button>
-        <button id="logoutBtn" class="hidden ml-2 btn-primary ripple lift smooth">Logout</button>
+        <button data-target="screenLanding" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Home</button>
+        <button data-target="screenAdminLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Admin</button>
+        <button data-target="screenUserLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">User</button>
+        <button id="logoutBtn" class="hidden ml-2 px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
       </nav>
-
       <div class="md:hidden flex items-center gap-2">
-        <button id="logoutBtnMobile" class="hidden btn-primary ripple lift smooth">Logout</button>
-        <button id="mobileMenuBtn" class="px-3 py-2 rounded-lg text-brand border border-brand/20 hover:border-brand smooth">Menu</button>
+        <button id="logoutBtnMobile" class="hidden px-3 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
+        <button id="mobileMenuBtn" class="px-3 py-2 rounded-lg bg-white/15 hover:bg-white/20 lift">Menu</button>
       </div>
     </div>
-    <!-- Mobile menu -->
-    <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200">
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/25">
       <div class="max-w-6xl mx-auto px-6 py-3 flex flex-col gap-2">
-        <button data-target="screenLanding" class="text-left px-3 py-2 rounded-lg hover:bg-slate-100 smooth">Home</button>
-        <button data-target="screenAdminLogin" class="text-left px-3 py-2 rounded-lg hover:bg-slate-100 smooth">Admin</button>
-        <button data-target="screenUserLogin" class="text-left px-3 py-2 rounded-lg hover:bg-slate-100 smooth">User</button>
+        <button data-target="screenLanding" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Home</button>
+        <button data-target="screenAdminLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Admin</button>
+        <button data-target="screenUserLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">User</button>
       </div>
     </div>
   </header>
 
-  <!-- Main -->
   <main class="max-w-6xl mx-auto px-6 py-10">
-    <!-- Landing -->
-    <section id="screenLanding" class="screen relative">
-      <div class="blob" style="width:280px;height:280px;left:-60px;top:-40px;background:#0053ba;"></div>
-      <div class="blob" style="width:320px;height:320px;right:-80px;top:60px;background:#7fb2f0;"></div>
-
-      <div class="grid lg:grid-cols-2 gap-8 items-stretch">
-        <div class="p-8 rounded-2xl border border-slate-200 bg-white card smooth">
-          <h1 class="text-4xl font-semibold mb-3 text-slate-900">Welcome to e‑bank</h1>
-          <p class="text-slate-600 mb-6">A modern demo interface. Choose how you’d like to sign in.</p>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button data-target="screenUserLogin" class="btn-primary ripple lift smooth">User Login</button>
-            <button data-target="screenAdminLogin" class="btn-ghost ripple lift smooth">Admin Login</button>
-          </div>
-          <div class="mt-6 text-sm text-slate-500">
-            Demo only. Data is stored locally on your device.
-          </div>
-        </div>
-        <div class="hidden lg:block">
-          <div class="h-full rounded-2xl overflow-hidden relative border border-slate-200 bg-gradient-to-br from-brand/5 to-brand/10 card smooth">
-            <div class="absolute inset-0 p-8 flex items-end">
-              <div class="space-y-3 w-full">
-                <div class="h-24 w-3/4 bg-brand/10 rounded-xl"></div>
-                <div class="h-6 w-1/2 bg-brand/10 rounded"></div>
-                <div class="h-6 w-1/3 bg-brand/10 rounded"></div>
-              </div>
-            </div>
-            <div class="absolute top-8 right-8">
-              <div class="inline-flex items-center gap-2 bg-brand/10 text-brand px-4 py-2 rounded-full border border-brand/20">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span class="text-sm">Secure Demo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Admin Login -->
-    <section id="screenAdminLogin" class="screen hidden">
-      <div class="max-w-md mx-auto p-8 rounded-2xl border border-slate-200 bg-white card smooth">
-        <h2 class="text-2xl font-semibold mb-1 text-slate-900">Admin Login</h2>
-        <p class="text-slate-600 mb-6">Use demo credentials: admin / a123</p>
-        <div class="space-y-4">
-          <input id="loginId" class="input" placeholder="Admin ID"/>
-          <input id="loginPassword" type="password" class="input" placeholder="Password"/>
-          <button id="adminLoginBtn" class="btn-primary ripple lift smooth w-full">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Login -->
-    <section id="screenUserLogin" class="screen hidden">
-      <div class="max-w-md mx-auto p-8 rounded-2xl border border-slate-200 bg-white card smooth">
-        <h2 class="text-2xl font-semibold mb-1 text-slate-900">User Login</h2>
-        <p class="text-slate-600 mb-6">Login with mobile number and PIN (from account creation).</p>
-        <div class="space-y-4">
-          <input id="userLoginMobile" class="input" placeholder="Mobile Number"/>
-          <input id="userLoginPin" type="password" class="input" placeholder="PIN"/>
-          <button id="userLoginBtn" class="btn-primary ripple lift smooth w-full">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Admin Dashboard -->
-    <section id="screenAdmin" class="screen hidden">
-      <div class="mb-6">
-        <h2 class="text-2xl font-semibold text-slate-900">Admin Dashboard</h2>
-        <p class="text-slate-600">Welcome, Admin!</p>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-6">
-        <!-- Create Account -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-slate-900">Create New Account</h3>
-            <span class="text-xs text-slate-500">Demo</span>
-          </div>
-          <input id="custName" class="input" placeholder="Customer Name"/>
-          <input id="custMobile" class="input" placeholder="Mobile Number"/>
-          <input id="custAddress" class="input" placeholder="Address"/>
-          <input id="custDob" type="date" class="input"/>
-          <input id="custAadhar" class="input" placeholder="Aadhar Card Number"/>
-          <button id="createAccountBtn" class="btn-primary ripple lift smooth w-full">Create Account</button>
-          <p class="text-xs text-slate-500">Save the Account Number and PIN to log in as this user.</p>
-        </div>
-
-        <!-- Admin Deposit -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth space-y-4">
-          <h3 class="text-lg font-semibold text-slate-900">Deposit Money to Account</h3>
-          <input id="adminDepositAccNum" class="input" placeholder="Account Number"/>
-          <input id="adminDepositAmount" type="number" class="input" placeholder="Amount"/>
-          <button id="adminDepositBtn" class="btn-ghost ripple lift smooth w-full">Deposit</button>
-        </div>
-
-        <!-- All Accounts -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth space-y-4 lg:col-span-2">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-slate-900">View All Accounts</h3>
-            <button id="viewAllAccountsBtn" class="btn-ghost ripple lift smooth">Show All Accounts</button>
-          </div>
-          <div id="allAccountsDisplay" class="overflow-auto text-sm"></div>
-        </div>
-
-        <!-- Transactions -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth space-y-4 lg:col-span-2">
-          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h3 class="text-lg font-semibold text-slate-900">View All Transactions</h3>
+    <section id="screenLanding" class="screen">
+      <div class="rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <div class="grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 class="text-4xl font-semibold mb-3">Welcome to e‑bank</h1>
+            <p class="text-white/90 mb-6">A modern banking demo. Choose how you’d like to sign in.</p>
             <div class="flex flex-col sm:flex-row gap-3">
-              <div>
-                <label class="block text-xs text-slate-500 mb-1">Start date</label>
-                <input id="startDate" type="date" class="input px-4 py-2"/>
-              </div>
-              <div>
-                <label class="block text-xs text-slate-500 mb-1">End date</label>
-                <input id="endDate" type="date" class="input px-4 py-2"/>
-              </div>
-              <button id="viewTransactionsBtn" class="btn-ghost ripple lift smooth">View</button>
+              <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">User Login</button>
+              <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Admin Login</button>
+            </div>
+            <div class="mt-6 text-sm text-white/90">Demo only. Data is stored locally on your device.</div>
+          </div>
+          <div class="hidden lg:block">
+            <div class="rounded-2xl border border-white/25 p-6 bg-white/10">
+              <div class="h-24 w-3/4 bg-white/20 rounded-xl mb-3"></div>
+              <div class="h-6 w-1/2 bg-white/20 rounded mb-2"></div>
+              <div class="h-6 w-1/3 bg-white/20 rounded"></div>
             </div>
           </div>
-          <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
         </div>
       </div>
     </section>
 
-    <!-- User Dashboard -->
-    <section id="screenUser" class="screen hidden">
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h2 class="text-2xl font-semibold text-slate-900">Customer Dashboard</h2>
-          <p class="text-slate-600">Welcome, <span id="customerNameDisplay"></span>!</p>
+    <section id="screenAdminLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
+        <p class="text-white/90 mb-6">Use demo credentials: admin / a123</p>
+        <div class="space-y-4">
+          <input id="loginId" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Admin ID"/>
+          <div class="relative">
+            <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Password"/>
+            <button id="toggleAdminPwd" class="eye-btn" type="button" title="Show/Hide">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
+            </button>
+          </div>
+          <button id="adminLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
         </div>
-        <!-- Top-right logout button on User Home -->
-        <button class="btn-primary ripple lift smooth" id="logoutBtnUserHeader">Logout</button>
       </div>
+    </section>
 
-      <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Quick Actions -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth lg:col-span-1 space-y-4">
-          <h3 class="text-lg font-semibold text-slate-900">Account Operations</h3>
-
-          <!-- Attractive split action buttons -->
-          <div class="grid grid-cols-3 gap-2">
-            <button id="btnShowDeposit" class="action-card ripple lift smooth">
-              <div class="action-ico">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
-              </div>
-              <div class="action-text">Deposit</div>
-            </button>
-            <button id="btnShowWithdraw" class="action-card ripple lift smooth">
-              <div class="action-ico">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
-              </div>
-              <div class="action-text">Withdraw</div>
-            </button>
-            <button id="btnShowTransfer" class="action-card ripple lift smooth">
-              <div class="action-ico">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
-              </div>
-              <div class="action-text">Transfer</div>
+    <section id="screenUserLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <h2 class="text-2xl font-semibold mb-1">User Login</h2>
+        <p class="text-white/90 mb-6">Login with mobile number and PIN.</p>
+        <div class="space-y-4">
+          <input id="userLoginMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
+          <div class="relative">
+            <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="PIN"/>
+            <button id="togglePin" class="eye-btn" type="button" title="Show/Hide PIN">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
             </button>
           </div>
+          <button id="userLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
+        </div>
+      </div>
+    </section>
 
-          <!-- Forms -->
-          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-slate-200">
-            <h4 class="font-medium text-slate-900">Deposit Money</h4>
-            <input id="depositAmount" type="number" class="input" placeholder="Amount"/>
-            <button id="depositBtn" class="btn-primary ripple lift smooth w-full">Deposit</button>
-          </div>
-
-          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-slate-200">
-            <h4 class="font-medium text-slate-900">Withdraw Money</h4>
-            <input id="withdrawAmount" type="number" class="input" placeholder="Amount"/>
-            <button id="withdrawBtn" class="btn-ghost ripple lift smooth w-full">Withdraw</button>
-          </div>
-
-          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-slate-200">
-            <h4 class="font-medium text-slate-900">Transfer Money</h4>
-            <input id="transferAccNum" class="input" placeholder="Destination Account Number"/>
-            <input id="transferAmount" type="number" class="input" placeholder="Amount"/>
-            <button id="transferBtn" class="btn-ghost ripple lift smooth w-full">Transfer</button>
-          </div>
+    <section id="screenAdmin" class="screen hidden">
+      <div class="space-y-6">
+        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift">
+          <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
+          <p class="text-white/90">Welcome, Admin! Manage accounts, deposits, and view transactions.</p>
         </div>
 
-        <!-- Balance & History -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-white card smooth lg:col-span-2 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <button id="viewBalanceBtn" class="btn-ghost ripple lift smooth">View Balance</button>
-            <div id="balanceDisplay" class="text-2xl font-semibold text-brand"></div>
-          </div>
-          <div class="border-t border-slate-200 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-semibold text-slate-900">Transaction History</h3>
-              <button id="viewCustomerTransactionsBtn" class="btn-ghost ripple lift smooth">Refresh</button>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold">Create New Account</h3>
+              <span class="text-xs text-white/90">Demo</span>
             </div>
-            <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
+            <input id="custName" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Customer Name"/>
+            <input id="custMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
+            <input id="custAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Address"/>
+            <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-on-blue"/>
+            <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Aadhar Card Number"/>
+            <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
+            <p class="text-xs text-white/90">Save the Account Number and PIN to log in as this user.</p>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- User Profile -->
-    <section id="screenProfile" class="screen hidden">
-      <div class="max-w-2xl mx-auto p-6 rounded-2xl border border-slate-200 bg-white card smooth space-y-5">
-        <div>
-          <h2 class="text-2xl font-semibold text-slate-900">Profile</h2>
-          <p class="text-slate-600">View your details and update your address.</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <div class="text-slate-500 text-sm">Name</div>
-            <div id="profileName" class="text-lg font-medium text-slate-900"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-slate-500 text-sm">Mobile</div>
-            <div id="profileMobile" class="text-lg font-medium text-slate-900"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-slate-500 text-sm">Account Number</div>
-            <div id="profileAccount" class="text-lg font-medium text-slate-900"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-slate-500 text-sm">Date of Birth</div>
-            <div id="profileDob" class="text-lg font-medium text-slate-900"></div>
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <label class="text-slate-500 text-sm">Address</label>
-            <input id="profileAddress" class="input" placeholder="Update your address"/>
-          </div>
-          <div class="md:col-span-2">
-            <button id="saveProfileBtn" class="btn-primary ripple lift smooth w-full">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="mt-16 border-t border-slate-200">
-    <div class="max-w-6xl mx-auto px-6 py-6 text-center text-slate-600">
-      2025 e‑bank — All rights reserved
-    </div>
-  </footer>
-
-  <!-- Reusable styles for inputs and buttons -->
-  <script>
-    // Helper to add classes post-load
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.input').forEach(el => {
-        el.classList.add('w-full','px-4','py-3','rounded-xl','bg-white','border','border-slate-300','focus-brand','smooth');
-      });
-      document.querySelectorAll('.btn-primary').forEach(el => {
-        el.classList.add('px-5','py-3','rounded-xl','bg-brand','text-white','hover:shadow-brandGlow','smooth');
-      });
-      document.querySelectorAll('.btn-ghost').forEach(el => {
-        el.classList.add('px-5','py-3','rounded-xl','border','border-brand','text-brand','bg-white','hover:bg-brand','hover:text-white','hover:shadow-brand','smooth');
-      });
-      document.querySelectorAll('.action-card').forEach(el => {
-        el.classList.add('group','rounded-xl','border','border-slate-200','bg-white','px-3','py-3','text-center','hover:border-brand','hover:text-brand');
-      });
-      document.querySelectorAll('.action-ico').forEach(el => {
-        el.classList.add('mx-auto','mb-1','w-10','h-10','rounded-full','bg-brand/10','text-brand','flex','items-center','justify-center','smooth','group-hover:bg-brand','group-hover:text-white');
-      });
-      document.querySelectorAll('.action-text').forEach(el => {
-        el.classList.add('text-sm','font-medium','text-slate-700','group-hover:text-brand','smooth');
-      });
-    });
-  </script>
-
-  <!-- App Logic: keeps your local storage structure and flows -->
-  <script>
-    // Data store
-    const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    const saveData = () => {
-      localStorage.setItem('accounts', JSON.stringify(accounts));
-      localStorage.setItem('transactions', JSON.stringify(transactions));
-    };
-    let currentUser = null;
-
-    // Screens
-    const screens = {
-      landing: document.getElementById('screenLanding'),
-      adminLogin: document.getElementById('screenAdminLogin'),
-      userLogin: document.getElementById('screenUserLogin'),
-      admin: document.getElementById('screenAdmin'),
-      user: document.getElementById('screenUser'),
-      profile: document.getElementById('screenProfile'),
-    };
-
-    const showScreen = (id) => {
-      Object.values(screens).forEach(s => s.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      const isLoggedIn = !!currentUser;
-      document.getElementById('logoutBtn').classList.toggle('hidden', !isLoggedIn);
-      document.getElementById('logoutBtnMobile').classList.toggle('hidden', !isLoggedIn);
-    };
-
-    // Mobile menu
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-
-    // Inputs
-    const loginIdInput = document.getElementById('loginId');
-    const loginPasswordInput = document.getElementById('loginPassword');
-    const userLoginMobile = document.getElementById('userLoinput id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
+            <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
+            <input id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Account Number"/>
+            <input id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
             <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
           </div>
 
-          <!-- All Accounts -->
           <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">View All Accounts</h3>
               <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
             </div>
             <div id="allAccountsDisplay" class="overflow-auto text-sm">
-              <!-- table renders here -->
-            </div>
+              </div>
           </div>
 
-          <!-- Transactions -->
           <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <h3 class="text-lg font-semibold">View All Transactions</h3>
@@ -782,7 +194,6 @@
       </div>
     </section>
 
-    <!-- User Dashboard (blue container sections) -->
     <section id="screenUser" class="screen hidden">
       <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
         <div>
@@ -793,7 +204,6 @@
       </div>
 
       <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Quick Actions -->
         <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
           <h3 class="text-lg font-semibold">Account Operations</h3>
           <div class="grid grid-cols-3 gap-2">
@@ -817,7 +227,6 @@
             </button>
           </div>
 
-          <!-- Forms -->
           <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
             <h4 class="font-medium">Deposit Money</h4>
             <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
@@ -838,7 +247,6 @@
           </div>
         </div>
 
-        <!-- Balance & History -->
         <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
           <div class="flex flex-wrap items-center gap-3">
             <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
@@ -855,7 +263,6 @@
       </div>
     </section>
 
-    <!-- User Profile (blue container) -->
     <section id="screenProfile" class="screen hidden">
       <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
         <div>
@@ -891,14 +298,12 @@
     </section>
   </main>
 
-  <!-- Footer (blue container) -->
   <footer class="mt-16">
     <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
       2025 e‑bank — All rights reserved
     </div>
   </footer>
 
-  <!-- App Logic: same storage/flows -->
   <script>
     // Data store
     const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
@@ -910,438 +315,291 @@
 
     // Screens
     const screens = {
-      landing: document.getElementById('screenLanding'),
-      adminLogin: document.getElementById('screenAdminLogin'),
-      userLogin: document.getEleminput id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
-          </div>
-
-          <!-- All Accounts -->
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">View All Accounts</h3>
-              <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
-            </div>
-            <div id="allAccountsDisplay" class="overflow-auto text-sm">
-              <!-- table renders here -->
-            </div>
-          </div>
-
-          <!-- Transactions -->
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <h3 class="text-lg font-semibold">View All Transactions</h3>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <div>
-                  <label class="block text-xs text-white/90 mb-1">Start date</label>
-                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
-                </div>
-                <div>
-                  <label class="block text-xs text-white/90 mb-1">End date</label>
-                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
-                </div>
-                <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View</button>
-              </div>
-            </div>
-            <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Dashboard (blue container sections) -->
-    <section id="screenUser" class="screen hidden">
-      <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
-        <div>
-          <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
-          <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
-        </div>
-        <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
-      </div>
-
-      <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Quick Actions -->
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
-          <h3 class="text-lg font-semibold">Account Operations</h3>
-          <div class="grid grid-cols-3 gap-2">
-            <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Deposit</div>
-            </button>
-            <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Withdraw</div>
-            </button>
-            <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
-              <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
-              </div>
-              <div class="text-sm font-medium">Transfer</div>
-            </button>
-          </div>
-
-          <!-- Forms -->
-          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Deposit Money</h4>
-            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
-          </div>
-
-          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Withdraw Money</h4>
-            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
-          </div>
-
-          <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Transfer Money</h4>
-            <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Destination Account Number"/>
-            <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="transferBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Transfer</button>
-          </div>
-        </div>
-
-        <!-- Balance & History -->
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
-            <div id="balanceDisplay" class="text-2xl font-semibold"></div>
-          </div>
-          <div class="border-t border-white/25 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-semibold">Transaction History</h3>
-              <button id="viewCustomerTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Refresh</button>
-            </div>
-            <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Profile (blue container) -->
-    <section id="screenProfile" class="screen hidden">
-      <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
-        <div>
-          <h2 class="text-2xl font-semibold">Profile</h2>
-          <p class="text-white/90">View your details and update your address.</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Name</div>
-            <div id="profileName" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Mobile</div>
-            <div id="profileMobile" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Account Number</div>
-            <div id="profileAccount" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-white/90 text-sm">Date of Birth</div>
-            <div id="profileDob" class="text-lg font-medium"></div>
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <label class="text-white/90 text-sm">Address</label>
-            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Update your address"/>
-          </div>
-          <div class="md:col-span-2">
-            <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer (blue container) -->
-  <footer class="mt-16">
-    <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
-      2025 e‑bank — All rights reserved
-    </div>
-  </footer>
-
-  <!-- App Logic: same storage/flows -->
-  <script>
-    // Data store
-    const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    const saveData = () => { localStorage.setItem('accounts', JSON.stringify(accounts)); localStorage.setItem('transactions', JSON.stringify(transactions)); };
-    let currentUser = null;
-
-    // Screens
-    const screens = {
-      landing: document.getElementById('screenLanding'),
-      adminLogin: document.getElementById('screenAdminLogin'),
-      userLogin: document.getElementById('screenUserLogin'),
-      admin: document.getElementById('screenAdmin'),
-      user: document.getElementById('screenUser'),
-      profile: document.getElementById('screenProfile'),
+        landing: document.getElementById('screenLanding'),
+        adminLogin: document.getElementById('screenAdminLogin'),
+        userLogin: document.getElementById('screenUserLogin'),
+        admin: document.getElementById('screenAdmin'),
+        user: document.getElementById('screenUser'),
     };
     const showScreen = (id) => {
-      Object.values(screens).forEach(s => s.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      const isLoggedIn = !!currentUser;
-      document.getElementById('logoutBtn').classList.toggle('hidden', !isLoggedIn);
-      document.getElementById('logoutBtnMobile').classList.toggle('hidden', !isLoggedIn);
+        Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        if (id === 'screenAdmin' || id === 'screenUser') {
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            document.getElementById('logoutBtnMobile').classList.remove('hidden');
+        } else {
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('logoutBtnMobile').classList.add('hidden');
+        }
+        document.getElementById('mobileMenu').classList.add('hidden');
     };
 
-    // Mobile menu
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-
-    // Inputs
+    // DOM elements
     const loginIdInput = document.getElementById('loginId');
     const loginPasswordInput = document.getElementById('loginPassword');
     const userLoginMobile = document.getElementById('userLoginMobile');
     const userLoginPin = document.getElementById('userLoginPin');
-
-    // UI refs
     const customerNameDisplay = document.getElementById('customerNameDisplay');
     const balanceDisplay = document.getElementById('balanceDisplay');
     const customerTransactionHistoryDisplay = document.getElementById('customerTransactionHistoryDisplay');
     const transactionHistoryDisplay = document.getElementById('transactionHistoryDisplay');
     const allAccountsDisplay = document.getElementById('allAccountsDisplay');
 
-    // Nav buttons
-    document.querySelectorAll('[data-target]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.getAttribute('data-target');
-        if (!target) return;
-        showScreen(target);
-      });
-    });
-
-    // Show/Hide PIN/password toggles
-    document.getElementById('togglePin').addEventListener('click', () => {
-      const input = userLoginPin;
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
-    document.getElementById('toggleAdminPwd').addEventListener('click', () => {
-      const input = loginPasswordInput;
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
-
-    // Login handlers
-    document.getElementById('adminLoginBtn').addEventListener('click', () => {
-      const id = loginIdInput.value;
-      const pwd = loginPasswordInput.value;
-      if (id === 'admin' && pwd === 'a123') { currentUser = { type: 'admin' }; showScreen('screenAdmin'); }
-      else { alert('Invalid admin credentials.'); }
-    });
-
-    document.getElementById('userLoginBtn').addEventListener('click', () => {
-      const id = (userLoginMobile.value || '').trim();
-      const password = (userLoginPin.value || '').trim();
-      const user = accounts.find(acc => acc.mobile === id && acc.pin === password);
-      if (user) { currentUser = { type: 'customer', data: user }; customerNameDisplay.textContent = user.name; showScreen('screenUser'); }
-      else { alert('Invalid mobile or PIN.'); }
-    });
-
-    // Logout
-    const logout = () => {
-      currentUser = null;
-      showScreen('screenLanding');
-      if (loginIdInput) loginIdInput.value = '';
-      if (loginPasswordInput) loginPasswordInput.value = '';
-      if (userLoginMobile) userLoginMobile.value = '';
-      if (userLoginPin) userLoginPin.value = '';
-    };
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('logoutBtnMobile').addEventListener('click', logout);
-    document.getElementById('logoutBtnUserHeader').addEventListener('click', logout);
-
-    // Admin features
-    document.getElementById('createAccountBtn').addEventListener('click', () => {
-      const name = document.getElementById('custName').value.trim();
-      const mobile = document.getElementById('custMobile').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
-      const dob = document.getElementById('custDob').value;
-      const aadhar = document.getElementById('custAadhar').value.trim();
-
-      if (!name || !mobile || !address || !dob || !aadhar) { alert('Please fill all fields.'); return; }
-      if (accounts.some(acc => acc.mobile === mobile)) { alert('Account with this mobile number already exists.'); return; }
-
-      const accountNumber = generateAccountNumber();
-      const pin = generatePin();
-      const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
-      accounts.push(newAccount); saveData();
-      alert(`Account created!\nAccount Number: ${accountNumber}\nPIN: ${pin}`);
-    });
-
-    document.getElementById('adminDepositBtn').addEventListener('click', () => {
-      const accNum = document.getElementById('adminDepositAccNum').value.trim();
-      const amount = parseFloat(document.getElementById('adminDepositAmount').value);
-      if (!accNum || amount <= 0 || isNaN(amount)) { alert('Please enter a valid account number and amount.'); return; }
-      const account = accounts.find(acc => acc.accountNumber === accNum);
-      if (!account) { alert('Account not found.'); return; }
-      account.balance += amount; saveData();
-      recordTransaction('admin-deposit', amount, accNum);
-      alert(`₹${amount.toFixed(2)} deposited into account ${accNum}.`);
-    });
-
-    document.getElementById('viewAllAccountsBtn').addEventListener('click', () => {
-      if (accounts.length === 0) { allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts yet.</p>'; return; }
-      let tableHtml = '<div class="overflow-auto"><table class="w-full text-left border-collapse tbl"><thead><tr>';
-      tableHtml += '<th>Name</th><th>Mobile</th><th>Account</th><th>PIN</th><th>Balance</th></tr></thead><tbody>';
-      accounts.forEach(acc => {
-        tableHtml += `<tr>
-          <td>${acc.name}</td>
-          <td>${acc.mobile}</td>
-          <td>${acc.accountNumber}</td>
-          <td>${acc.pin}</td>
-          <td>₹${acc.balance.toFixed(2)}</td>
-        </tr>`;
-      });
-      tableHtml += '</tbody></table></div>';
-      allAccountsDisplay.innerHTML = tableHtml;
-    });
-
-    document.getElementById('viewTransactionsBtn').addEventListener('click', () => {
-      const startDate = new Date(document.getElementById('startDate').value);
-      const endDate = new Date(document.getElementById('endDate').value);
-      const filtered = transactions.filter(tx => {
-        const d = new Date(tx.date);
-        if (isNaN(startDate.getTime()) && isNaN(endDate.getTime())) return true;
-        if (isNaN(startDate.getTime())) return d <= endDate;
-        if (isNaN(endDate.getTime())) return d >= startDate;
-        return d >= startDate && d <= endDate;
-      });
-      displayTransactions(filtered, transactionHistoryDisplay);
-    });
-
-    // Customer operations toggle
+    // UI Toggles
     const toggleOperation = (op) => {
-      document.getElementById('depositForm').classList.add('hidden');
-      document.getElementById('withdrawForm').classList.add('hidden');
-      document.getElementById('transferForm').classList.add('hidden');
-      document.getElementById(op + 'Form').classList.remove('hidden');
-    };
-    document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
-    document.getElementById('btnShowWithdraw').addEventListener('click', () => toggleOperation('withdraw'));
-    document.getElementById('btnShowTransfer').addEventListener('click', () => toggleOperation('transfer'));
-
-    // Balance
-    const viewBalance = () => {
-      const customer = accounts.find(acc => acc.accountNumber === currentUser?.data?.accountNumber);
-      if (!customer) return;
-      balanceDisplay.textContent = `Current Balance: ₹${customer.balance.toFixed(2)}`;
-    };
-    document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
-
-    // Transactions helpers
-    const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
-      const tx = { date: new Date().toISOString().split('T')[0], type, amount, fromAccount: fromAccNum, toAccount: toAccNum };
-      transactions.push(tx); saveData();
-    };
-
-    const displayTransactions = (txList, element) => {
-      if (!txList || txList.length === 0) { element.innerHTML = '<p class="text-white/90">No transactions found.</p>'; return; }
-      let tableHtml = '<div class="overflow-auto"><table class="w-full text-left border-collapse tbl"><thead><tr>';
-      tableHtml += '<th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr></thead><tbody>';
-      txList.forEach(tx => {
-        let details = '';
-        if (tx.type === 'transfer') { details = `From: ${tx.fromAccount} To: ${tx.toAccount}`; }
-        else if (tx.type === 'admin-deposit' || tx.type === 'deposit') { details = `To: ${tx.toAccount}`; }
-        else if (tx.type === 'withdrawal') { details = `From: ${tx.fromAccount}`; }
-        tableHtml += `<tr>
-          <td>${tx.date}</td>
-          <td class="capitalize">${tx.type}</td>
-          <td>₹${Number(tx.amount).toFixed(2)}</td>
-          <td>${details}</td>
-        </tr>`;
-      });
-      tableHtml += '</tbody></table></div>';
-      element.innerHTML = tableHtml;
-    };
-
-    // Customer operations
-    const depositMoney = () => {
-      const amount = parseFloat(document.getElementById('depositAmount').value);
-      if (amount <= 0 || isNaN(amount)) { alert('Invalid amount.'); return; }
-      const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-      customer.balance += amount; saveData();
-      recordTransaction('deposit', amount, customer.accountNumber);
-      alert(`₹${amount.toFixed(2)} deposited successfully.`); viewBalance();
-    };
-    const withdrawMoney = () => {
-      const amount = parseFloat(document.getElementById('withdrawAmount').value);
-      const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-      if (amount <= 0 || isNaN(amount) || amount > customer.balance) { alert('Invalid amount or insufficient balance.'); return; }
-      customer.balance -= amount; saveData();
-      recordTransaction('withdrawal', amount, null, customer.accountNumber);
-      alert(`₹${amount.toFixed(2)} withdrawn successfully.`); viewBalance();
-    };
-    const transferMoney = () => {
-      const toAccNum = document.getElementById('transferAccNum').value.trim();
-      const amount = parseFloat(document.getElementById('transferAmount').value);
-      const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-      const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
-      if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) { alert('Invalid amount or insufficient balance.'); return; }
-      if (!toAcc) { alert('Destination account not found.'); return; }
-      fromAcc.balance -= amount; toAcc.balance += amount; saveData();
-      recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
-      alert(`₹${amount.toFixed(2)} transferred to ${toAccNum}.`); viewBalance();
-    };
-    const viewCustomerTransactions = () => {
-      const acct = currentUser?.data?.accountNumber;
-      const list = transactions.filter(tx => tx.fromAccount === acct || tx.toAccount === acct);
-      displayTransactions(list, customerTransactionHistoryDisplay);
-    };
-
-    // Bind user ops
-    document.getElementById('depositBtn').addEventListener('click', depositMoney);
-    document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
-    document.getElementById('transferBtn').addEventListener('click', transferMoney);
-    document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
-
-    // Profile
-    const populateProfile = () => {
-      const u = currentUser?.data; if (!u) return;
-      document.getElementById('profileName').textContent = u.name;
-      document.getElementById('profileMobile').textContent = u.mobile;
-      document.getElementById('profileAccount').textContent = u.accountNumber;
-      document.getElementById('profileDob').textContent = u.dob || '-';
-      document.getElementById('profileAddress').value = u.address || '';
-    };
-    document.getElementById('saveProfileBtn').addEventListener('click', () => {
-      const u = currentUser?.data; if (!u) return;
-      const address = document.getElementById('profileAddress').value.trim();
-      const idx = accounts.findIndex(a => a.accountNumber === u.accountNumber);
-      if (idx > -1) { accounts[idx].address = address; currentUser.data.address = address; saveData(); alert('Address updated.'); }
-    });
-
-    // Navigate to profile if triggered elsewhere
-    document.querySelectorAll('[data-target="screenProfile"]').forEach(b=>{
-      b.addEventListener('click', () => { populateProfile(); showScreen('screenProfile'); });
-    });
-
-    // Start
-    showScreen('screenLanding');
-
-    // Ripple click effect
-    const rippleButtons = () => {
-      const btns = document.querySelectorAll('.ripple');
-      btns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const rect = btn.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width) * 100;
-          const y = ((e.clientY - rect.top) / rect.height) * 100;
-          btn.style.setProperty('--rx', x + '%');
-          btn.style.setProperty('--ry', y + '%');
-          btn.setAttribute('data-rippling', 'true');
-          setTimeout(() => btn.removeAttribute('data-rippling'), 600);
+        ['depositForm', 'withdrawForm', 'transferForm'].forEach(formId => {
+            document.getElementById(formId).classList.add('hidden');
         });
-      });
+        document.getElementById(`${op}Form`).classList.remove('hidden');
     };
-    rippleButtons();
+
+    // User Authentication
+    const login = (role) => {
+        if (role === 'admin') {
+            const id = loginIdInput.value;
+            const password = loginPasswordInput.value;
+            if (id === 'admin' && password === 'a123') {
+                currentUser = { type: 'admin' };
+                showScreen('screenAdmin');
+            } else {
+                alert('Invalid admin credentials.');
+            }
+        } else if (role === 'user') {
+            const id = userLoginMobile.value;
+            const password = userLoginPin.value;
+            const user = accounts.find(acc => acc.mobile === id && acc.pin === password);
+            if (user) {
+                currentUser = { type: 'customer', data: user };
+                customerNameDisplay.textContent = user.name;
+                showScreen('screenUser');
+            } else {
+                alert('Invalid customer credentials.');
+            }
+        }
+    };
+
+    const logout = () => {
+        currentUser = null;
+        loginIdInput.value = '';
+        loginPasswordInput.value = '';
+        userLoginMobile.value = '';
+        userLoginPin.value = '';
+        showScreen('screenLanding');
+    };
+
+    // Admin Functions
+    const createAccount = () => {
+        const name = document.getElementById('custName').value;
+        const mobile = document.getElementById('custMobile').value;
+        const address = document.getElementById('custAddress').value;
+        const dob = document.getElementById('custDob').value;
+        const aadhar = document.getElementById('custAadhar').value;
+
+        if (!name || !mobile || !address || !dob || !aadhar) {
+            alert('Please fill all fields.');
+            return;
+        }
+
+        if (accounts.some(acc => acc.mobile === mobile)) {
+            alert('Account with this mobile number already exists.');
+            return;
+        }
+
+        const accountNumber = generateAccountNumber();
+        const pin = generatePin();
+
+        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
+        accounts.push(newAccount);
+        saveData();
+        alert(`Account created successfully! Account Number: ${accountNumber}, PIN: ${pin}`);
+    };
+
+    const adminDeposit = () => {
+        const accNum = document.getElementById('adminDepositAccNum').value;
+        const amount = parseFloat(document.getElementById('adminDepositAmount').value);
+        if (!accNum || amount <= 0 || isNaN(amount)) {
+            alert('Please enter a valid account number and amount.');
+            return;
+        }
+        const account = accounts.find(acc => acc.accountNumber === accNum);
+        if (!account) {
+            alert('Account not found.');
+            return;
+        }
+        account.balance += amount;
+        saveData();
+        recordTransaction('admin-deposit', amount, accNum);
+        alert(`$${amount} deposited into account ${accNum} successfully.`);
+    };
+
+    const viewAllAccounts = () => {
+        if (accounts.length === 0) {
+            allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts have been created yet.</p>';
+            return;
+        }
+        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN</th><th>Balance</th></tr></thead><tbody>';
+        accounts.forEach(acc => {
+            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
+        });
+        tableHtml += '</tbody></table>';
+        allAccountsDisplay.innerHTML = tableHtml;
+    };
+
+    const viewTransactions = () => {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        const filteredTransactions = transactions.filter(tx => {
+            const txDate = new Date(tx.date);
+            return txDate >= startDate && txDate <= endDate;
+        });
+        displayTransactions(filteredTransactions, transactionHistoryDisplay);
+    };
+
+    // Customer Functions
+    const viewBalance = () => {
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        balanceDisplay.textContent = `$${customer.balance.toFixed(2)}`;
+    };
+
+    const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
+        const tx = {
+            date: new Date().toISOString().split('T')[0],
+            type,
+            amount,
+            fromAccount: fromAccNum,
+            toAccount: toAccNum
+        };
+        transactions.push(tx);
+        saveData();
+    };
+
+    const depositMoney = () => {
+        const amount = parseFloat(document.getElementById('depositAmount').value);
+        if (amount <= 0 || isNaN(amount)) {
+            alert('Invalid amount.');
+            return;
+        }
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        customer.balance += amount;
+        saveData();
+        recordTransaction('deposit', amount, customer.accountNumber);
+        alert(`$${amount} deposited successfully.`);
+        viewBalance();
+    };
+
+    const withdrawMoney = () => {
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        
+        if (amount <= 0 || isNaN(amount) || amount > customer.balance) {
+            alert('Invalid amount or insufficient balance.');
+            return;
+        }
+        customer.balance -= amount;
+        saveData();
+        recordTransaction('withdrawal', amount, null, customer.accountNumber);
+        alert(`$${amount} withdrawn successfully.`);
+        viewBalance();
+    };
+
+    const transferMoney = () => {
+        const toAccNum = document.getElementById('transferAccNum').value;
+        const amount = parseFloat(document.getElementById('transferAmount').value);
+        const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
+        const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
+
+        if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) {
+            alert('Invalid amount or insufficient balance.');
+            return;
+        }
+
+        if (!toAcc) {
+            alert('Destination account not found.');
+            return;
+        }
+
+        fromAcc.balance -= amount;
+        toAcc.balance += amount;
+        saveData();
+        recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
+        alert(`$${amount} transferred successfully to account ${toAccNum}.`);
+        viewBalance();
+    };
+
+    const viewCustomerTransactions = () => {
+        const userTransactions = transactions.filter(tx => 
+            tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
+        );
+        displayTransactions(userTransactions, customerTransactionHistoryDisplay);
+    };
+
+    // Utility function to display transactions in a table
+    const displayTransactions = (txList, element) => {
+        if (txList.length === 0) {
+            element.innerHTML = '<p class="text-white/90">No transactions found.</p>';
+            return;
+        }
+        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr></thead><tbody>';
+        txList.forEach(tx => {
+            let details = '';
+            if (tx.type === 'transfer') {
+                details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
+            } else if (tx.type === 'admin-deposit') {
+                details = `To: ${tx.toAccount}`;
+            } else if (tx.type === 'deposit') {
+                details = `To: ${tx.toAccount}`;
+            } else if (tx.type === 'withdrawal') {
+                details = `From: ${tx.fromAccount}`;
+            }
+            tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+        });
+        tableHtml += '</tbody></table>';
+        element.innerHTML = tableHtml;
+    };
+
+    // Event Listeners (using modern approach)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Navigation Buttons
+        document.querySelectorAll('[data-target]').forEach(button => {
+            button.addEventListener('click', (e) => showScreen(e.target.dataset.target));
+        });
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+        
+        // Login & Logout
+        document.getElementById('adminLoginBtn').addEventListener('click', () => login('admin'));
+        document.getElementById('userLoginBtn').addEventListener('click', () => login('user'));
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('logoutBtnMobile').addEventListener('click', logout);
+        document.getElementById('logoutBtnUserHeader').addEventListener('click', logout);
+
+        // Admin Functions
+        document.getElementById('createAccountBtn').addEventListener('click', createAccount);
+        document.getElementById('adminDepositBtn').addEventListener('click', adminDeposit);
+        document.getElementById('viewAllAccountsBtn').addEventListener('click', viewAllAccounts);
+        document.getElementById('viewTransactionsBtn').addEventListener('click', viewTransactions);
+
+        // Customer Functions
+        document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
+        document.getElementById('btnShowWithdraw').addEventListener('click', () => toggleOperation('withdraw'));
+        document.getElementById('btnShowTransfer').addEventListener('click', () => toggleOperation('transfer'));
+        document.getElementById('depositBtn').addEventListener('click', depositMoney);
+        document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
+        document.getElementById('transferBtn').addEventListener('click', transferMoney);
+        document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
+        document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
+
+        // Password Toggles
+        document.getElementById('toggleAdminPwd').addEventListener('click', () => {
+            const input = document.getElementById('loginPassword');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+        document.getElementById('togglePin').addEventListener('click', () => {
+            const input = document.getElementById('userLoginPin');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'971b3d0970c5179c',t:'MTc1NTYyMzE1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
