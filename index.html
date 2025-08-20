@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>e-Banking System</title>
     <style>
@@ -60,6 +60,7 @@
                 <input type="text" id="custAddress" placeholder="Address">
                 <input type="date" id="custDob">
                 <input type="text" id="custAadhar" placeholder="Aadhar Card Number">
+                <input type="password" id="custPin" placeholder="Set 4-Digit PIN" maxlength="4">
                 <button onclick="createAccount()">Create Account</button>
             </div>
             
@@ -118,12 +119,14 @@
                 <div id="depositForm" class="hidden">
                     <h4>Deposit Money</h4>
                     <input type="number" id="depositAmount" placeholder="Amount">
+                    <input type="password" id="depositPin" placeholder="Enter your PIN" maxlength="4">
                     <button onclick="depositMoney()">Deposit</button>
                 </div>
                 
                 <div id="withdrawForm" class="hidden">
                     <h4>Withdraw Money</h4>
                     <input type="number" id="withdrawAmount" placeholder="Amount">
+                    <input type="password" id="withdrawPin" placeholder="Enter your PIN" maxlength="4">
                     <button onclick="withdrawMoney()">Withdraw</button>
                 </div>
                 
@@ -131,6 +134,7 @@
                     <h4>Transfer Money</h4>
                     <input type="text" id="transferAccNum" placeholder="Destination Account Number">
                     <input type="number" id="transferAmount" placeholder="Amount">
+                    <input type="password" id="transferPin" placeholder="Enter your PIN" maxlength="4">
                     <button onclick="transferMoney()">Transfer</button>
                 </div>
             </div>
@@ -145,9 +149,8 @@
     </div>
 
     <script>
-        // Function to generate a random 8-digit number for the account and 4-digit PIN
+        // Function to generate a random 8-digit number for the account
         const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-        const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
 
         // Load data from localStorage or initialize with default values
         let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
@@ -238,9 +241,14 @@
             const address = document.getElementById('custAddress').value;
             const dob = document.getElementById('custDob').value;
             const aadhar = document.getElementById('custAadhar').value;
+            const pin = document.getElementById('custPin').value;
 
-            if (!name || !mobile || !address || !dob || !aadhar) {
-                alert('Please fill all fields.');
+            if (!name || !mobile || !address || !dob || !aadhar || !pin) {
+                alert('Please fill all fields, including the PIN.');
+                return;
+            }
+            if (!/^\d{4}$/.test(pin)) {
+                alert('PIN must be exactly 4 digits.');
                 return;
             }
             if (accounts.some(acc => acc.mobile === mobile)) {
@@ -248,11 +256,17 @@
                 return;
             }
             const accountNumber = generateAccountNumber();
-            const pin = generatePin();
             const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin, balance: 0 };
             accounts.push(newAccount);
             saveData();
-            alert(`Account created successfully!\nAccount Number: ${accountNumber}\nPIN: ${pin}`);
+            alert(`Account created successfully!\nAccount Number: ${accountNumber}`);
+            // Clear fields after creation
+            document.getElementById('custName').value = '';
+            document.getElementById('custMobile').value = '';
+            document.getElementById('custAddress').value = '';
+            document.getElementById('custDob').value = '';
+            document.getElementById('custAadhar').value = '';
+            document.getElementById('custPin').value = '';
         };
         
         const adminDeposit = () => {
@@ -352,6 +366,12 @@
 
         const depositMoney = () => {
             const amount = parseFloat(document.getElementById('depositAmount').value);
+            const pin = document.getElementById('depositPin').value;
+
+            if (pin !== currentUser.data.pin) {
+                alert('Incorrect PIN.');
+                return;
+            }
             if (isNaN(amount) || amount <= 0) {
                 alert('Invalid amount.');
                 return;
@@ -362,10 +382,18 @@
             saveData();
             alert(`₹${amount} deposited successfully.`);
             viewBalance();
+            document.getElementById('depositPin').value = '';
+            document.getElementById('depositAmount').value = '';
         };
 
         const withdrawMoney = () => {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const pin = document.getElementById('withdrawPin').value;
+            
+            if (pin !== currentUser.data.pin) {
+                alert('Incorrect PIN.');
+                return;
+            }
             const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
             if (isNaN(amount) || amount <= 0 || amount > customer.balance) {
                 alert('Invalid amount or insufficient balance.');
@@ -376,11 +404,20 @@
             saveData();
             alert(`₹${amount} withdrawn successfully.`);
             viewBalance();
+            document.getElementById('withdrawPin').value = '';
+            document.getElementById('withdrawAmount').value = '';
         };
 
         const transferMoney = () => {
             const toAccNum = document.getElementById('transferAccNum').value;
             const amount = parseFloat(document.getElementById('transferAmount').value);
+            const pin = document.getElementById('transferPin').value;
+
+            if (pin !== currentUser.data.pin) {
+                alert('Incorrect PIN.');
+                return;
+            }
+            
             const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
             
             if (fromAcc.accountNumber === toAccNum) {
@@ -405,6 +442,9 @@
             saveData();
             alert(`₹${amount} transferred successfully to account ${toAccNum}.`);
             viewBalance();
+            document.getElementById('transferAccNum').value = '';
+            document.getElementById('transferAmount').value = '';
+            document.getElementById('transferPin').value = '';
         };
 
         const viewCustomerTransactions = () => {
