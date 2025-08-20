@@ -55,6 +55,293 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
     }
+    
+    .footer-button {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 200ms ease, transform 200ms ease;
+    }
+    .footer-button:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-slate-900">
+  <header class="sticky top-0 z-40 bg-brand text-white shadow-brandGlow">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shadow-whiteSoft">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 8l9-5 9 5v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2V8z"/>
+          </svg>
+        </div>
+        <div class="font-semibold text-lg tracking-wide">e‑bank</div>
+      </div>
+      <nav class="hidden md:flex items-center gap-2">
+        <button data-target="screenLanding" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Home</button>
+        <button data-target="screenAdminLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">Admin</button>
+        <button data-target="screenUserLogin" class="px-3 py-2 rounded-lg hover:bg-white/15 lift">User</button>
+        <button id="logoutBtn" class="hidden ml-2 px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
+      </nav>
+      <div class="md:hidden flex items-center gap-2">
+        <button id="logoutBtnMobile" class="hidden px-3 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift">Logout</button>
+        <button id="mobileMenuBtn" class="px-3 py-2 rounded-lg bg-white/15 hover:bg-white/20 lift">Menu</button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/25">
+      <div class="max-w-6xl mx-auto px-6 py-3 flex flex-col gap-2">
+        <button data-target="screenLanding" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Home</button>
+        <button data-target="screenAdminLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">Admin</button>
+        <button data-target="screenUserLogin" class="text-left px-3 py-2 rounded-lg hover:bg-white/15">User</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-10">
+    <section id="screenLanding" class="screen">
+      <div class="rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <div class="grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 class="text-4xl font-semibold mb-3">Welcome to e‑bank</h1>
+            <p class="text-white/90 mb-6">A modern banking demo. Choose how you’d like to sign in.</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">User Login</button>
+              <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Admin Login</button>
+            </div>
+            <div class="mt-6 text-sm text-white/90">Demo only. Data is stored locally on your device.</div>
+          </div>
+          <div class="hidden lg:block">
+            <div class="rounded-2xl border border-white/25 p-6 bg-white/10">
+              <div class="h-24 w-3/4 bg-white/20 rounded-xl mb-3"></div>
+              <div class="h-6 w-1/2 bg-white/20 rounded mb-2"></div>
+              <div class="h-6 w-1/3 bg-white/20 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenAdminLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
+        <p class="text-white/90 mb-6">Use demo credentials: admin / a123</p>
+        <div class="space-y-4">
+          <input id="loginId" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Admin ID"/>
+          <div class="relative">
+            <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Password"/>
+            <button id="toggleAdminPwd" class="eye-btn" type="button" title="Show/Hide">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
+            </button>
+          </div>
+          <button id="adminLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenUserLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+        <h2 class="text-2xl font-semibold mb-1">User Login</h2>
+        <p class="text-white/90 mb-6">Login with your Account Number and PIN.</p>
+        <div class="space-y-4">
+          <input id="userLoginAccountNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Account Number"/>
+          <div class="relative">
+            <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="PIN"/>
+            <button id="togglePin" class="eye-btn" type="button" title="Show/Hide PIN">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
+            </button>
+          </div>
+          <button id="userLoginBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Login</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenPinSetup" class="screen hidden">
+        <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+            <h2 class="text-2xl font-semibold mb-1">Set Your PIN</h2>
+            <p class="text-white/90 mb-6">This is a one-time setup for your account.</p>
+            <div class="space-y-4">
+                <input id="newPinInput" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Enter New PIN (4 digits)"/>
+                <input id="confirmPinInput" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Confirm New PIN"/>
+                <button id="setPinBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Set PIN</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenAdmin" class="screen hidden">
+      <div class="space-y-6">
+        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift">
+          <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
+          <p class="text-white/90">Welcome, Admin! Manage accounts, deposits, and view transactions.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold">Create New Account</h3>
+              <span class="text-xs text-white/90">Demo</span>
+            </div>
+            <input id="custName" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Customer Name"/>
+            <input id="custMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
+            <input id="custAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Address"/>
+            <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-on-blue"/>
+            <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Aadhar Card Number"/>
+            <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
+            <p class="text-xs text-white/90">The customer will set their own PIN upon first login.</p>
+          </div>
+
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
+            <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
+            <input id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Account Number"/>
+            <input id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
+          </div>
+
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold">View All Accounts</h3>
+              <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
+            </div>
+            <div id="allAccountsDisplay" class="overflow-auto text-sm">
+              </div>
+          </div>
+
+          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <h3 class="text-lg font-semibold">View All Transactions</h3>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div>
+                  <label class="block text-xs text-white/90 mb-1">Start date</label>
+                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                </div>
+                <div>
+                  <label class="block text-xs text-white/90 mb-1">End date</label>
+                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                </div>
+                <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View</button>
+              </div>
+            </div>
+            <div id="transactionHistoryDisplay" class="overflow-auto text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenUser" class="screen hidden">
+        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
+                <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
+            </div>
+            <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
+        </div>
+
+        <div class="space-y-6">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-1 space-y-4">
+                    <h3 class="text-lg font-semibold">Account Operations</h3>
+                    <div class="icon-grid">
+                        <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+                            <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
+                            </div>
+                            <div class="text-sm font-medium">Deposit</div>
+                        </button>
+                        <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+                            <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
+                            </div>
+                            <div class="text-sm font-medium">Withdraw</div>
+                        </button>
+                        <button id="btnShowTransfer" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-3 text-center lift ripple">
+                            <div class="mx-auto mb-1 w-10 h-10 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 7h11l-2.5-2.5L13 3l5 5-5 5-1.5-1.5L14 9H3V7zm18 10H10l2.5 2.5L11 21l-5-5 5-5 1.5 1.5L10 13h11v2z"/></svg>
+                            </div>
+                            <div class="text-sm font-medium">Transfer</div>
+                        </button>
+                    </div>
+
+                    <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+                        <h4 class="font-medium">Deposit Money</h4>
+                        <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+                        <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
+                    </div>
+
+                    <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+                        <h4 class="font-medium">Withdraw Money</h4>
+                        <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+                        <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw to Wallet</button>
+                    </div>
+
+                    <div id="transferForm" class="hidden space-y-3 pt-3 border-t border-white/25">
+                        <h4 class="font-medium">Transfer Money</h4>
+                        <input id="transferAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Destination Account Number"/>
+                        <input id="transferAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
+                        <button id="transferBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Transfer</button>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
+                        <div id="balanceDisplay" class="text-2xl font-semibold"></div>
+                    </div>
+                    <div class="bg-white/10 p-4 rounded-xl space-y-2 mt-4">
+                        <p class="text-white/90">Wallet Balance</p>
+                        <div id="walletBalanceDisplayHome" class="text-3xl font-bold">$0.00</div>
+                    </div>
+                    <div class="border-t border-white/25 pt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold">Transaction History</h3>
+                            <button id="viewCustomerTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Refresh</button>
+                        </div>
+                        <div id="customerTransactionHistoryDisplay" class="overflow-auto text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenProfile" class="screen hidden">
+      <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
+        <div>
+          <h2 class="text-2xl font-semibold">Profile</h2>
+          <p class="text-white/90">View your details and update your address.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Name</div>
+            <div id="profileName" class="text-lg font-medium"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-white/90 text-sm">Mobile</div>
+            <div id="profileMobile" class="text-lg font-medium"></div>
+          </div>
+          <div class
+    /* Tables inside blue containers */
+    .tbl th, .tbl td { padding: .6rem .75rem; border-bottom: 1px solid rgba(255,255,255,0.18); }
+    .tbl th { color: rgba(255,255,255,0.9); font-weight: 600; }
+    .tbl td { color: #fff; }
+    .tbl tr:hover { background: rgba(255,255,255,0.08); }
+
+    /* Eye toggle area */
+    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#fff; opacity:.9; }
+    .eye-btn:hover { opacity: 1; }
+
+    /* Section transitions */
+    .screen { transition: opacity 300ms ease, transform 300ms ease; }
+    .hidden.screen { opacity: 0; transform: translateY(10px); }
+
+    /* Icon grid for better layout */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-white text-slate-900">
