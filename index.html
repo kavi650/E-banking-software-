@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>e‑Bank Demo — Enhanced with Wallet & Scan Features</title>
+  <title>e‑Bank — Modern Banking Experience</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -11,38 +11,12 @@
         extend: {
           colors: { 
             brand: "#0053ba",
-            wallet: "#4c1d95",
-            secondary: "#3b82f6"
+            brandLight: "#00addb"
           },
           boxShadow: {
             brandSoft: "0 10px 30px rgba(0,83,186,0.25)",
             brandGlow: "0 12px 36px rgba(0,83,186,0.38)",
-            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)",
-            walletGlow: "0 12px 36px rgba(76,29,149,0.38)"
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-out forwards',
-            'slide-up': 'slideUp 0.4s ease-out forwards',
-            'slide-down': 'slideDown 0.4s ease-out forwards',
-            'pulse-soft': 'pulseSoft 2s infinite'
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' }
-            },
-            slideUp: {
-              '0%': { transform: 'translateY(20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' }
-            },
-            slideDown: {
-              '0%': { transform: 'translateY(-20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' }
-            },
-            pulseSoft: {
-              '0%, 100%': { opacity: '1' },
-              '50%': { opacity: '0.8' }
-            }
+            whiteSoft: "0 6px 18px rgba(0,0,0,0.08)"
           }
         }
       }
@@ -59,61 +33,31 @@
     .lift { transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease; }
     .lift:hover { transform: translateY(-2px); }
 
-    /* Inputs on blue background */
-    .input-on-blue { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
-    .input-on-blue::placeholder { color: rgba(255,255,255,0.85); }
-    .input-on-blue:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,255,255,0.18); border-color: #fff; }
+    /* Transition animations */
+    .slide-in { animation: slideIn 300ms ease-out forwards; }
+    @keyframes slideIn { 0%{transform:translateX(100%); opacity:0} 100%{transform:translateX(0); opacity:1} }
+    
+    .fade-in { animation: fadeIn 300ms ease-out forwards; }
+    @keyframes fadeIn { 0%{opacity:0; transform:translateY(20px)} 100%{opacity:1; transform:translateY(0)} }
 
-    /* Tables inside blue containers */
+    /* White input fields */
+    .input-white { background: white; border: 2px solid #e2e8f0; color: #1e293b; }
+    .input-white::placeholder { color: #64748b; }
+    .input-white:focus { outline: none; box-shadow: 0 0 0 4px rgba(0,83,186,0.18); border-color: #0053ba; }
+
+    /* Tables */
     .tbl th, .tbl td { padding: .6rem .75rem; border-bottom: 1px solid rgba(255,255,255,0.18); }
     .tbl th { color: rgba(255,255,255,0.9); font-weight: 600; }
     .tbl td { color: #fff; }
     .tbl tr:hover { background: rgba(255,255,255,0.08); }
 
     /* Eye toggle area */
-    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#fff; opacity:.9; }
+    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); color:#64748b; opacity:.9; }
     .eye-btn:hover { opacity: 1; }
 
-    /* Screen transitions */
-    .screen { display: none; }
-    .screen.active { 
-      display: block; 
-      animation: fadeIn 0.5s ease-out forwards;
-    }
-
-    /* Camera view styling */
-    #cameraView {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      z-index: 100;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    #cameraView.active {
-      display: flex;
-      animation: fadeIn 0.3s ease-out;
-    }
-    #cameraView video {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 12px;
-    }
-    #cameraView .camera-controls {
-      margin-top: 20px;
-      display: flex;
-      gap: 15px;
-    }
-
-    /* Wallet pulse animation */
-    .wallet-pulse {
-      animation: pulseSoft 2s infinite;
-    }
+    /* Camera styles */
+    #cameraModal { backdrop-filter: blur(10px); }
+    #video { width: 100%; max-width: 400px; border-radius: 12px; }
   </style>
 </head>
 <body class="min-h-screen bg-white text-slate-900">
@@ -148,17 +92,16 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-6 py-10">
-    <section id="screenLanding" class="screen active">
-      <div class="rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+    <section id="screenLanding" class="screen">
+      <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-8 shadow-brandGlow lift">
         <div class="grid lg:grid-cols-2 gap-8 items-center">
           <div>
             <h1 class="text-4xl font-semibold mb-3">Welcome to e‑bank</h1>
-            <p class="text-white/90 mb-6">A modern banking demo with wallet and scan features.</p>
+            <p class="text-white/90 mb-6">Your modern banking solution. Choose how you'd like to sign in.</p>
             <div class="flex flex-col sm:flex-row gap-3">
               <button data-target="screenUserLogin" class="px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">User Login</button>
               <button data-target="screenAdminLogin" class="px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Admin Login</button>
             </div>
-            <div class="mt-6 text-sm text-white/90">Demo only. Data is stored locally on your device.</div>
           </div>
           <div class="hidden lg:block">
             <div class="rounded-2xl border border-white/25 p-6 bg-white/10">
@@ -171,14 +114,14 @@
       </div>
     </section>
 
-    <section id="screenAdminLogin" class="screen">
-      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+    <section id="screenAdminLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-8 shadow-brandGlow lift">
         <h2 class="text-2xl font-semibold mb-1">Admin Login</h2>
-        <p class="text-white/90 mb-6">Use demo credentials: admin / a123</p>
+        <p class="text-white/90 mb-6">Enter your admin credentials</p>
         <div class="space-y-4">
-          <input id="loginId" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Admin ID"/>
+          <input id="loginId" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Admin ID"/>
           <div class="relative">
-            <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Password"/>
+            <input id="loginPassword" type="password" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Password"/>
             <button id="toggleAdminPwd" class="eye-btn" type="button" title="Show/Hide">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
             </button>
@@ -188,14 +131,14 @@
       </div>
     </section>
 
-    <section id="screenUserLogin" class="screen">
-      <div class="max-w-md mx-auto rounded-2xl bg-brand text-white p-8 shadow-brandGlow lift">
+    <section id="screenUserLogin" class="screen hidden">
+      <div class="max-w-md mx-auto rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-8 shadow-brandGlow lift">
         <h2 class="text-2xl font-semibold mb-1">User Login</h2>
-        <p class="text-white/90 mb-6">Login with mobile number and PIN.</p>
+        <p class="text-white/90 mb-6">Login with your account number and PIN</p>
         <div class="space-y-4">
-          <input id="userLoginMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
+          <input id="userLoginAccount" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Account Number"/>
           <div class="relative">
-            <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="PIN"/>
+            <input id="userLoginPin" type="password" class="w-full px-4 py-3 rounded-xl input-white" placeholder="PIN"/>
             <button id="togglePin" class="eye-btn" type="button" title="Show/Hide PIN">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 .001-10.001A5 5 0 0 1 12 17z"/></svg>
             </button>
@@ -205,55 +148,43 @@
       </div>
     </section>
 
-    <section id="screenAdmin" class="screen">
+    <section id="screenAdmin" class="screen hidden">
       <div class="space-y-6">
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift">
+        <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift">
           <h2 class="text-2xl font-semibold">Admin Dashboard</h2>
-          <p class="text-white/90">Welcome, Admin! Manage accounts, deposits, and view transactions.</p>
+          <p class="text-white/90">Welcome, Admin! Manage accounts and view transactions.</p>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-6">
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Create New Account</h3>
-              <span class="text-xs text-white/90">Demo</span>
-            </div>
-            <input id="custName" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Customer Name"/>
-            <input id="custMobile" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Mobile Number"/>
-            <input id="custAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Address"/>
-            <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-on-blue"/>
-            <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Aadhar Card Number"/>
+          <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4">
+            <h3 class="text-lg font-semibold">Create New Account</h3>
+            <input id="custName" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Customer Name"/>
+            <input id="custMobile" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Mobile Number"/>
+            <input id="custAddress" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Address"/>
+            <input id="custDob" type="date" class="w-full px-4 py-3 rounded-xl input-white"/>
+            <input id="custAadhar" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Aadhar Card Number"/>
             <button id="createAccountBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Create Account</button>
-            <p class="text-xs text-white/90">Account number will be generated. User will set PIN on first login.</p>
           </div>
 
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4">
-            <h3 class="text-lg font-semibold">Deposit Money to Account</h3>
-            <input id="adminDepositAccNum" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Account Number"/>
-            <input id="adminDepositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Amount"/>
-            <button id="adminDepositBtn" class="w-full px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Deposit</button>
-          </div>
-
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+          <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">View All Accounts</h3>
               <button id="viewAllAccountsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Show All Accounts</button>
             </div>
-            <div id="allAccountsDisplay" class="overflow-auto text-sm">
-              </div>
+            <div id="allAccountsDisplay" class="overflow-auto text-sm"></div>
           </div>
 
-          <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
+          <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4 lg:col-span-2">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <h3 class="text-lg font-semibold">View All Transactions</h3>
               <div class="flex flex-col sm:flex-row gap-3">
                 <div>
                   <label class="block text-xs text-white/90 mb-1">Start date</label>
-                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                  <input id="startDate" type="date" class="px-4 py-2 rounded-xl input-white"/>
                 </div>
                 <div>
                   <label class="block text-xs text-white/90 mb-1">End date</label>
-                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-on-blue"/>
+                  <input id="endDate" type="date" class="px-4 py-2 rounded-xl input-white"/>
                 </div>
                 <button id="viewTransactionsBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View</button>
               </div>
@@ -264,70 +195,70 @@
       </div>
     </section>
 
-    <section id="screenUser" class="screen">
-      <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
+    <section id="screenUser" class="screen hidden">
+      <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift mb-6 flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-semibold">Customer Dashboard</h2>
-          <p class="text-white/90">Welcome, <span id="customerNameDisplay"></span>!</p>
+          <h2 class="text-2xl font-semibold">Welcome to e‑bank</h2>
+          <p class="text-white/90"><span id="customerNameDisplay"></span>!</p>
         </div>
-        <div class="flex gap-3">
-          <button class="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white hover:text-brand lift ripple" data-target="screenProfile">Profile</button>
-          <button class="px-4 py-2 rounded-lg bg-white text-brand hover:shadow-whiteSoft lift ripple" id="logoutBtnUserHeader">Logout</button>
+        <button id="profileBtn" class="p-3 rounded-full bg-white/20 hover:bg-white/30 lift ripple" title="Profile">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Wallet Display -->
+      <div class="rounded-2xl bg-white border-2 border-brandLight p-4 shadow-brandSoft lift mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-brand">Wallet Balance</h3>
+            <p id="walletDisplay" class="text-2xl font-bold text-brandLight">$0.00</p>
+          </div>
+          <div class="p-3 rounded-full bg-brandLight/10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-brandLight" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </svg>
+          </div>
         </div>
       </div>
 
-      <div class="grid lg:grid-cols-3 gap-6">
-        <div class="rounded-2xl bg-wallet text-white p-6 shadow-walletGlow lift lg:col-span-1 space-y-4">
-          <h3 class="text-lg font-semibold flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-            Home Wallet
-          </h3>
-          <div class="bg-white/10 rounded-xl p-4 text-center wallet-pulse">
-            <div class="text-sm text-white/80 mb-1">Wallet Balance</div>
-            <div id="walletBalance" class="text-2xl font-bold">$0.00</div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <button id="btnAddToWallet" class="rounded-xl bg-white/10 hover:bg-white hover:text-wallet px-3 py-2 text-center lift ripple">
-              Add Money
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4">
+          <h3 class="text-lg font-semibold">Account Operations</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btnShowDeposit" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-4 text-center lift ripple">
+              <div class="mx-auto mb-2 w-12 h-12 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 3v10l4-4 1.4 1.4L12 17.8 6.6 10.4 8 9l4 4V3z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Deposit</div>
             </button>
-            <button id="btnWalletToAccount" class="rounded-xl bg-white/10 hover:bg-white hover:text-wallet px-3 py-2 text-center lift ripple">
-              Transfer to Account
+            <button id="btnShowWithdraw" class="group rounded-xl border border-white/60 bg-white/10 hover:bg-white hover:text-brand px-3 py-4 text-center lift ripple">
+              <div class="mx-auto mb-2 w-12 h-12 rounded-full bg-white/20 group-hover:bg-brand/10 group-hover:text-brand text-white flex items-center justify-center lift">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 21V11l-4 4-1.4-1.4L12 6.2l6.4 7.4L17 15l-4-4v10z"/></svg>
+              </div>
+              <div class="text-sm font-medium">Withdraw</div>
             </button>
           </div>
 
-          <div id="addToWalletForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Add Money to Wallet</h4>
-            <input id="walletAddAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white" placeholder="Amount"/>
-            <button id="addToWalletBtn" class="w-full px-4 py-3 rounded-xl bg-white text-wallet hover:shadow-whiteSoft lift ripple">Add</button>
+          <div id="depositForm" class="hidden space-y-3 pt-3 border-t border-white/25 fade-in">
+            <h4 class="font-medium">Deposit Money</h4>
+            <input id="depositAmount" type="number" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Enter amount"/>
+            <button id="depositBtn" class="w-full px-4 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Deposit</button>
           </div>
 
-          <div id="walletToAccountForm" class="hidden space-y-3 pt-3 border-t border-white/25">
-            <h4 class="font-medium">Transfer to Account</h4>
-            <input id="walletTransferAmount" type="number" class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white" placeholder="Amount"/>
-            <button id="walletToAccountBtn" class="w-full px-4 py-3 rounded-xl bg-white text-wallet hover:shadow-whiteSoft lift ripple">Transfer</button>
+          <div id="withdrawForm" class="hidden space-y-3 pt-3 border-t border-white/25 fade-in">
+            <h4 class="font-medium">Withdraw to Wallet</h4>
+            <input id="withdrawAmount" type="number" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Enter amount"/>
+            <button id="withdrawBtn" class="w-full px-4 py-3 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">Withdraw</button>
           </div>
         </div>
 
-        <div class="rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift lg:col-span-2 space-y-4">
+        <div class="rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-4">
           <div class="flex flex-wrap items-center gap-3">
             <button id="viewBalanceBtn" class="px-4 py-2 rounded-xl border border-white/70 text-white hover:bg-white hover:text-brand lift ripple">View Balance</button>
             <div id="balanceDisplay" class="text-2xl font-semibold"></div>
           </div>
-          
-          <!-- Scan and Pay Section -->
-          <div class="border-t border-white/25 pt-4">
-            <h3 class="text-lg font-semibold mb-4 text-center">Scan & Pay</h3>
-            <div class="flex justify-center mb-4">
-              <button id="scanQRBtn" class="w-20 h-20 rounded-full bg-white/10 hover:bg-white hover:text-brand flex items-center justify-center lift ripple">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
           <div class="border-t border-white/25 pt-4">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-lg font-semibold">Transaction History</h3>
@@ -339,11 +270,18 @@
       </div>
     </section>
 
-    <section id="screenProfile" class="screen">
-      <div class="max-w-2xl mx-auto rounded-2xl bg-brand text-white p-6 shadow-brandGlow lift space-y-5">
-        <div>
-          <h2 class="text-2xl font-semibold">Profile</h2>
-          <p class="text-white/90">View your details and update your information.</p>
+    <section id="screenProfile" class="screen hidden">
+      <div class="max-w-2xl mx-auto rounded-2xl bg-gradient-to-br from-brand to-brandLight text-white p-6 shadow-brandGlow lift space-y-5 slide-in">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold">Profile</h2>
+            <p class="text-white/90">View and update your details</p>
+          </div>
+          <button id="backToUserBtn" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 lift">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </button>
         </div>
         <div class="grid md:grid-cols-2 gap-4">
           <div class="space-y-1">
@@ -364,15 +302,11 @@
           </div>
           <div class="space-y-1 md:col-span-2">
             <label class="text-white/90 text-sm">Address</label>
-            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Update your address"/>
+            <input id="profileAddress" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Update your address"/>
           </div>
           <div class="space-y-1 md:col-span-2">
-            <label class="text-white/90 text-sm">Change PIN</label>
-            <input id="profileNewPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Enter new PIN"/>
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <label class="text-white/90 text-sm">Confirm PIN</label>
-            <input id="profileConfirmPin" type="password" class="w-full px-4 py-3 rounded-xl input-on-blue" placeholder="Confirm new PIN"/>
+            <label class="text-white/90 text-sm">Set New PIN</label>
+            <input id="newPin" type="password" class="w-full px-4 py-3 rounded-xl input-white" placeholder="Enter new 4-digit PIN"/>
           </div>
           <div class="md:col-span-2">
             <button id="saveProfileBtn" class="w-full px-5 py-3 rounded-xl bg-white text-brand hover:shadow-whiteSoft lift ripple">Save Changes</button>
@@ -382,44 +316,54 @@
     </section>
   </main>
 
-  <!-- Camera View for QR Scanning -->
-  <div id="cameraView">
-    <video id="cameraFeed" autoplay playsinline></video>
-    <div class="camera-controls">
-      <button id="closeCameraBtn" class="px-4 py-2 rounded-lg bg-red-600 text-white">Close</button>
-      <button id="captureQRBtn" class="px-4 py-2 rounded-lg bg-brand text-white">Scan QR Code</button>
-    </div>
-  </div>
-
-  <footer class="mt-16">
-    <div class="max-w-6xl mx-auto px-6 py-6 rounded-2xl bg-brand text-white shadow-brandGlow text-center">
-      2025 e‑bank — All rights reserved
+  <!-- Footer with Scan & Pay -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-brand/20 z-30" id="userFooter" style="display: none;">
+    <div class="max-w-6xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-center">
+        <button id="scanPayBtn" class="group relative p-4 rounded-full bg-gradient-to-br from-brand to-brandLight text-white shadow-brandGlow hover:shadow-brandSoft lift ripple">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6.5 9.5v3h-3v-3h3M13 13h6v6h-6v-6zm-2-8h2v2h-2V5zm0 16h2v-2h-2v2zm8-8h2v2h-2v-2z"/>
+          </svg>
+          <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-brand text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Scan & Pay
+          </div>
+        </button>
+      </div>
     </div>
   </footer>
+
+  <!-- Camera Modal -->
+  <div id="cameraModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-brand">Scan QR Code</h3>
+        <button id="closeCameraBtn" class="p-2 rounded-lg hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="text-center">
+        <video id="video" autoplay playsinline class="mb-4"></video>
+        <p class="text-gray-600 mb-4">Position the QR code within the camera view</p>
+        <button id="stopCameraBtn" class="px-4 py-2 rounded-lg bg-brand text-white hover:bg-brand/90 lift">Stop Camera</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Data store
     const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
+    const generatePin = () => Math.floor(1000 + Math.random() * 9000).toString();
     let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
     let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    let wallets = JSON.parse(localStorage.getItem('wallets')) || [];
+    let wallets = JSON.parse(localStorage.getItem('wallets')) || {};
     const saveData = () => { 
       localStorage.setItem('accounts', JSON.stringify(accounts)); 
       localStorage.setItem('transactions', JSON.stringify(transactions));
       localStorage.setItem('wallets', JSON.stringify(wallets));
     };
     let currentUser = null;
-
-    // Initialize wallets if not exists
-    if (wallets.length === 0) {
-      accounts.forEach(acc => {
-        wallets.push({
-          accountNumber: acc.accountNumber,
-          balance: 0
-        });
-      });
-      saveData();
-    }
 
     // Screens
     const screens = {
@@ -430,44 +374,53 @@
         user: document.getElementById('screenUser'),
         profile: document.getElementById('screenProfile')
     };
+
     const showScreen = (id) => {
-        Object.values(screens).forEach(screen => {
-          screen.classList.remove('active');
-          setTimeout(() => screen.classList.add('hidden'), 10);
-        });
-        setTimeout(() => {
-          document.getElementById(id).classList.remove('hidden');
-          setTimeout(() => document.getElementById(id).classList.add('active'), 10);
-        }, 10);
+        Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
         
-        if (id === 'screenAdmin' || id === 'screenUser' || id === 'screenProfile') {
+        if (id === 'screenAdmin' || id === 'screenUser') {
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('logoutBtnMobile').classList.remove('hidden');
         } else {
             document.getElementById('logoutBtn').classList.add('hidden');
             document.getElementById('logoutBtnMobile').classList.add('hidden');
         }
+
+        // Show/hide footer
+        const userFooter = document.getElementById('userFooter');
+        if (id === 'screenUser') {
+            userFooter.style.display = 'block';
+            document.body.style.paddingBottom = '100px';
+        } else {
+            userFooter.style.display = 'none';
+            document.body.style.paddingBottom = '0';
+        }
+        
         document.getElementById('mobileMenu').classList.add('hidden');
     };
 
     // DOM elements
     const loginIdInput = document.getElementById('loginId');
     const loginPasswordInput = document.getElementById('loginPassword');
-    const userLoginMobile = document.getElementById('userLoginMobile');
+    const userLoginAccount = document.getElementById('userLoginAccount');
     const userLoginPin = document.getElementById('userLoginPin');
     const customerNameDisplay = document.getElementById('customerNameDisplay');
     const balanceDisplay = document.getElementById('balanceDisplay');
-    const walletBalanceDisplay = document.getElementById('walletBalance');
+    const walletDisplay = document.getElementById('walletDisplay');
     const customerTransactionHistoryDisplay = document.getElementById('customerTransactionHistoryDisplay');
     const transactionHistoryDisplay = document.getElementById('transactionHistoryDisplay');
     const allAccountsDisplay = document.getElementById('allAccountsDisplay');
 
-    // UI Toggles
+    // UI Toggles with animations
     const toggleOperation = (op) => {
-        ['depositForm', 'withdrawForm', 'transferForm', 'addToWalletForm', 'walletToAccountForm'].forEach(formId => {
-            document.getElementById(formId).classList.add('hidden');
+        ['depositForm', 'withdrawForm'].forEach(formId => {
+            const form = document.getElementById(formId);
+            form.classList.add('hidden');
         });
-        if (op) document.getElementById(`${op}Form`).classList.remove('hidden');
+        const targetForm = document.getElementById(`${op}Form`);
+        targetForm.classList.remove('hidden');
+        targetForm.classList.add('fade-in');
     };
 
     // User Authentication
@@ -475,37 +428,23 @@
         if (role === 'admin') {
             const id = loginIdInput.value;
             const password = loginPasswordInput.value;
-            if (id === 'admin' && password === 'a123') {
+            if (id === 'admin' && password === 'admin123') {
                 currentUser = { type: 'admin' };
                 showScreen('screenAdmin');
             } else {
                 alert('Invalid admin credentials.');
             }
         } else if (role === 'user') {
-            const mobile = userLoginMobile.value;
+            const accountNum = userLoginAccount.value;
             const pin = userLoginPin.value;
-            const user = accounts.find(acc => acc.mobile === mobile);
-            
+            const user = accounts.find(acc => acc.accountNumber === accountNum && acc.pin === pin);
             if (user) {
-                // Check if it's first login (no PIN set)
-                if (!user.pin) {
-                    // First login - set the PIN
-                    user.pin = pin;
-                    saveData();
-                    currentUser = { type: 'customer', data: user };
-                    customerNameDisplay.textContent = user.name;
-                    showScreen('screenUser');
-                    alert('PIN set successfully. Welcome to e-Bank!');
-                } else if (user.pin === pin) {
-                    // Regular login
-                    currentUser = { type: 'customer', data: user };
-                    customerNameDisplay.textContent = user.name;
-                    showScreen('screenUser');
-                } else {
-                    alert('Invalid PIN.');
-                }
+                currentUser = { type: 'customer', data: user };
+                customerNameDisplay.textContent = user.name;
+                updateWalletDisplay();
+                showScreen('screenUser');
             } else {
-                alert('Account not found with this mobile number.');
+                alert('Invalid account number or PIN.');
             }
         }
     };
@@ -514,7 +453,7 @@
         currentUser = null;
         loginIdInput.value = '';
         loginPasswordInput.value = '';
-        userLoginMobile.value = '';
+        userLoginAccount.value = '';
         userLoginPin.value = '';
         showScreen('screenLanding');
     };
@@ -538,34 +477,19 @@
         }
 
         const accountNumber = generateAccountNumber();
-        // Don't set PIN - user will set it on first login
 
-        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin: null, balance: 0 };
+        const newAccount = { name, mobile, address, dob, aadhar, accountNumber, pin: '', balance: 0 };
         accounts.push(newAccount);
-        wallets.push({
-          accountNumber: accountNumber,
-          balance: 0
-        });
+        wallets[accountNumber] = 0; // Initialize wallet
         saveData();
-        alert(`Account created successfully! Account Number: ${accountNumber}. User will set PIN on first login.`);
-    };
-
-    const adminDeposit = () => {
-        const accNum = document.getElementById('adminDepositAccNum').value;
-        const amount = parseFloat(document.getElementById('adminDepositAmount').value);
-        if (!accNum || amount <= 0 || isNaN(amount)) {
-            alert('Please enter a valid account number and amount.');
-            return;
-        }
-        const account = accounts.find(acc => acc.accountNumber === accNum);
-        if (!account) {
-            alert('Account not found.');
-            return;
-        }
-        account.balance += amount;
-        saveData();
-        recordTransaction('admin-deposit', amount, accNum);
-        alert(`$${amount} deposited into account ${accNum} successfully.`);
+        alert(`Account created successfully! Account Number: ${accountNumber}\nCustomer can set their PIN in profile.`);
+        
+        // Clear form
+        document.getElementById('custName').value = '';
+        document.getElementById('custMobile').value = '';
+        document.getElementById('custAddress').value = '';
+        document.getElementById('custDob').value = '';
+        document.getElementById('custAadhar').value = '';
     };
 
     const viewAllAccounts = () => {
@@ -573,10 +497,9 @@
             allAccountsDisplay.innerHTML = '<p class="text-white/90">No accounts have been created yet.</p>';
             return;
         }
-        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>Balance</th><th>Status</th></tr></thead><tbody>';
+        let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Name</th><th>Mobile</th><th>Account #</th><th>PIN Set</th><th>Balance</th></tr></thead><tbody>';
         accounts.forEach(acc => {
-            const status = acc.pin ? 'Active' : 'Pending PIN setup';
-            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>$${acc.balance.toFixed(2)}</td><td>${status}</td></tr>`;
+            tableHtml += `<tr><td>${acc.name}</td><td>${acc.mobile}</td><td>${acc.accountNumber}</td><td>${acc.pin ? 'Yes' : 'No'}</td><td>$${acc.balance.toFixed(2)}</td></tr>`;
         });
         tableHtml += '</tbody></table>';
         allAccountsDisplay.innerHTML = tableHtml;
@@ -596,19 +519,16 @@
     const viewBalance = () => {
         const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
         balanceDisplay.textContent = `$${customer.balance.toFixed(2)}`;
-        updateWalletBalance();
     };
 
-    const updateWalletBalance = () => {
-        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
-        if (wallet) {
-            walletBalanceDisplay.textContent = `$${wallet.balance.toFixed(2)}`;
-        }
+    const updateWalletDisplay = () => {
+        const walletBalance = wallets[currentUser.data.accountNumber] || 0;
+        walletDisplay.textContent = `$${walletBalance.toFixed(2)}`;
     };
 
     const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
         const tx = {
-            date: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0],
             type,
             amount,
             fromAccount: fromAccNum,
@@ -621,7 +541,7 @@
     const depositMoney = () => {
         const amount = parseFloat(document.getElementById('depositAmount').value);
         if (amount <= 0 || isNaN(amount)) {
-            alert('Invalid amount.');
+            alert('Please enter a valid amount.');
             return;
         }
         const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
@@ -630,6 +550,7 @@
         recordTransaction('deposit', amount, customer.accountNumber);
         alert(`$${amount} deposited successfully.`);
         viewBalance();
+        document.getElementById('depositAmount').value = '';
     };
 
     const withdrawMoney = () => {
@@ -640,104 +561,15 @@
             alert('Invalid amount or insufficient balance.');
             return;
         }
+        
         customer.balance -= amount;
+        wallets[customer.accountNumber] = (wallets[customer.accountNumber] || 0) + amount;
         saveData();
         recordTransaction('withdrawal', amount, null, customer.accountNumber);
-        alert(`$${amount} withdrawn successfully.`);
+        alert(`$${amount} withdrawn to wallet successfully.`);
         viewBalance();
-    };
-
-    const transferMoney = () => {
-        const toAccNum = document.getElementById('transferAccNum').value;
-        const amount = parseFloat(document.getElementById('transferAmount').value);
-        const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
-
-        if (amount <= 0 || isNaN(amount) || amount > fromAcc.balance) {
-            alert('Invalid amount or insufficient balance.');
-            return;
-        }
-
-        if (!toAcc) {
-            alert('Destination account not found.');
-            return;
-        }
-
-        fromAcc.balance -= amount;
-        toAcc.balance += amount;
-        saveData();
-        recordTransaction('transfer', amount, toAccNum, fromAcc.accountNumber);
-        alert(`$${amount} transferred successfully to account ${toAccNum}.`);
-        viewBalance();
-    };
-
-    // Wallet Functions
-    const addToWallet = () => {
-        const amount = parseFloat(document.getElementById('walletAddAmount').value);
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
-        
-        if (amount <= 0 || isNaN(amount) || amount > customer.balance) {
-            alert('Invalid amount or insufficient balance.');
-            return;
-        }
-        
-        customer.balance -= amount;
-        wallet.balance += amount;
-        saveData();
-        recordTransaction('wallet-add', amount, null, customer.accountNumber);
-        alert(`$${amount} added to wallet successfully.`);
-        viewBalance();
-    };
-
-    const walletToAccount = () => {
-        const amount = parseFloat(document.getElementById('walletTransferAmount').value);
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        const wallet = wallets.find(w => w.accountNumber === currentUser.data.accountNumber);
-        
-        if (amount <= 0 || isNaN(amount) || amount > wallet.balance) {
-            alert('Invalid amount or insufficient wallet balance.');
-            return;
-        }
-        
-        wallet.balance -= amount;
-        customer.balance += amount;
-        saveData();
-        recordTransaction('wallet-to-account', amount, customer.accountNumber);
-        alert(`$${amount} transferred from wallet to account successfully.`);
-        viewBalance();
-    };
-
-    // Camera/QR Functions
-    const openCamera = () => {
-        const cameraView = document.getElementById('cameraView');
-        cameraView.classList.add('active');
-        
-        // Simulate camera access (in a real app, we'd use the actual camera API)
-        const video = document.getElementById('cameraFeed');
-        video.srcObject = null; // In a real app, we'd get the actual camera stream
-        
-        // For demo purposes, we'll just show a placeholder
-        video.poster = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='375' viewBox='0 0 500 375'%3E%3Crect width='500' height='375' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='24'%3ECamera Feed%3C/text%3E%3C/svg%3E";
-    };
-
-    const closeCamera = () => {
-        const cameraView = document.getElementById('cameraView');
-        cameraView.classList.remove('active');
-        
-        // In a real app, we'd stop the camera stream here
-        const video = document.getElementById('cameraFeed');
-        if (video.srcObject) {
-            const tracks = video.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-            video.srcObject = null;
-        }
-    };
-
-    const scanQRCode = () => {
-        // Simulate QR code scanning
-        alert('QR code scanned! In a real application, this would process a payment.');
-        closeCamera();
+        updateWalletDisplay();
+        document.getElementById('withdrawAmount').value = '';
     };
 
     const viewCustomerTransactions = () => {
@@ -748,39 +580,64 @@
     };
 
     // Profile Functions
-    const loadProfile = () => {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        document.getElementById('profileName').textContent = customer.name;
-        document.getElementById('profileMobile').textContent = customer.mobile;
-        document.getElementById('profileAccount').textContent = customer.accountNumber;
-        document.getElementById('profileDob').textContent = customer.dob;
-        document.getElementById('profileAddress').value = customer.address;
+    const showProfile = () => {
+        const user = currentUser.data;
+        document.getElementById('profileName').textContent = user.name;
+        document.getElementById('profileMobile').textContent = user.mobile;
+        document.getElementById('profileAccount').textContent = user.accountNumber;
+        document.getElementById('profileDob').textContent = user.dob;
+        document.getElementById('profileAddress').value = user.address;
+        showScreen('screenProfile');
     };
 
     const saveProfile = () => {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
         const newAddress = document.getElementById('profileAddress').value;
-        const newPin = document.getElementById('profileNewPin').value;
-        const confirmPin = document.getElementById('profileConfirmPin').value;
+        const newPin = document.getElementById('newPin').value;
         
-        if (newAddress) {
-            customer.address = newAddress;
+        if (!newAddress) {
+            alert('Please enter an address.');
+            return;
         }
+
+        const accountIndex = accounts.findIndex(acc => acc.accountNumber === currentUser.data.accountNumber);
+        accounts[accountIndex].address = newAddress;
         
         if (newPin) {
-            if (newPin !== confirmPin) {
-                alert('PINs do not match.');
+            if (newPin.length !== 4 || isNaN(newPin)) {
+                alert('PIN must be exactly 4 digits.');
                 return;
             }
-            if (newPin.length !== 4 || !/^\d+$/.test(newPin)) {
-                alert('PIN must be 4 digits.');
-                return;
-            }
-            customer.pin = newPin;
+            accounts[accountIndex].pin = newPin;
+            alert('Profile and PIN updated successfully!');
+        } else {
+            alert('Profile updated successfully!');
         }
         
+        currentUser.data = accounts[accountIndex];
         saveData();
-        alert('Profile updated successfully.');
+        document.getElementById('newPin').value = '';
+    };
+
+    // Camera Functions
+    let stream = null;
+
+    const startCamera = async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            document.getElementById('cameraModal').classList.remove('hidden');
+        } catch (error) {
+            alert('Camera access denied or not available. Please ensure you have a camera and grant permission.');
+        }
+    };
+
+    const stopCamera = () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        document.getElementById('cameraModal').classList.add('hidden');
     };
 
     // Utility function to display transactions in a table
@@ -790,87 +647,83 @@
             return;
         }
         let tableHtml = '<table class="tbl w-full text-left"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr></thead><tbody>';
-        txList.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(tx => {
-            const date = new Date(tx.date);
-            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        txList.forEach(tx => {
             let details = '';
-            if (tx.type === 'transfer') {
-                details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
-            } else if (tx.type === 'admin-deposit') {
-                details = `To: ${tx.toAccount}`;
-            } else if (tx.type === 'deposit') {
+            if (tx.type === 'deposit') {
                 details = `To: ${tx.toAccount}`;
             } else if (tx.type === 'withdrawal') {
                 details = `From: ${tx.fromAccount}`;
-            } else if (tx.type === 'wallet-add') {
-                details = `From account to wallet`;
-            } else if (tx.type === 'wallet-to-account') {
-                details = `From wallet to account`;
             }
-            tableHtml += `<tr><td>${formattedDate}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+            tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>$${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
         });
         tableHtml += '</tbody></table>';
         element.innerHTML = tableHtml;
     };
 
-    // Event Listeners (using modern approach)
+    // Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
         // Navigation Buttons
         document.querySelectorAll('[data-target]').forEach(button => {
             button.addEventListener('click', (e) => showScreen(e.target.dataset.target));
         });
+        
         document.getElementById('mobileMenuBtn').addEventListener('click', () => {
             document.getElementById('mobileMenu').classList.toggle('hidden');
         });
-        
+
         // Login & Logout
         document.getElementById('adminLoginBtn').addEventListener('click', () => login('admin'));
         document.getElementById('userLoginBtn').addEventListener('click', () => login('user'));
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('logoutBtnMobile').addEventListener('click', logout);
-        document.getElementById('logoutBtnUserHeader').addEventListener('click', logout);
 
         // Admin Functions
         document.getElementById('createAccountBtn').addEventListener('click', createAccount);
-        document.getElementById('adminDepositBtn').addEventListener('click', adminDeposit);
         document.getElementById('viewAllAccountsBtn').addEventListener('click', viewAllAccounts);
         document.getElementById('viewTransactionsBtn').addEventListener('click', viewTransactions);
 
         // Customer Functions
         document.getElementById('btnShowDeposit').addEventListener('click', () => toggleOperation('deposit'));
         document.getElementById('btnShowWithdraw').addEventListener('click', () => toggleOperation('withdraw'));
-        document.getElementById('btnShowTransfer').addEventListener('click', () => toggleOperation('transfer'));
         document.getElementById('depositBtn').addEventListener('click', depositMoney);
         document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
-        document.getElementById('transferBtn').addEventListener('click', transferMoney);
         document.getElementById('viewBalanceBtn').addEventListener('click', viewBalance);
         document.getElementById('viewCustomerTransactionsBtn').addEventListener('click', viewCustomerTransactions);
 
-        // Wallet Functions
-        document.getElementById('btnAddToWallet').addEventListener('click', () => toggleOperation('addToWallet'));
-        document.getElementById('btnWalletToAccount').addEventListener('click', () => toggleOperation('walletToAccount'));
-        document.getElementById('addToWalletBtn').addEventListener('click', addToWallet);
-        document.getElementById('walletToAccountBtn').addEventListener('click', walletToAccount);
-
-        // Camera/QR Functions
-        document.getElementById('scanQRBtn').addEventListener('click', openCamera);
-        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
-        document.getElementById('captureQRBtn').addEventListener('click', scanQRCode);
-
         // Profile Functions
-        document.querySelector('button[data-target="screenProfile"]').addEventListener('click', loadProfile);
+        document.getElementById('profileBtn').addEventListener('click', showProfile);
+        document.getElementById('backToUserBtn').addEventListener('click', () => showScreen('screenUser'));
         document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
+
+        // Camera Functions
+        document.getElementById('scanPayBtn').addEventListener('click', startCamera);
+        document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
+        document.getElementById('stopCameraBtn').addEventListener('click', stopCamera);
 
         // Password Toggles
         document.getElementById('toggleAdminPwd').addEventListener('click', () => {
             const input = document.getElementById('loginPassword');
             input.type = input.type === 'password' ? 'text' : 'password';
         });
+        
         document.getElementById('togglePin').addEventListener('click', () => {
             const input = document.getElementById('userLoginPin');
             input.type = input.type === 'password' ? 'text' : 'password';
         });
+
+        // Ripple effect
+        document.querySelectorAll('.ripple').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                this.style.setProperty('--rx', x + '%');
+                this.style.setProperty('--ry', y + '%');
+                this.setAttribute('data-rippling', 'true');
+                setTimeout(() => this.removeAttribute('data-rippling'), 600);
+            });
+        });
     });
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972225f166c7a9c3',t:'MTc1NTY5NTYxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
