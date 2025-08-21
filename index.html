@@ -415,7 +415,7 @@
             height: 100%;
             background: black;
             z-index: 2000;
-            display: none; /* Changed from hidden to none */
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -713,6 +713,22 @@
             localStorage.setItem('transactions', JSON.stringify(transactions));
             localStorage.setItem('walletTransactions', JSON.stringify(walletTransactions));
         };
+
+        // Initialize with a sample account if none exists
+        if (accounts.length === 0) {
+            accounts.push({
+                name: "John Doe",
+                mobile: "1234567890",
+                address: "123 Main St, City",
+                dob: "1990-01-01",
+                aadhar: "1234-5678-9012",
+                accountNumber: "10000001",
+                pin: "1234",
+                balance: 5000,
+                walletBalance: 1000
+            });
+            saveData();
+        }
 
         // Current logged-in user
         let currentUser = null;
@@ -1134,7 +1150,7 @@
 
         const withdrawMoney = () => {
             const pin = document.getElementById('withdrawPin').value;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
 
             if (pin !== customer.pin) {
@@ -1325,7 +1341,7 @@
                 } else if (tx.type === 'wallet_add') {
                     details = `Added to Wallet`;
                 }
-                tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>₹${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
+                tableHtml += `<tr><td>${tx.date}</td><td>${tx.type</td><td>₹${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
             });
             tableHtml += '</table>';
             element.innerHTML = tableHtml;
