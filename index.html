@@ -29,6 +29,10 @@
       box-sizing: border-box;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, var(--background) 0%, #e6f0f7 100%);
@@ -45,10 +49,6 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: var(--card-shadow);
-    }
-
-    .hidden {
-      display: none;
     }
 
     h1,
@@ -565,7 +565,10 @@
     ];
 
     // --- Navigation Functions ---
-    const hideAllPanels = () => allPanels.forEach((p) => p.classList.add("hidden"));
+    const hideAllPanels = () => {
+      allPanels.forEach((p) => p.classList.add("hidden"));
+      ensureScannerHidden();
+    };
 
     const showUserLogin = () => {
       hideAllPanels();
@@ -585,6 +588,13 @@
         adminPanel.remove();
       }
     };
+
+    // --- Ensure scanner modal hidden ---
+    function ensureScannerHidden() {
+      if (!qrScannerModal.classList.contains("hidden")) {
+        closeScannerModal();
+      }
+    }
 
     // --- Login ---
     const loginUser = () => {
