@@ -686,7 +686,7 @@
         </div>
     </div>
 
-    <!-- Camera Scanner -->
+    <!-- Camera Scanner - Initially Hidden -->
     <div id="cameraScanner" class="hidden">
         <div class="scanner-overlay">
             <div class="scanner-line"></div>
@@ -740,18 +740,21 @@
             hideAllPanels();
             userLoginPanel.classList.remove('hidden');
             footerNav.classList.add('hidden');
+            closeCameraScanner(); // Ensure scanner is closed
         };
 
         const showAdminLogin = () => {
             hideAllPanels();
             adminLoginPanel.classList.remove('hidden');
             footerNav.classList.add('hidden');
+            closeCameraScanner(); // Ensure scanner is closed
         };
 
         const goHome = () => {
             hideAllPanels();
             landingPage.classList.remove('hidden');
             footerNav.classList.add('hidden');
+            closeCameraScanner(); // Ensure scanner is closed
             
             // Remove admin panel if it exists
             const adminPanel = document.getElementById('adminPanel');
@@ -790,6 +793,7 @@
                 viewBalance();
                 viewWalletBalance();
                 populateProfile();
+                closeCameraScanner(); // Ensure scanner is closed
             } else {
                 alert('Invalid mobile number or PIN.');
             }
@@ -805,6 +809,7 @@
                 footerNav.classList.add('hidden');
                 createAdminPanel();
                 showAdminPage('createAccountPage');
+                closeCameraScanner(); // Ensure scanner is closed
             } else {
                 alert('Invalid admin credentials.');
             }
@@ -817,6 +822,7 @@
             document.getElementById('adminLoginId').value = '';
             document.getElementById('adminLoginPassword').value = '';
             footerNav.classList.add('hidden');
+            closeCameraScanner(); // Ensure scanner is closed
             
             // Remove admin panel if it exists
             const adminPanel = document.getElementById('adminPanel');
@@ -1323,6 +1329,11 @@
             });
             tableHtml += '</table>';
             element.innerHTML = tableHtml;
+        };
+        
+        // Initialize the page
+        window.onload = function() {
+            closeCameraScanner(); // Ensure scanner is closed on page load
         };
     </script>
 </body>
