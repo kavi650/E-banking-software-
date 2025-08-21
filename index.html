@@ -415,7 +415,7 @@
             height: 100%;
             background: black;
             z-index: 2000;
-            display: flex;
+            display: none; /* Changed from hidden to none */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -687,7 +687,7 @@
     </div>
 
     <!-- Camera Scanner - Initially Hidden -->
-    <div id="cameraScanner" class="hidden">
+    <div id="cameraScanner">
         <div class="scanner-overlay">
             <div class="scanner-line"></div>
         </div>
@@ -1134,7 +1134,7 @@
 
         const withdrawMoney = () => {
             const pin = document.getElementById('withdrawPin').value;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const amount = parseFloat(document.getElementById('withdrawAmount').value;
             const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
 
             if (pin !== customer.pin) {
@@ -1266,14 +1266,14 @@
         };
         
         const openCameraScanner = () => {
-            cameraScanner.classList.remove('hidden');
+            cameraScanner.style.display = 'flex';
             // In a real app, you would access the device camera here
             // For this demo, we'll just simulate the camera view
             simulateCameraView();
         };
         
         const closeCameraScanner = () => {
-            cameraScanner.classList.add('hidden');
+            cameraScanner.style.display = 'none';
             // Stop camera if it was running
             stopCamera();
         };
