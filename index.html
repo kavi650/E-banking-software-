@@ -1,917 +1,688 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Secure e-Banking System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
-      :root {
-        --primary: #0053ba;
-        --primary-dark: #00addb;
-        --secondary: #6c757d;
-        --danger: #dc3545;
-        --background: #f4f8fb;
-        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        --transition: all 0.3s ease;
-        --accent: #ffcc00;
-      }
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Secure Banking System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  :root {
+    --primary: #0053ba;
+    --primary-dark: #00addb;
+    --danger: #dc3545;
+    --background: #f0f8ff;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --accent: #ffcc00;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--background);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .hidden { display: none !important; }
+  .container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px 12px 0 0;
+  }
+  header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 8px; }
+  #logoutBtn {
+    background-color: var(--danger);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    display: none;
+    user-select: none;
+  }
+  #logoutBtn:hover { background-color: #b32f2f; }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+  main { padding: 2rem; }
+  section { margin-bottom: 1rem; }
+  .panel { padding: 1rem 2rem; }
+  .btn { padding: 12px; font-size: 1rem; border-radius: 8px; background: var(--primary); color: white; border:none; cursor:pointer; margin-top:1rem; transition: background 0.3s ease; }
+  .btn:hover { background: var(--primary-dark); }
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 0.7rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { display:none; }
+  input:focus, select:focus { border-color: var(--primary); outline:none; box-shadow: 0 0 6px var(--primary); }
 
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, var(--background) 0%, #e6f0f7 100%);
-        color: #333;
-        min-height: 100vh;
-        padding: 20px;
-        padding-bottom: 110px;
-      }
+  .nav-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+  .nav-buttons button {
+    flex: 1;
+    min-width: 120px;
+    font-weight: bold;
+  }
+  .nav-buttons button.active, .nav-buttons button:hover {
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    color: white;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px 8px;
+    text-align: left;
+  }
+  th {
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    color: white;
+  }
+  tr:nth-child(even) { background:#f9f9f9; }
+  tr:hover { background:#ececec; }
 
-      .hidden {
-        display: none !important;
-      }
+  .balance-display { font-weight:bold; font-size:1.25rem; margin-bottom: 10px; }
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-      }
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+    font-size: 13px;
+    z-index: 1000;
+  }
+  footer button {
+    background:none;
+    border:none;
+    color: inherit;
+    cursor:pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  footer button i { font-size: 20px; margin-bottom: 3px; }
+  footer button:hover i { color: var(--accent); }
+  footer .scan-btn {
+    position: relative;
+    top: -20px;
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+  footer .scan-btn i { color: var(--accent); font-size: 28px;}
+  @media (max-width: 600px) {
+    footer {
+      height: 50px;
+    }
+    footer button { font-size: 11px;}
+    footer .scan-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      top: -13px;
+    }
+  }
+  /* Scan modal */
+  #qrModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height:100vh;
+    background: rgba(0,0,0,0.8);
+    display:none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index:2000;
+  }
+  #qrVideo {
+    width: 80vw;
+    max-width: 400px;
+    border-radius: 12px;
+  }
+  #cancelScan {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: var(--danger);
+    color: white;
+    border:none;
+    border-radius:8px;
+    cursor: pointer;
+  }
 
-      /* Header */
-      .header {
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px 12px 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
+</style>
+</head>
+<body>
 
-      .header h1 {
-        font-size: 2rem;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+<div class="container">
 
-      #headerLogoutButton {
-        background: linear-gradient(to right, var(--danger), #c82333);
-        border: none;
-        color: white;
-        padding: 8px 18px;
-        font-weight: 700;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 16px;
-        transition: background 0.3s ease;
-      }
+  <header>
+    <h1><i class="fas fa-landmark"></i> Secure Banking System</h1>
+    <button id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </header>
 
-      #headerLogoutButton:hover {
-        background: linear-gradient(to right, #c82333, var(--danger));
-      }
+  <main>
 
-      /* Landing page */
-      .welcome-container {
-        padding: 2rem;
-        text-align: center;
-      }
-
-      .welcome-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 1.5rem;
-      }
-
-      .panel {
-        padding: 1.5rem;
-      }
-
-      input, select, button {
-        width: 100%;
-        padding: 14px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        font-size: 16px;
-        transition: var(--transition);
-      }
-
-      input:focus, select:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(0, 83, 186, 0.2);
-      }
-
-      button {
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        padding: 14px;
-        transition: var(--transition);
-      }
-
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      .btn-secondary {
-        background: linear-gradient(to right, var(--secondary), #5a6268);
-      }
-
-      .btn-danger {
-        background: linear-gradient(to right, var(--danger), #c82333);
-      }
-
-      .section {
-        margin-bottom: 1.5rem;
-        padding: 1.5rem;
-        border: 1px solid #e1e8ed;
-        border-radius: 10px;
-        background: white;
-        box-shadow: var(--card-shadow);
-      }
-
-      .section-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--primary);
-      }
-
-      .profile-info p {
-        margin: 12px 0;
-        font-size: 1.1em;
-        display: flex;
-        justify-content: space-between;
-        max-width: 500px;
-      }
-
-      .profile-info strong {
-        color: var(--primary);
-        min-width: 150px;
-      }
-
-      .customer-nav {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .customer-nav button {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1rem 0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      th, td {
-        padding: 12px;
-        border: 1px solid #e1e8ed;
-        text-align: left;
-      }
-
-      th {
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        color: white;
-        font-weight: 600;
-      }
-
-      tr:nth-child(even) {
-        background-color: #f8f9fa;
-      }
-
-      tr:hover {
-        background-color: #e9ecef;
-      }
-
-      .balance-display {
-        text-align: center;
-        font-size: 2rem;
-        margin: 1.5rem 0;
-        color: var(--primary);
-        font-weight: bold;
-      }
-
-      #walletBalanceDisplay {
-        background: #fff3cd;
-        color: #856404;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        padding: 0.75rem 0;
-        border-radius: 8px;
-      }
-
-      /* Footer Nav */
-      .footer-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100vw;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
-        padding: 6px 12px;
-        z-index: 9999;
-      }
-
-      .footer-nav button {
-        flex: 1;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 14px;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        max-width: 80px;
-      }
-
-      .footer-nav i {
-        font-size: 18px;
-        margin-bottom: 3px;
-      }
-
-      .footer-nav .scan-btn {
-        background: linear-gradient(to right, var(--primary-dark), var(--primary));
-        font-size: 34px;
-        width: 80px;
-        height: 80px;
-        border-radius: 12px;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-        color: white;
-        align-items: center;
-        justify-content: center;
-        display: flex;
-        margin-top: -30px;
-        transition: all 0.25s ease;
-        flex-shrink: 0;
-      }
-
-      .footer-nav .scan-btn i {
-        color: #00ffee;
-      }
-
-      .footer-nav .scan-btn:hover {
-        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
-        transform: scale(1.1) rotate(3deg);
-      }
-
-      @media (max-width: 768px) {
-        .customer-nav {
-          flex-direction: column;
-        }
-
-        .welcome-buttons {
-          flex-direction: column;
-        }
-
-        .profile-info p {
-          flex-direction: column;
-        }
-
-        .footer-nav {
-          font-size: 12px;
-          padding: 6px 6px;
-        }
-
-        .footer-nav .scan-btn {
-          width: 65px;
-          height: 65px;
-          font-size: 28px;
-          margin-top: -22px;
-        }
-      }
-
-      /* Scanner modal */
-      .qr-scanner-modal {
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.75);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .qr-scanner-video {
-        max-width: 90vw;
-        max-height: 60vh;
-        border-radius: 12px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-        background: #111;
-      }
-
-      .qr-close-btn {
-        margin-top: 20px;
-        background: var(--danger);
-        color: white;
-        border: none;
-        padding: 12px 32px;
-        font-size: 18px;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-
-      /* Admin panel */
-      .admin-panel {
-        padding: 1.5rem;
-      }
-
-      .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-
-      .admin-header h2 {
-        margin: 0;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .admin-nav {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .admin-nav button {
-        flex: 1;
-        padding: 12px;
-        border: 1px solid var(--primary);
-        border-radius: 8px;
-        background: white;
-        color: var(--primary);
-        cursor: pointer;
-        font-weight: 600;
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
-
-      .admin-nav button.active,
-      .admin-nav button:hover {
-        background: linear-gradient(to right, var(--primary), var(--primary-dark));
-        color: white;
-      }
-
-      .admin-page {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: var(--card-shadow);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1><i class="fas fa-landmark"></i> Secure e-Banking System</h1>
-        <button id="headerLogoutButton" class="hidden" onclick="logout()">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+    <section id="landing" class="">
+      <h2>Welcome to Our Banking System</h2>
+      <p>Select your portal:</p>
+      <div class="nav-buttons">
+        <button onclick="showView('userLogin')">User Login</button>
+        <button onclick="showView('adminLogin')">Admin Login</button>
       </div>
-      
-      <div id="landingPage">
-        <div class="welcome-container">
-          <h2>Welcome to Our Banking Portal</h2>
-          <p>Please select your login portal to continue</p>
-          <div class="welcome-buttons">
-            <button onclick="showUserLogin()"><i class="fas fa-user"></i> User Login</button>
-            <button onclick="showAdminLogin()"><i class="fas fa-lock"></i> Admin Login</button>
-          </div>
-        </div>
+    </section>
+
+    <section id="userLogin" class="hidden">
+      <h2>User Login</h2>
+      <input type="text" id="inputUserMobile" placeholder="Mobile Number" />
+      <input type="password" id="inputUserPin" placeholder="PIN" maxlength="4"/>
+      <button onclick="loginUser()">Login</button>
+      <button onclick="showView('landing')">Back</button>
+    </section>
+
+    <section id="adminLogin" class="hidden">
+      <h2>Admin Login</h2>
+      <input type="text" id="inputAdminId" placeholder="Admin ID" />
+      <input type="password" id="inputAdminPass" placeholder="Password" />
+      <button onclick="loginAdmin()">Login</button>
+      <button onclick="showView('landing')">Back</button>
+    </section>
+
+    <section id="customerDashboard" class="hidden">
+      <div><b>Welcome, <span id="custName"></span></b></div>
+      <div id="balanceDisplay" class="balance-display"></div>
+      <div id="walletBalance" class="balance-display"></div>
+      <nav class="nav-buttons">
+        <button id="btnCustOperations" onclick="showCustomerSection('operations')">Operations</button>
+        <button id="btnCustProfile" onclick="showCustomerSection('profile')">Profile</button>
+        <button id="btnCustHistory" onclick="showCustomerSection('history')">History</button>
+      </nav>
+
+      <section id="operations" class="customer-section hidden">
+        <h3>Deposit Money</h3>
+        <input type="password" id="depositPin" placeholder="Enter PIN" maxlength="4">
+        <input type="number" id="depositAmount" placeholder="Amount" min="1">
+        <button onclick="depositMoney()">Deposit</button>
+
+        <h3>Withdraw to Wallet</h3>
+        <input type="password" id="withdrawPin" placeholder="Enter PIN" maxlength="4">
+        <input type="number" id="withdrawAmount" placeholder="Amount" min="1">
+        <button onclick="withdrawMoney()">Withdraw</button>
+
+        <h3>Transfer Money</h3>
+        <input type="password" id="transferPin" placeholder="Enter PIN" maxlength="4">
+        <input type="text" id="transferAcc" placeholder="Recipient Account Number">
+        <input type="number" id="transferAmount" placeholder="Amount" min="1">
+        <button onclick="transferMoney()">Transfer</button>
+      </section>
+
+      <section id="profile" class="customer-section hidden">
+        <h3>Profile</h3>
+        <p id="profileName"></p>
+        <p id="profileAccount"></p>
+        <p id="profileMobile"></p>
+        <p id="profileAddress"></p>
+        <p id="profileDOB"></p>
+        <p id="profileAadhar"></p>
+      </section>
+
+      <section id="history" class="customer-section hidden">
+        <h3>Transaction History</h3>
+        <div id="transactionList"></div>
+      </section>
+    </section>
+
+    <section id="adminDashboard" class="hidden">
+      <nav class="nav-buttons">
+        <button id="btnAdminCreate" onclick="showAdminSection('create')">Create Account</button>
+        <button id="btnAdminTransactions" onclick="showAdminSection('transactions')">Transactions</button>
+        <button id="btnAdminSearch" onclick="showAdminSection('search')">Search Profiles</button>
+      </nav>
+
+      <section id="create" class="admin-section">
+        <h3>Create Account</h3>
+        <input type="text" id="newName" placeholder="Name" />
+        <input type="text" id="newMobile" placeholder="Mobile" />
+        <input type="text" id="newAddress" placeholder="Address" />
+        <input type="date" id="newDOB" />
+        <input type="text" id="newAadhar" placeholder="Aadhar" />
+        <input type="password" id="newPin" placeholder="4-digit PIN" maxlength="4" />
+        <button onclick="createAccount()">Create</button>
+      </section>
+
+      <section id="transactions" class="admin-section hidden">
+        <h3>Transactions</h3>
+        <input type="text" id="transAccount" placeholder="Account Number (optional)" />
+        <input type="date" id="transStart" />
+        <input type="date" id="transEnd" />
+        <button onclick="viewTransactions()">View</button>
+        <div id="transactionsReport"></div>
+      </section>
+
+      <section id="search" class="admin-section hidden">
+        <h3>Search Profile</h3>
+        <input type="text" id="searchAccount" placeholder="Account Number" />
+        <button onclick="searchProfile()">Search</button>
+        <div id="searchResults"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer id="footer" class="hidden">
+    <button onclick="showCustomerSection('profile')">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </button>
+    <button class="scan-btn" onclick="openScanner()">
+      <i class="fas fa-qrcode"></i>
+    </button>
+    <button onclick="showWallet()">
+      <i class="fas fa-wallet"></i>
+      <span>Wallet</span>
+    </button>
+  </footer>
+
+  <div id="qrModal" class="hidden" style="position: fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:2000;">
+    <video id="qrVideo" style="width:80vw;max-width:400px;border-radius:12px;"></video>
+    <button id="cancelScan" style="margin-top: 10px; padding: 12px 24px; font-size: 18px; background-color:var(--danger); color:white; border:none; border-radius:8px; cursor:pointer;">Cancel Scan</button>
+  </div>
+
+<script>
+  const elements = {
+    landing: document.getElementById('landing'),
+    userLogin: document.getElementById('userLogin'),
+    adminLogin: document.getElementById('adminLogin'),
+    customerDashboard: document.getElementById('customerDashboard'),
+    adminDashboard: document.getElementById('adminDashboard'),
+    footer: document.getElementById('footer'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    balanceDisplay: document.getElementById('balanceDisplay'),
+    walletBalance: document.getElementById('walletBalance'),
+    transactionList: document.getElementById('transactionList'),
+    profileName: document.getElementById('profileName'),
+    profileAccount: document.getElementById('profileAccount'),
+    profileMobile: document.getElementById('profileMobile'),
+    profileAddress: document.getElementById('profileAddress'),
+    profileDOB: document.getElementById('profileDOB'),
+    profileAadhar: document.getElementById('profileAadhar'),
+    transactionsReport: document.getElementById('transactionsReport'),
+    searchResults: document.getElementById('searchResults'),
+    searchAccount: document.getElementById('searchAccount'),
+    qrModal: document.getElementById('qrModal'),
+    qrVideo: document.getElementById('qrVideo'),
+    cancelScanBtn: document.getElementById('cancelScan'),
+    custName: document.getElementById('custName'),
+  };
+
+  let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+  let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+  let currentUser = null;
+  let cameraStream = null;
+
+  function saveAll() {
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }
+
+  function hideAll() {
+    for (let key in elements) {
+      if (elements[key].classList && elements[key] !== elements.logoutBtn) elements[key].classList.add('hidden');
+    }
+    elements.footer.style.display = 'none';
+    elements.logoutBtn.style.display = 'none';
+    closeScan();
+  }
+
+  function showView(id) {
+    hideAll();
+    if (elements[id]) elements[id].classList.remove('hidden');
+  }
+
+  function showCustomerSection(section) {
+    ['operations', 'profile', 'history'].forEach(s => {
+      let el = document.getElementById(s);
+      if (el) el.classList.add('hidden');
+    });
+    let el = document.getElementById(section);
+    if (el) el.classList.remove('hidden');
+    if(section === 'history') showTransactionList();
+  }
+
+  // Simple capitalizer
+  function cap(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Navigation for admin dashboard sub-sections
+  function showAdminSection(section) {
+    ['create', 'transactions', 'search'].forEach(id => {
+      let el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', id !== section);
+      let btn = document.getElementById('btnAdmin' + cap(id));
+      if (btn) btn.classList.toggle('active', id === section);
+    });
+  }
+
+  // User login
+  function loginUser() {
+    const mobile = document.getElementById('inputUserMobile').value.trim();
+    const pin = document.getElementById('inputUserPin').value.trim();
+    let user = accounts.find(a => a.mobile === mobile && a.pin === pin);
+    if (!user) return alert('Invalid credentials');
+    currentUser = { type: 'customer', data: user };
+    document.getElementById('inputUserMobile').value = '';
+    document.getElementById('inputUserPin').value = '';
+    elements.custName.textContent = user.name;
+    showCustomerPanel();
+  }
+
+  // Admin login
+  function loginAdmin() {
+    const id = document.getElementById('inputAdminId').value.trim();
+    const pass = document.getElementById('inputAdminPass').value.trim();
+    if (id !== 'admin' || pass !== 'a123') return alert('Invalid credentials');
+    currentUser = { type: 'admin' };
+    document.getElementById('inputAdminId').value = '';
+    document.getElementById('inputAdminPass').value = '';
+    showAdminDashboard();
+  }
+
+  function showCustomerPanel() {
+    hideAll();
+    elements.customerDashboard.classList.remove('hidden');
+    elements.footer.style.display = 'flex';
+    elements.logoutBtn.style.display = 'inline-flex';
+    updateBalances();
+    showCustomerSection('operations');
+  }
+
+  function showAdminDashboard() {
+    hideAll();
+    buildAdminDashboard();
+    elements.logoutBtn.style.display = 'inline-flex';
+  }
+
+  function logout() {
+    currentUser = null;
+    hideAll();
+    elements.logoutBtn.style.display = 'none';
+    elements.footer.style.display = 'none';
+    showView('landing');
+  }
+
+  // Build admin dashboard on the fly
+  function buildAdminDashboard() {
+    elements.adminDashboard.innerHTML = `
+      <div class="nav-buttons">
+        <button id="btnAdminCreate" onclick="showAdminSection('create')">Create Account</button>
+        <button id="btnAdminTransactions" onclick="showAdminSection('transactions')">Transactions</button>
+        <button id="btnAdminSearch" onclick="showAdminSection('search')">Search Profiles</button>
       </div>
-      
-      <div id="userLoginPanel" class="hidden panel">
-        <h2><i class="fas fa-user"></i> User Login</h2>
-        <div class="form-group">
-          <input type="text" id="userLoginId" placeholder="Mobile Number" />
-        </div>
-        <div class="form-group">
-          <input type="password" id="userLoginPin" placeholder="PIN" />
-        </div>
-        <button onclick="loginUser()"><i class="fas fa-sign-in-alt"></i> Login</button>
-        <button class="btn-secondary" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Home</button>
-      </div>
-      
-      <div id="adminLoginPanel" class="hidden panel">
-        <h2><i class="fas fa-lock"></i> Admin Login</h2>
-        <div class="form-group">
-          <input type="text" id="adminLoginId" placeholder="Admin ID" />
-        </div>
-        <div class="form-group">
-          <input type="password" id="adminLoginPassword" placeholder="Password" />
-        </div>
-        <button onclick="loginAdmin()"><i class="fas fa-sign-in-alt"></i> Login</button>
-        <button class="btn-secondary" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Home</button>
-      </div>
-      
-      <div id="customerPanel" class="hidden">
-        <h2><i class="fas fa-user-circle"></i> Customer Dashboard</h2>
-        <div class="panel">
-          <p style="text-align: center; font-size: 1.2em">Welcome, <span id="customerNameDisplay"></span>!</p>
-          <div id="balanceDisplay" class="balance-display"></div>
-          <div id="walletBalanceDisplay" class="balance-display" style="background: #fff3cd; color: #856404">Wallet Balance: ₹0.00</div>
-      
-          <div class="customer-nav">
-            <button onclick="showCustomerView('operations')"><i class="fas fa-cogs"></i> Operations</button>
-            <button onclick="showCustomerView('profile')"><i class="fas fa-id-card"></i> Profile</button>
-            <button onclick="showCustomerView('history')"><i class="fas fa-history"></i> History</button>
-          </div>
-      
-          <div id="profileView" class="section hidden">
-            <div class="section-title"><i class="fas fa-id-card"></i><h3>Your Profile</h3></div>
-            <div class="profile-info">
-              <p><strong>Name:</strong> <span id="profileName"></span></p>
-              <p><strong>Account Number:</strong> <span id="profileAccNum"></span></p>
-              <p><strong>Mobile Number:</strong> <span id="profileMobile"></span></p>
-              <p><strong>Address:</strong> <span id="profileAddress"></span></p>
-              <p><strong>Date of Birth:</strong> <span id="profileDob"></span></p>
-              <p><strong>Aadhar Number:</strong> <span id="profileAadhar"></span></p>
-            </div>
-          </div>
-      
-          <div id="operationsView" class="section">
-            <div class="section-title"><i class="fas fa-cogs"></i><h3>Account Operations</h3></div>
-            <div class="customer-nav">
-              <button onclick="toggleOperation('deposit')"><i class="fas fa-money-bill-wave"></i> Deposit</button>
-              <button onclick="toggleOperation('withdraw')"><i class="fas fa-hand-holding-usd"></i> Withdraw to Wallet</button>
-              <button onclick="toggleOperation('transfer')"><i class="fas fa-exchange-alt"></i> Transfer</button>
-            </div>
-            <div class="operation-forms">
-              <div id="depositForm" class="hidden">
-                <h4><i class="fas fa-money-bill-wave"></i> Deposit Money</h4>
-                <div class="form-group"><input type="password" id="depositPin" placeholder="Enter PIN" /></div>
-                <div class="form-group"><input type="number" id="depositAmount" placeholder="Amount" /></div>
-                <button onclick="depositMoney()"><i class="fas fa-plus-circle"></i> Deposit</button>
-              </div>
-              <div id="withdrawForm" class="hidden">
-                <h4><i class="fas fa-hand-holding-usd"></i> Withdraw Money (to Wallet)</h4>
-                <div class="form-group"><input type="password" id="withdrawPin" placeholder="Enter PIN" /></div>
-                <div class="form-group"><input type="number" id="withdrawAmount" placeholder="Amount" /></div>
-                <button onclick="withdrawMoney()"><i class="fas fa-wallet"></i> Withdraw to Wallet</button>
-              </div>
-              <div id="transferForm" class="hidden">
-                <h4><i class="fas fa-exchange-alt"></i> Transfer Money</h4>
-                <div class="form-group"><input type="text" id="transferAccNum" placeholder="Destination Account Number" /></div>
-                <div class="form-group"><input type="number" id="transferAmount" placeholder="Amount" /></div>
-                <button onclick="transferMoney()"><i class="fas fa-paper-plane"></i> Transfer</button>
-              </div>
-            </div>
-          </div>
-      
-          <div id="historyView" class="section hidden">
-            <div class="section-title"><i class="fas fa-history"></i><h3>Transaction History</h3></div>
-            <div id="customerTransactionHistoryDisplay"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div id="adminPanel" class="admin-panel hidden"></div>
-      
-      <div class="footer-nav" id="customerFooterNav">
-        <button onclick="showCustomerView('profile')"><i class="fas fa-user"></i><br />Profile</button>
-        <button class="scan-btn" onclick="openScanner()" aria-label="Scan and Pay"><i class="fas fa-qrcode"></i></button>
-        <button onclick="showWalletBalance()"><i class="fas fa-wallet"></i><br />Wallet</button>
-      </div>
-    </div>
-    
-    <div id="qrScannerModal" class="qr-scanner-modal hidden">
-      <video id="qrVideo" class="qr-scanner-video" autoplay playsinline></video>
-      <button class="qr-close-btn" onclick="closeScannerModal()">Close</button>
-    </div>
-    
-    <script>
-      const generateAccountNumber = () => Math.floor(10000000 + Math.random() * 90000000).toString();
-      let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
-      let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-      
-      const saveData = () => {
-        localStorage.setItem("accounts", JSON.stringify(accounts));
-        localStorage.setItem("transactions", JSON.stringify(transactions));
-      };
-      
-      let currentUser = null;
-      const landingPage = document.getElementById("landingPage");
-      const userLoginPanel = document.getElementById("userLoginPanel");
-      const adminLoginPanel = document.getElementById("adminLoginPanel");
-      const customerPanel = document.getElementById("customerPanel");
-      const adminPanel = document.getElementById("adminPanel");
-      const customerFooter = document.getElementById("customerFooterNav");
-      const headerLogoutButton = document.getElementById("headerLogoutButton");
-      const balanceDisplay = document.getElementById("balanceDisplay");
-      const walletBalanceDisplay = document.getElementById("walletBalanceDisplay");
-      const qrScannerModal = document.getElementById("qrScannerModal");
-      const qrVideo = document.getElementById("qrVideo");
-      let cameraStream = null;
-      
-      const allPanels = [landingPage, userLoginPanel, adminLoginPanel, customerPanel];
-      
-      function hideAllPanels() {
-        allPanels.forEach(p => p.classList.add("hidden"));
-        adminPanel.classList.add("hidden");
-        customerFooter.style.display = "none";
-        headerLogoutButton.classList.add("hidden");
-        ensureScannerHidden();
-      }
-      
-      function showUserLogin() {
-        hideAllPanels();
-        userLoginPanel.classList.remove("hidden");
-      }
-      
-      function showAdminLogin() {
-        hideAllPanels();
-        adminLoginPanel.classList.remove("hidden");
-      }
-      
-      function goHome() {
-        hideAllPanels();
-        landingPage.classList.remove("hidden");
-      }
-      
-      function ensureScannerHidden() {
-        if (!qrScannerModal.classList.contains("hidden")) {
-          closeScannerModal();
-        }
-      }
-      
-      function createAdminPanel() {
-        const html = `
-          <div class="admin-header">
-            <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
-          </div>
-          <div class="admin-nav">
-            <button id="navCreate" onclick="showAdminPage('createAccountPage')">Create Account</button>
-            <button id="navTransactions" onclick="showAdminPage('transactionsPage')">Transactions Report</button>
-            <button id="navSearch" onclick="showAdminPage('searchProfilesPage')">Search Profiles</button>
-          </div>
-          <div class="admin-content">
-            <div id="createAccountPage" class="admin-page">
-              <div class="section">
-                <div class="section-title"><i class="fas fa-plus-circle"></i><h3>Create New Account</h3></div>
-                <div class="form-group"><input type="text" id="custName" placeholder="Customer Name" /></div>
-                <div class="form-group"><input type="text" id="custMobile" placeholder="Mobile Number" /></div>
-                <div class="form-group"><input type="text" id="custAddress" placeholder="Address" /></div>
-                <div class="form-group"><label for="custDob">Date of Birth:</label><input type="date" id="custDob" /></div>
-                <div class="form-group"><input type="text" id="custAadhar" placeholder="Aadhar Card Number" /></div>
-                <div class="form-group"><input type="password" id="custPin" placeholder="Set 4-digit PIN" /></div>
-                <button onclick="createAccount()"><i class="fas fa-user-plus"></i> Create Account</button>
-              </div>
-            </div>
-            <div id="transactionsPage" class="admin-page hidden">
-              <div class="section">
-                <div class="section-title"><i class="fas fa-file-alt"></i><h3>View Transactions Report</h3></div>
-                <div class="form-group"><input type="text" id="reportAccNum" placeholder="Account Number (Optional)" /></div>
-                <div class="form-group"><label for="startDate">From Date:</label><input type="date" id="startDate" /></div>
-                <div class="form-group"><label for="endDate">To Date:</label><input type="date" id="endDate" /></div>
-                <button onclick="viewTransactions()"><i class="fas fa-chart-bar"></i> Generate Report</button>
-                <div id="transactionHistoryDisplay"></div>
-              </div>
-            </div>
-            <div id="searchProfilesPage" class="admin-page hidden">
-              <div class="section">
-                <div class="section-title"><i class="fas fa-search"></i><h3>Search Profiles</h3></div>
-                <div class="form-group"><input type="text" id="searchAccNum" placeholder="Enter Account Number" /></div>
-                <button onclick="searchProfile()"><i class="fas fa-search"></i> Search</button>
-                <div id="searchProfileDisplay" class="search-profile-display"></div>
-              </div>
-            </div>
-          </div>
-        `;
-        adminPanel.innerHTML = html;
-        adminPanel.classList.remove("hidden");
-        showAdminPage('createAccountPage');
-      }
-      
-      function showAdminPage(pageId) {
-        ['createAccountPage', 'transactionsPage', 'searchProfilesPage'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.classList.toggle('hidden', id !== pageId);
-        });
-        ['navCreate', 'navTransactions', 'navSearch'].forEach(id => {
-          const btn = document.getElementById(id);
-          if (btn) btn.classList.toggle('active', id + 'Page' === pageId);
-        });
-      }
-      
-      function loginUser() {
-        const mobile = document.getElementById("userLoginId").value;
-        const pin = document.getElementById("userLoginPin").value;
-        const user = accounts.find(acc => acc.mobile === mobile && acc.pin === pin);
-        
-        if (user) {
-          currentUser = { type: "customer", data: user };
-          document.getElementById("customerNameDisplay").textContent = user.name;
-          hideAllPanels();
-          customerPanel.classList.remove("hidden");
-          customerFooter.style.display = "flex";
-          headerLogoutButton.classList.remove("hidden");
-          showCustomerView("operations");
-          viewBalance();
-          populateProfile();
-        } else {
-          alert("Invalid mobile number or PIN.");
-        }
-      }
-      
-      function loginAdmin() {
-        const id = document.getElementById("adminLoginId").value;
-        const password = document.getElementById("adminLoginPassword").value;
-        
-        if (id === "admin" && password === "a123") {
-          currentUser = { type: "admin" };
-          hideAllPanels();
-          createAdminPanel();
-          customerFooter.style.display = "none";
-          headerLogoutButton.classList.remove("hidden");
-        } else {
-          alert("Invalid admin credentials.");
-        }
-      }
-      
-      function logout() {
-        currentUser = null;
-        document.getElementById("userLoginId").value = "";
-        document.getElementById("userLoginPin").value = "";
-        document.getElementById("adminLoginId").value = "";
-        document.getElementById("adminLoginPassword").value = "";
-        hideAllPanels();
-        goHome();
-      }
-      
-      function showCustomerView(viewName) {
-        ["operationsView", "profileView", "historyView"].forEach(id =>
-          document.getElementById(id).classList.add("hidden")
-        );
-        document.getElementById(`${viewName}View`).classList.remove("hidden");
-        if (viewName === "history") {
-          viewCustomerTransactions();
-        }
-      }
-      
-      function populateProfile() {
-        const user = currentUser.data;
-        if (!user) return;
-        document.getElementById("profileName").textContent = user.name;
-        document.getElementById("profileAccNum").textContent = user.accountNumber;
-        document.getElementById("profileMobile").textContent = user.mobile;
-        document.getElementById("profileAddress").textContent = user.address;
-        document.getElementById("profileDob").textContent = user.dob;
-        document.getElementById("profileAadhar").textContent = user.aadhar;
-      }
-      
-      function toggleOperation(op) {
-        ["depositForm", "withdrawForm", "transferForm"].forEach(id =>
-          document.getElementById(id).classList.add("hidden")
-        );
-        document.getElementById(`${op}Form`).classList.remove("hidden");
-      }
-      
-      function viewWalletBalance() {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        if (!customer.walletBalance) customer.walletBalance = 0;
-        walletBalanceDisplay.textContent = `Wallet Balance: ₹${customer.walletBalance.toFixed(2)}`;
-      }
-      
-      function showWalletBalance() {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser?.data?.accountNumber);
-        if (!customer) {
-          alert("Please login to view wallet balance.");
-          return;
-        }
-        if (!customer.walletBalance) customer.walletBalance = 0;
-        alert(`Wallet Balance: ₹${customer.walletBalance.toFixed(2)}`);
-      }
-      
-      function viewBalance() {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        currentUser.data = customer;
-        balanceDisplay.textContent = `Account Balance: ₹${customer.balance.toFixed(2)}`;
-        viewWalletBalance();
-      }
-      
-      function recordTransaction(type, amount, toAccNum = null, fromAccNum = null) {
-        transactions.push({
-          date: new Date().toISOString().split("T")[0],
-          type,
-          amount,
-          fromAccount: fromAccNum,
-          toAccount: toAccNum,
-        });
-        saveData();
-      }
-      
-      function depositMoney() {
-        const pin = document.getElementById("depositPin").value;
-        const amount = parseFloat(document.getElementById("depositAmount").value);
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        
-        if (pin !== customer.pin) {
-          alert("Invalid PIN.");
-          return;
-        }
-        
-        if (isNaN(amount) || amount <= 0) {
-          alert("Invalid amount.");
-          return;
-        }
-        
-        customer.balance += amount;
-        recordTransaction("deposit", amount, customer.accountNumber);
-        saveData();
-        alert(`₹${amount} deposited successfully.`);
-        viewBalance();
-        document.getElementById("depositPin").value = "";
-        document.getElementById("depositAmount").value = "";
-      }
-      
-      function withdrawMoney() {
-        const pin = document.getElementById("withdrawPin").value;
-        const amount = parseFloat(document.getElementById("withdrawAmount").value);
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        
-        if (pin !== customer.pin) {
-          alert("Invalid PIN.");
-          return;
-        }
-        
-        if (isNaN(amount) || amount <= 0 || amount > customer.balance) {
-          alert("Invalid amount or insufficient balance.");
-          return;
-        }
-        
-        customer.balance -= amount;
-        if (!customer.walletBalance) customer.walletBalance = 0;
-        customer.walletBalance += amount;
-        recordTransaction("withdrawal-to-wallet", amount, null, customer.accountNumber);
-        saveData();
-        alert(`₹${amount} moved to Wallet successfully.`);
-        viewBalance();
-        document.getElementById("withdrawPin").value = "";
-        document.getElementById("withdrawAmount").value = "";
-      }
-      
-      function transferMoney() {
-        const pin = document.getElementById("transferPin").value;
-        const toAccNum = document.getElementById("transferAccNum").value;
-        const amount = parseFloat(document.getElementById("transferAmount").value);
-        const fromAcc = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        
-        if (pin !== fromAcc.pin) {
-          alert("Invalid PIN.");
-          return;
-        }
-        
-        if (fromAcc.accountNumber === toAccNum) {
-          alert("You cannot transfer money to your own account.");
-          return;
-        }
-        
-        const toAcc = accounts.find(acc => acc.accountNumber === toAccNum);
-        if (!toAcc) {
-          alert("Destination account not found.");
-          return;
-        }
-        
-        if (isNaN(amount) || amount <= 0 || amount > fromAcc.balance) {
-          alert("Invalid amount or insufficient balance.");
-          return;
-        }
-        
-        fromAcc.balance -= amount;
-        toAcc.balance += amount;
-        recordTransaction("transfer", amount, toAccNum, fromAcc.accountNumber);
-        saveData();
-        alert(`₹${amount} transferred successfully to account ${toAccNum}.`);
-        viewBalance();
-        document.getElementById("transferPin").value = "";
-        document.getElementById("transferAccNum").value = "";
-        document.getElementById("transferAmount").value = "";
-      }
-      
-      function viewCustomerTransactions() {
-        const userTransactions = transactions.filter(tx =>
-          tx.fromAccount === currentUser.data.accountNumber || tx.toAccount === currentUser.data.accountNumber
-        );
-        displayTransactions(userTransactions, document.getElementById("customerTransactionHistoryDisplay"));
-      }
-      
-      function displayTransactions(txList, element) {
-        if (!txList.length) {
-          element.innerHTML = "<p>No transactions found.</p>";
-          return;
-        }
-        
-        let tableHtml = "<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr>";
-        txList.forEach(tx => {
-          let details = "";
-          if (tx.type === "transfer") {
-            details = `From: ${tx.fromAccount} To: ${tx.toAccount}`;
-          } else if (tx.type === "deposit") {
-            details = `To: ${tx.toAccount}`;
-          } else if (tx.type === "withdrawal-to-wallet") {
-            details = `From: ${tx.fromAccount} to Wallet`;
-          } else if (tx.type === "wallet-payment") {
-            details = `Wallet payment to: ${tx.toAccount}`;
-          }
-          tableHtml += `<tr><td>${tx.date}</td><td>${tx.type}</td><td>₹${tx.amount.toFixed(2)}</td><td>${details}</td></tr>`;
-        });
-        tableHtml += "</table>";
-        element.innerHTML = tableHtml;
-      }
-      
-      // --- Scan & Pay ---
-      function openScanner() {
-        qrScannerModal.classList.remove("hidden");
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({
-              video: {
-                facingMode: "environment"
-              }
-            })
-            .then(stream => {
-              cameraStream = stream;
-              qrVideo.srcObject = stream;
-              qrVideo.play();
-              setTimeout(() => {
-                payWithWallet(50, "Merchant QR123");
-                closeScannerModal();
-              }, 4000);
-            })
-            .catch(() => {
-              alert("Unable to access camera.");
-              closeScannerModal();
-            });
-        } else {
-          alert("Camera not supported on this device.");
-          closeScannerModal();
-        }
-      }
-      
-      function closeScannerModal() {
-        qrScannerModal.classList.add("hidden");
-        if (cameraStream) {
-          cameraStream.getTracks().forEach(track => track.stop());
-          cameraStream = null;
-        }
-        qrVideo.pause();
-        qrVideo.srcObject = null;
-      }
-      
-      function payWithWallet(amount, merchant) {
-        const customer = accounts.find(acc => acc.accountNumber === currentUser.data.accountNumber);
-        
-        if (!customer.walletBalance) customer.walletBalance = 0;
-        
-        if (customer.walletBalance < amount) {
-          alert("Insufficient wallet balance!");
-          return;
-        }
-        
-        customer.walletBalance -= amount;
-        recordTransaction("wallet-payment", amount, merchant, customer.accountNumber);
-        saveData();
-        alert(`Paid ₹${amount} to ${merchant} via Wallet.`);
-        viewWalletBalance();
-      }
-    </script>
-  </body>
+      <section id="create" class="admin-section">
+        <h3>Create Account</h3>
+        <input id="newName" placeholder="Name" />
+        <input id="newMobile" placeholder="Mobile" />
+        <input id="newAddress" placeholder="Address" />
+        <input id="newDOB" type="date" />
+        <input id="newAadhar" placeholder="Aadhar" />
+        <input id="newPin" placeholder="4-digit PIN" maxlength="4" type="password" />
+        <button onclick="adminCreateAccount()">Create</button>
+      </section>
+      <section id="transactions" class="admin-section hidden">
+        <h3>Transactions</h3>
+        <input id="transAccount" placeholder="Account Number (optional)" />
+        <input id="transStart" type="date" />
+        <input id="transEnd" type="date" />
+        <button onclick="viewTransactions()">View</button>
+        <div id="transactionsReport"></div>
+      </section>
+      <section id="search" class="admin-section hidden">
+        <h3>Search Profile</h3>
+        <input id="searchAccount" placeholder="Account Number" />
+        <button onclick="searchProfile()">Search</button>
+        <div id="searchResults"></div>
+      </section>`;
+    elements.adminDashboard.classList.remove('hidden');
+    showAdminSection('create');
+  }
+
+  function adminCreateAccount() {
+    let name = document.getElementById('newName').value.trim();
+    let mobile = document.getElementById('newMobile').value.trim();
+    let address = document.getElementById('newAddress').value.trim();
+    let dob = document.getElementById('newDOB').value;
+    let aadhar = document.getElementById('newAadhar').value.trim();
+    let pin = document.getElementById('newPin').value;
+    if (!name || !mobile || !address || !dob || !aadhar || !pin) return alert('Fill all fields');
+    if (pin.length !== 4 || isNaN(pin)) return alert('PIN must be 4 digits');
+    if (accounts.some(acc => acc.mobile === mobile)) return alert('Mobile already exists');
+    let accountNumber = generateAccountNumber();
+    accounts.push({ name, mobile, address, dob, aadhar, pin, accountNumber, balance: 0, walletBalance: 0 });
+    saveAll();
+    alert(Account created! Number: ${accountNumber}, PIN: ${pin});
+    ['newName','newMobile','newAddress','newDOB','newAadhar','newPin'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function viewTransactions() {
+    let account = document.getElementById('transAccount').value.trim();
+    let start = document.getElementById('transStart').value;
+    let end = document.getElementById('transEnd').value;
+    if ((start && !end) || (!start && end)) return alert('Select start and end date');
+    let filtered = transactions;
+    if (account) filtered = filtered.filter(t => t.toAccount === account || t.fromAccount === account);
+    if (start && end) {
+      let s = new Date(start);
+      let e = new Date(end);
+      filtered = filtered.filter(t => {
+        let d = new Date(t.date);
+        return d >= s && d <= e;
+      });
+    }
+    let container = document.getElementById('transactionsReport');
+    if (filtered.length === 0) {
+      container.innerHTML = '<p>No transactions found.</p>';
+      return;
+    }
+    let html = '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr>';
+    filtered.forEach(t => {
+      let detail = '';
+      if (t.type === 'transfer') detail = From ${t.fromAccount} To ${t.toAccount};
+      else if (t.type === 'deposit') detail = To ${t.toAccount};
+      else if (t.type === 'withdrawal-wallet') detail = To Wallet;
+      else if (t.type === 'wallet-payment') detail = Paid to ${t.toAccount};
+      html += <tr><td>${new Date(t.date).toLocaleString()}</td><td>${t.type}</td><td>₹${t.amount.toFixed(2)}</td><td>${detail}</td></tr>;
+    });
+    html += '</table>';
+    container.innerHTML = html;
+  }
+
+  function searchProfile() {
+    let account = document.getElementById('searchAccount').value.trim();
+    let res = document.getElementById('searchResults');
+    if (!account) return alert('Enter account number');
+    let acc = accounts.find(a => a.accountNumber === account);
+    if (!acc) {
+      res.innerHTML = '<p>Account not found.</p>';
+      return;
+    }
+    res.innerHTML = `<p>Name: ${acc.name}</p>
+                     <p>Mobile: ${acc.mobile}</p>
+                     <p>Address: ${acc.address}</p>
+                     <p>DOB: ${acc.dob}</p>
+                     <p>Aadhar: ${acc.aadhar}</p>
+                     <p>Balance: ₹${acc.balance.toFixed(2)}</p>
+                     <p>Wallet: ₹${(acc.walletBalance||0).toFixed(2)}</p>`;
+  }
+
+  function showTransactionList() {
+    let txs = transactions.filter(t => t.toAccount === currentUser.data.accountNumber || t.fromAccount === currentUser.data.accountNumber);
+    let container = document.getElementById('transactionList');
+    if (txs.length === 0) {
+      container.innerHTML = '<p>No transactions found.</p>';
+      return;
+    }
+    let html = '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Details</th></tr>';
+    txs.forEach(t => {
+      let detail = '';
+      if (t.type === 'transfer') detail = From ${t.fromAccount} To ${t.toAccount};
+      else if (t.type === 'deposit') detail = To ${t.toAccount};
+      else if (t.type === 'withdrawal-wallet') detail = To Wallet;
+      else if (t.type === 'wallet-payment') detail = Paid to ${t.toAccount};
+      html += <tr><td>${new Date(t.date).toLocaleString()}</td><td>${t.type}</td><td>₹${t.amount.toFixed(2)}</td><td>${detail}</td></tr>;
+    });
+    html += '</table>';
+    container.innerHTML = html;
+  }
+
+  function depositMoney(){
+    let pin = document.getElementById('depositPin').value.trim();
+    let amt = Number(document.getElementById('depositAmount').value);
+    if(!amt || amt <=0) return alert('Enter valid amount');
+    if(pin !== currentUser.data.pin) return alert('Invalid PIN');
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    user.balance += amt;
+    logTxn('deposit', amt, user.accountNumber);
+    saveAll();
+    alert('Deposit successful');
+    updateBalances();
+    document.getElementById('depositPin').value = '';
+    document.getElementById('depositAmount').value = '';
+  }
+
+  function withdrawMoney(){
+    let pin = document.getElementById('withdrawPin').value.trim();
+    let amt = Number(document.getElementById('withdrawAmount').value);
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    if(!amt || amt <=0) return alert('Enter valid amount');
+    if(pin !== user.pin) return alert('Invalid PIN');
+    if(amt > user.balance) return alert('Insufficient balance');
+    user.balance -= amt;
+    user.walletBalance = (user.walletBalance || 0) + amt;
+    logTxn('withdrawal-wallet', amt, null, user.accountNumber);
+    saveAll();
+    alert('Withdraw successful');
+    updateBalances();
+    document.getElementById('withdrawPin').value = '';
+    document.getElementById('withdrawAmount').value = '';
+  }
+
+  function transferMoney(){
+    let pin = document.getElementById('transferPin').value.trim();
+    let target = document.getElementById('transferAcc').value.trim();
+    let amt = Number(document.getElementById('transferAmount').value);
+    if(!target || !amt || amt<=0) return alert('Enter valid data');
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    if(pin !== user.pin) return alert('Invalid PIN');
+    if(target === user.accountNumber) return alert('Cannot transfer to self');
+    let tgtUser = accounts.find(a => a.accountNumber === target);
+    if(!tgtUser) return alert('Recipient not found');
+    if(amt > user.balance) return alert('Insufficient balance');
+    user.balance -= amt;
+    tgtUser.balance += amt;
+    logTxn('transfer', amt, tgtUser.accountNumber, user.accountNumber);
+    saveAll();
+    alert('Transfer passed');
+    updateBalances();
+    document.getElementById('transferPin').value = '';
+    document.getElementById('transferAcc').value = '';
+    document.getElementById('transferAmount').value = '';
+  }
+
+  function logTxn(type, amount, to, from=null){
+    transactions.push({date: new Date().toISOString(), type, amount, toAccount: to, fromAccount: from});
+  }
+
+  function updateBalances(){
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    elements.balanceDisplay.textContent = 'Balance: ₹' + user.balance.toFixed(2);
+    elements.walletBalance.textContent = 'Wallet: ₹' + (user.walletBalance || 0).toFixed(2);
+  }
+
+  function showWallet(){
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    alert('Wallet balance: ₹' + (user.walletBalance || 0).toFixed(2));
+  }
+
+  // Scan & Pay
+  function openScanner(){
+    elements.qrModal.style.display = 'flex';
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+          cameraStream = stream;
+          elements.qrVideo.srcObject = stream;
+          elements.qrVideo.play();
+          setTimeout(() => {
+            payWallet(50, 'MerchantXYZ');
+            closeScan();
+          }, 4000);
+        })
+        .catch(() => { alert('Camera access denied'); closeScan(); });
+    } else {
+      alert('Camera not supported');
+      closeScan();
+    }
+  }
+  document.getElementById('cancelScan').onclick = closeScan;
+
+  function closeScan(){
+    elements.qrModal.style.display = 'none';
+    if(cameraStream){
+      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+      elements.qrVideo.srcObject = null;
+    }
+  }
+
+  function payWallet(amount, merchant){
+    let user = accounts.find(a => a.accountNumber === currentUser.data.accountNumber);
+    if((user.walletBalance||0) < amount) return alert('Insufficient wallet');
+    user.walletBalance -= amount;
+    logTxn('wallet-payment', amount, merchant, user.accountNumber);
+    saveAll();
+    alert(Paid ₹${amount} to ${merchant});
+    updateBalances();
+  }
+
+  // Init
+  function init(){
+    showView('landing');
+    elements.logoutBtn.onclick = logout;
+  }
+
+  init();
+
+</script>
+
+</body>
 </html>
-
