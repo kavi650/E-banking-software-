@@ -10,8 +10,8 @@
   />
   <style>
     :root {
-      --primary: #0056b3;
-      --primary-dark: #004494;
+      --primary: #0053ba;    /* Dark Blue */
+      --primary-dark: #00addb; /* Light Blue */
       --secondary: #6c757d;
       --success: #28a745;
       --danger: #dc3545;
@@ -117,7 +117,7 @@
     select:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+      box-shadow: 0 0 0 3px rgba(0, 83, 186, 0.2);
     }
 
     button {
@@ -234,49 +234,82 @@
     /* Footer Nav */
     .footer-nav {
       position: fixed;
-      left: 0;
       bottom: 0;
+      left: 0;
       width: 100vw;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      background: #fff;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
       border-top: 1px solid #ddd;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
+      padding: 6px 12px;
       z-index: 9999;
-      padding: 8px 0;
     }
 
     .footer-nav button {
-      flex: 1 1 0%;
-      border: none;
+      flex: 1;
       background: none;
-      font-size: 16px;
-      color: var(--dark);
-      outline: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      cursor: pointer;
+      justify-content: center;
+      max-width: 80px;
     }
 
+    .footer-nav i {
+      font-size: 18px;
+      margin-bottom: 3px;
+    }
+
+    /* Special Scan & Pay Button */
     .footer-nav .scan-btn {
-      background: var(--primary);
+      background: radial-gradient(circle at top left, var(--primary-dark), var(--primary));
       color: white;
       font-size: 34px;
       border-radius: 50%;
       width: 80px;
       height: 80px;
-      margin-top: -34px;
+      margin-top: -36px;
       margin-bottom: 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
+      transform: scale(1);
+      transition: all 0.25s ease;
+      flex-shrink: 0;
     }
 
-    .footer-nav i {
-      margin-bottom: 3px;
+    .footer-nav .scan-btn:hover {
+      transform: scale(1.1) rotate(3deg);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    }
+
+    @media (max-width: 768px) {
+      .customer-nav {
+        flex-direction: column;
+      }
+      .welcome-buttons {
+        flex-direction: column;
+      }
+      .profile-info p {
+        flex-direction: column;
+      }
+      .footer-nav {
+        font-size: 12px;
+        padding: 6px 6px;
+      }
+      .footer-nav .scan-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 28px;
+        margin-top: -28px;
+      }
     }
 
     /* Scanner modal styles */
@@ -311,30 +344,6 @@
       font-size: 18px;
       border-radius: 8px;
       cursor: pointer;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 768px) {
-      .customer-nav {
-        flex-direction: column;
-      }
-      .welcome-buttons {
-        flex-direction: column;
-      }
-      .profile-info p {
-        flex-direction: column;
-      }
-      .footer-nav {
-        font-size: 14px;
-      }
-      .footer-nav .scan-btn {
-        width: 56px;
-        height: 56px;
-        font-size: 28px;
-      }
     }
   </style>
 </head>
@@ -472,9 +481,6 @@
             <div id="transferForm" class="hidden">
               <h4><i class="fas fa-exchange-alt"></i> Transfer Money</h4>
               <div class="form-group">
-                <input type="password" id="transferPin" placeholder="Enter PIN" />
-              </div>
-              <div class="form-group">
                 <input
                   type="text"
                   id="transferAccNum"
@@ -505,11 +511,13 @@
         <button onclick="showCustomerView('profile')">
           <i class="fas fa-user"></i><br />Profile
         </button>
+
         <button class="scan-btn" onclick="openScanner()" aria-label="Scan and Pay">
           <i class="fas fa-qrcode"></i>
         </button>
-        <button onclick="showCustomerView('operations')">
-          <i class="fas fa-home"></i><br />Home
+
+        <button onclick="viewWalletBalance()">
+          <i class="fas fa-wallet"></i><br />Wallet
         </button>
       </div>
     </div>
