@@ -16,7 +16,6 @@
       --success: #28a745;
       --danger: #dc3545;
       --warning: #ffc107;
-      --accent: #ffcc00; /* Bright Yellow Accent for Scan & Pay Icon */
       --light: #f8f9fa;
       --dark: #343a40;
       --background: #f4f8fb;
@@ -265,36 +264,34 @@
     .footer-nav i {
       font-size: 18px;
       margin-bottom: 3px;
-      transition: color 0.3s ease;
     }
 
-    /* Scan & Pay Button updated to large square */
+    /* Modified Scan & Pay Button (square large with rounded corners) */
     .footer-nav .scan-btn {
-      background: linear-gradient(to right, var(--primary-dark), var(--primary));
+      background: radial-gradient(circle at top left, var(--primary-dark), var(--primary));
       color: white;
-      font-size: 24px;
+      font-size: 34px;
+      border-radius: 12px;
       width: 90px;
       height: 90px;
-      margin-top: -30px;
+      margin-top: -28px;
       margin-bottom: 0;
       box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-      border-radius: 12px; /* rounded square */
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      cursor: pointer;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
     }
 
-    /* QR icon color */
+    /* Icon inside Scan & Pay button in distinct color */
     .footer-nav .scan-btn i {
-      color: var(--accent);
-      font-size: 36px;
+      color: #00ffcc; /* Teal/Cyan colored QR icon */
     }
 
     .footer-nav .scan-btn:hover {
-      filter: brightness(1.1);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+      transform: scale(1.1) rotate(3deg);
     }
 
     @media (max-width: 768px) {
@@ -312,13 +309,10 @@
         padding: 6px 6px;
       }
       .footer-nav .scan-btn {
-        width: 70px;
-        height: 70px;
-        font-size: 20px;
-        margin-top: -20px;
-      }
-      .footer-nav .scan-btn i {
+        width: 75px;
+        height: 75px;
         font-size: 28px;
+        margin-top: -20px;
       }
     }
 
@@ -526,7 +520,7 @@
           <i class="fas fa-qrcode"></i>
         </button>
 
-        <button onclick="showWalletBalance()">
+        <button onclick="showWalletBalanceAlert()">
           <i class="fas fa-wallet"></i><br />Wallet
         </button>
       </div>
@@ -540,15 +534,12 @@
   </div>
 
   <script>
-    // Generate random 8-digit account number
     const generateAccountNumber = () =>
       Math.floor(10000000 + Math.random() * 90000000).toString();
 
-    // Load accounts and transactions from localStorage or init empty
     let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-    // Save current data to localStorage
     const saveData = () => {
       localStorage.setItem("accounts", JSON.stringify(accounts));
       localStorage.setItem("transactions", JSON.stringify(transactions));
@@ -556,7 +547,6 @@
 
     let currentUser = null;
 
-    // DOM elements
     const landingPage = document.getElementById("landingPage");
     const userLoginPanel = document.getElementById("userLoginPanel");
     const adminLoginPanel = document.getElementById("adminLoginPanel");
@@ -574,7 +564,6 @@
       customerPanel,
     ];
 
-    // --- Navigation Functions ---
     const hideAllPanels = () => {
       allPanels.forEach((p) => p.classList.add("hidden"));
       ensureScannerHidden();
@@ -599,14 +588,12 @@
       }
     };
 
-    // --- Ensure scanner modal hidden ---
     function ensureScannerHidden() {
       if (!qrScannerModal.classList.contains("hidden")) {
         closeScannerModal();
       }
     }
 
-    // --- Login ---
     const loginUser = () => {
       const mobile = document.getElementById("userLoginId").value;
       const pin = document.getElementById("userLoginPin").value;
@@ -617,7 +604,7 @@
         document.getElementById("customerNameDisplay").textContent = user.name;
         hideAllPanels();
         customerPanel.classList.remove("hidden");
-        showCustomerView("operations"); // Default view
+        showCustomerView("operations");
         viewBalance();
         populateProfile();
       } else {
@@ -652,7 +639,6 @@
       goHome();
     };
 
-    // --- Admin Panel ---
     const createAdminPanel = () => {
       const existingAdminPanel = document.getElementById("adminPanel");
       if (existingAdminPanel) {
@@ -760,7 +746,6 @@
       adminLoginPanel.insertAdjacentHTML("afterend", html);
     };
 
-    // --- Admin functions ---
     const createAccount = () => {
       const name = document.getElementById("custName").value;
       const mobile = document.getElementById("custMobile").value;
@@ -799,7 +784,6 @@
         Account created successfully!\nAccount Number: ${accountNumber}\nPIN: ${pin}
       );
 
-      // Clear inputs
       [
         "custName",
         "custMobile",
@@ -810,7 +794,6 @@
       ].forEach((id) => (document.getElementById(id).value = ""));
     };
 
-    // --- Admin transactions and search ---
     const viewTransactions = () => {
       const accNum = document.getElementById("reportAccNum").value;
       const startDate = document.getElementById("startDate").value
@@ -871,7 +854,6 @@
       `;
     };
 
-    // --- Customer functions ---
     const showCustomerView = (viewName) => {
       ["operationsView", "profileView", "historyView"].forEach((id) =>
         document.getElementById(id).classList.add("hidden")
@@ -909,7 +891,7 @@
       )}`;
     };
 
-    const showWalletBalance = () => {
+    const showWalletBalanceAlert = () => {
       const customer = accounts.find(
         (acc) => acc.accountNumber === currentUser.data.accountNumber
       );
@@ -917,8 +899,8 @@
         alert("No user logged in.");
         return;
       }
-      if (!customer.walletBalance) customer.walletBalance = 0;
-      alert(Your Wallet Balance is: ₹${customer.walletBalance.toFixed(2)});
+      const balance = customer.walletBalance || 0;
+      alert(Your wallet balance is ₹${balance.toFixed(2)});
     };
 
     const viewBalance = () => {
@@ -941,7 +923,6 @@
       saveData();
     };
 
-    // Customer Transactions
     const depositMoney = () => {
       const pin = document.getElementById("depositPin").value;
       const amount = parseFloat(document.getElementById("depositAmount").value);
@@ -1057,7 +1038,7 @@
       element.innerHTML = tableHtml;
     };
 
-    // --- Scan & Pay Implementation ---
+    // --- Scan & Pay ---
     function openScanner() {
       qrScannerModal.classList.remove("hidden");
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
