@@ -176,7 +176,7 @@
 
     .profile-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       padding: 12px 0;
       border-bottom: 1px solid #e9ecef;
@@ -190,14 +190,14 @@
     .profile-row strong {
       color: var(--primary);
       font-weight: 600;
-      min-width: 180px;
+      width: 200px;
       flex-shrink: 0;
+      display: inline-block;
     }
 
     .profile-row span {
-      text-align: right;
+      margin-left: 20px;
       flex: 1;
-      margin-left: 15px;
     }
 
     .balance-amount {
@@ -258,7 +258,7 @@
     .main-customer-nav {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
+      gap: 1rem;
     }
 
     .main-customer-nav button {
@@ -266,34 +266,67 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem 1rem;
-      border-radius: 12px;
-      border: 2px solid var(--primary);
-      background: white;
-      color: var(--primary);
+      padding: 1.2rem 0.8rem;
+      border-radius: 10px;
+      border: 2px solid transparent;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
-      min-height: 120px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-height: 90px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Unique colors for each button */
+    .main-customer-nav button:nth-child(1) {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-color: #1976d2;
+    }
+
+    .main-customer-nav button:nth-child(2) {
+      background: #f3e5f5;
+      color: #7b1fa2;
+      border-color: #7b1fa2;
+    }
+
+    .main-customer-nav button:nth-child(3) {
+      background: #e8f5e8;
+      color: #388e3c;
+      border-color: #388e3c;
     }
 
     .main-customer-nav button i {
-      font-size: 2.5rem;
-      margin-bottom: 0.8rem;
+      font-size: 2rem;
+      margin-bottom: 0.6rem;
     }
 
     .main-customer-nav button span {
-      font-size: 1.1rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 600;
     }
 
     .main-customer-nav button:hover,
     .main-customer-nav button.active {
-      background: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-customer-nav button:nth-child(1):hover,
+    .main-customer-nav button:nth-child(1).active {
+      background: #1976d2;
       color: white;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 83, 186, 0.3);
+    }
+
+    .main-customer-nav button:nth-child(2):hover,
+    .main-customer-nav button:nth-child(2).active {
+      background: #7b1fa2;
+      color: white;
+    }
+
+    .main-customer-nav button:nth-child(3):hover,
+    .main-customer-nav button:nth-child(3).active {
+      background: #388e3c;
+      color: white;
     }
 
     /* Operations Navigation */
@@ -309,25 +342,25 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem 1rem;
-      border-radius: 10px;
+      padding: 1rem 0.8rem;
+      border-radius: 8px;
       border: 2px solid var(--primary);
       background: white;
       color: var(--primary);
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
-      min-height: 100px;
+      min-height: 80px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     .operations-nav button i {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
     }
 
     .operations-nav button span {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 600;
       text-align: center;
     }
@@ -397,7 +430,7 @@
       background: linear-gradient(to right, var(--primary), var(--primary-dark));
       border-top: 1px solid #ddd;
       box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
-      padding: 6px 12px;
+      padding: 8px 12px;
       z-index: 9999;
     }
 
@@ -413,24 +446,27 @@
       align-items: center;
       justify-content: center;
       max-width: 80px;
+      padding: 8px 4px;
+      margin: 0;
     }
 
     .footer-nav i {
-      font-size: 18px;
-      margin-bottom: 3px;
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: white;
     }
 
     /* Special Scan & Pay Button */
     .footer-nav .scan-btn {
       background: white;
       color: var(--primary-dark);
-      font-size: 36px;
-      border-radius: 14px;
-      width: 90px;
-      height: 90px;
-      margin-top: -30px;
+      font-size: 32px;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      margin-top: -25px;
       margin-bottom: 0;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -440,11 +476,20 @@
       cursor: pointer;
     }
 
+    .footer-nav .scan-btn i {
+      color: var(--primary-dark);
+      font-size: 28px;
+    }
+
     .footer-nav .scan-btn:hover {
       background: #f0f7ff;
       color: var(--primary);
-      box-shadow: 0 9px 25px rgba(0, 0, 0, 0.4);
-      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      transform: scale(1.05);
+    }
+
+    .footer-nav .scan-btn:hover i {
+      color: var(--primary);
     }
 
     @media (max-width: 768px) {
@@ -498,10 +543,13 @@
         padding: 6px 6px;
       }
       .footer-nav .scan-btn {
-        width: 70px;
-        height: 70px;
-        font-size: 28px;
-        margin-top: -25px;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        margin-top: -20px;
+      }
+      .footer-nav .scan-btn i {
+        font-size: 20px;
       }
     }
 
@@ -875,10 +923,6 @@
         </div>
         
         <div class="footer-nav" id="customerFooterNav">
-          <button onclick="showWalletBalance()">
-            <i class="fas fa-wallet"></i><br />Wallet
-          </button>
-
           <button onclick="showCustomerView('profile')">
             <i class="fas fa-user"></i><br />Profile
           </button>
@@ -892,12 +936,8 @@
             <i class="fas fa-qrcode"></i>
           </button>
 
-          <button onclick="showCustomerView('history')">
-            <i class="fas fa-history"></i><br />History
-          </button>
-
-          <button onclick="showCustomerView('operations')">
-            <i class="fas fa-cogs"></i><br />Operations
+          <button onclick="showWalletBalance()">
+            <i class="fas fa-wallet"></i><br />Wallet
           </button>
         </div>
       </div>
@@ -918,7 +958,7 @@
   // Memory storage instead of localStorage for artifacts
   let accounts = [
     {
-      name: "John Doe",
+      name: "kavi",
       mobile: "1234567890",
       address: "123 Main Street, New York, NY 10001",
       dob: "1990-01-15",
@@ -929,7 +969,7 @@
       walletBalance: 500
     },
     {
-      name: "Jane Smith",
+      name: "arun",
       mobile: "9876543210",
       address: "456 Oak Avenue, Los Angeles, CA 90210",
       dob: "1985-03-22",
@@ -940,7 +980,7 @@
       walletBalance: 750
     },
     {
-      name: "Mike Johnson",
+      name: "gokul",
       mobile: "5551234567",
       address: "789 Pine Road, Chicago, IL 60601",
       dob: "1992-07-08",
