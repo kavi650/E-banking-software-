@@ -955,6 +955,46 @@
   const generateAccountNumber = () =>
     Math.floor(10000000 + Math.random() * 90000000).toString();
 
+  // --- Backend API Helpers ---
+  const API_BASE = window.API_BASE || "http://localhost:8000";
+  async function api(path, options = {}) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+    if (!res.ok) {
+      let message = `Error ${res.status}`;
+      try {
+        const data = await res.json();
+        if (data?.detail) message = Array.isArray(data.detail) ? data.detail.map(d => d.msg || d).join(", ") : data.detail;
+      } catch (_) {}
+      throw new Error(message);
+    }
+    const ctype = res.headers.get("content-type") || "";
+    return ctype.includes("application/json") ? res.json() : res.text();
+  }
+  const apiClient = {
+    loginUser: (mobile, pin) => api("/auth/login-user", { method: "POST", body: JSON.stringify({ mobile, pin }) }),
+    loginAdmin: (admin_id, password) => api("/auth/login-admin", { method: "POST", body: JSON.stringify({ admin_id, password }) }),
+    getAccount: (accNum) => api(`/accounts/${accNum}`),
+    updateAccount: (accNum, body) => api(`/accounts/${accNum}`, { method: "PUT", body: JSON.stringify(body) }),
+    createAccount: (payload) => api("/admin/accounts", { method: "POST", body: JSON.stringify(payload) }),
+    listUsers: () => api("/admin/users"),
+    adminStats: () => api("/admin/stats"),
+    listTransactions: (params = {}) => {
+      const q = new URLSearchParams();
+      if (params.account_number) q.set("account_number", params.account_number);
+      if (params.start_date) q.set("start_date", params.start_date);
+      if (params.end_date) q.set("end_date", params.end_date);
+      const qs = q.toString();
+      return api(`/transactions${qs ? `?${qs}` : ""}`);
+    },
+    deposit: (account_number, amount, pin) => api("/transactions/deposit", { method: "POST", body: JSON.stringify({ account_number, amount, pin }) }),
+    withdrawWallet: (account_number, amount, pin) => api("/transactions/withdraw-wallet", { method: "POST", body: JSON.stringify({ account_number, amount, pin }) }),
+    transfer: (from_account_number, to_account_number, amount, pin) => api("/transactions/transfer", { method: "POST", body: JSON.stringify({ from_account_number, to_account_number, amount, pin }) }),
+    walletPay: (account_number, amount, merchant) => api("/wallet/pay", { method: "POST", body: JSON.stringify({ account_number, amount, merchant }) }),
+  };
+
   // Memory storage instead of localStorage for artifacts
   let accounts = [
     {
@@ -1073,38 +1113,38 @@
   }
 
   // --- Login ---
-  const loginUser = () => {
+  const loginUser = async () => {
     const mobile = document.getElementById("userLoginId").value;
     const pin = document.getElementById("userLoginPin").value;
-    const user = accounts.find((acc) => acc.mobile === mobile && acc.pin === pin);
-
-    if (user) {
-      currentUser = { type: "customer", data: user };
+    try {
+      const user = await apiClient.loginUser(mobile, pin);
+      const mappedUser = { ...user, accountNumber: user.account_number, walletBalance: user.wallet_balance };
+      currentUser = { type: "customer", data: mappedUser };
       document.getElementById("customerNameDisplay").textContent = user.name;
       hideAllPanels();
       customerPanel.classList.remove("hidden");
-      showCustomerView("operations"); // Default view
-      viewBalance();
+      showCustomerView("operations");
+      await viewBalance();
       populateProfile();
-      toggleOperation("deposit"); // show deposit form by default
+      toggleOperation("deposit");
       activateCustomerNavButton("btnOperations");
-    } else {
-      alert("Invalid mobile number or PIN.");
+    } catch (e) {
+      alert(e.message || "Login failed");
     }
   };
 
-  const loginAdmin = () => {
+  const loginAdmin = async () => {
     const id = document.getElementById("adminLoginId").value;
     const password = document.getElementById("adminLoginPassword").value;
-
-    if (id === "admin" && password === "a123") {
+    try {
+      await apiClient.loginAdmin(id, password);
       currentUser = { type: "admin" };
       hideAllPanels();
       createAdminPanel();
       showAdminPage("createAccountPage");
       activateAdminNavButton("navCreate");
-    } else {
-      alert("Invalid admin credentials.");
+    } catch (e) {
+      alert(e.message || "Invalid admin credentials.");
     }
   };
 
@@ -1282,60 +1322,34 @@
   };
 
   // --- Users Management Functions ---
-  const viewUsers = () => {
-    updateUserStats();
-    displayUsersTable();
+  const viewUsers = async () => {
+    await updateUserStats();
+    await displayUsersTable();
   };
 
-  const updateUserStats = () => {
-    const totalCustomers = accounts.length;
-    const totalBankBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
-    const totalWalletBalance = accounts.reduce((sum, acc) => sum + (acc.walletBalance || 0), 0);
-
-    document.getElementById("totalCustomers").textContent = totalCustomers;
-    document.getElementById("totalBankBalance").textContent = `₹${totalBankBalance.toFixed(2)}`;
-    document.getElementById("totalWalletBalance").textContent = `₹${totalWalletBalance.toFixed(2)}`;
+  const updateUserStats = async () => {
+    try {
+      const s = await apiClient.adminStats();
+      document.getElementById("totalCustomers").textContent = s.totalCustomers;
+      document.getElementById("totalBankBalance").textContent = `₹${s.totalBankBalance.toFixed(2)}`;
+      document.getElementById("totalWalletBalance").textContent = `₹${s.totalWalletBalance.toFixed(2)}`;
+    } catch(e) {}
   };
 
-  const displayUsersTable = () => {
+  const displayUsersTable = async () => {
     const displayDiv = document.getElementById("usersTableDisplay");
-    
-    if (accounts.length === 0) {
-      displayDiv.innerHTML = "<p>No customers found.</p>";
-      return;
+    try {
+      const users = await apiClient.listUsers();
+      if (!users.length) { displayDiv.innerHTML = "<p>No customers found.</p>"; return; }
+      let tableHtml = `<table><tr><th>S.No</th><th>Name</th><th>Account Number</th><th>Mobile</th><th>Address</th><th>Account Balance</th><th>Wallet Balance</th><th>Date of Birth</th></tr>`;
+      users.forEach((account, index)=>{
+        tableHtml += `<tr><td>${index+1}</td><td>${account.name}</td><td>${account.account_number}</td><td>${account.mobile}</td><td>${account.address}</td><td>₹${account.balance.toFixed(2)}</td><td>₹${(account.wallet_balance||0).toFixed(2)}</td><td>${account.dob}</td></tr>`;
+      });
+      tableHtml += "</table>";
+      displayDiv.innerHTML = tableHtml;
+    } catch(e) {
+      displayDiv.innerHTML = `<p>${e.message || 'Failed to load users'}</p>`;
     }
-
-    let tableHtml = `
-      <table>
-        <tr>
-          <th>S.No</th>
-          <th>Name</th>
-          <th>Account Number</th>
-          <th>Mobile</th>
-          <th>Address</th>
-          <th>Account Balance</th>
-          <th>Wallet Balance</th>
-          <th>Date of Birth</th>
-        </tr>
-    `;
-
-    accounts.forEach((account, index) => {
-      tableHtml += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${account.name}</td>
-          <td>${account.accountNumber}</td>
-          <td>${account.mobile}</td>
-          <td>${account.address}</td>
-          <td>₹${account.balance.toFixed(2)}</td>
-          <td>₹${(account.walletBalance || 0).toFixed(2)}</td>
-          <td>${account.dob}</td>
-        </tr>
-      `;
-    });
-
-    tableHtml += "</table>";
-    displayDiv.innerHTML = tableHtml;
   };
 
   // --- Admin Page Navigation ---
@@ -1386,7 +1400,7 @@
   }
 
   // --- Admin functions ---
-  const createAccount = () => {
+  const createAccount = async () => {
     const name = document.getElementById("custName").value.trim();
     const mobile = document.getElementById("custMobile").value.trim();
     const address = document.getElementById("custAddress").value.trim();
@@ -1402,102 +1416,61 @@
       alert("PIN must be a 4-digit number.");
       return;
     }
-    if (accounts.some((acc) => acc.mobile === mobile)) {
-      alert("Account with this mobile number already exists.");
-      return;
-    }
-    const accountNumber = generateAccountNumber();
-    const newAccount = {
-      name,
-      mobile,
-      address,
-      dob,
-      aadhar,
-      accountNumber,
-      pin,
-      balance: 0,
-      walletBalance: 0,
-    };
-    accounts.push(newAccount);
-    saveData();
-    alert(
-      `Account created successfully!\nAccount Number: ${accountNumber}\nPIN: ${pin}`
-    );
-
-    // Clear inputs
-    [
-      "custName",
-      "custMobile",
-      "custAddress",
-      "custDob",
-      "custAadhar",
-      "custPin",
-    ].forEach((id) => (document.getElementById(id).value = ""));
-
-    // Update users stats if on users page
-    const usersPage = document.getElementById("usersPage");
-    if (usersPage && usersPage.classList.contains("active")) {
-      updateUserStats();
-      displayUsersTable();
+    try {
+      const acc = await apiClient.createAccount({ name, mobile, address, dob, aadhar, pin });
+      alert(`Account created successfully!\nAccount Number: ${acc.account_number}\nPIN: ${pin}`);
+      [
+        "custName",
+        "custMobile",
+        "custAddress",
+        "custDob",
+        "custAadhar",
+        "custPin",
+      ].forEach((id) => (document.getElementById(id).value = ""));
+      const usersPage = document.getElementById("usersPage");
+      if (usersPage && usersPage.classList.contains("active")) {
+        updateUserStats();
+        displayUsersTable();
+      }
+    } catch(e){
+      alert(e.message || "Failed to create account");
     }
   };
 
-  const viewTransactions = () => {
+  const viewTransactions = async () => {
     const accNum = document.getElementById("reportAccNum").value.trim();
     const startDateValue = document.getElementById("startDate").value;
     const endDateValue = document.getElementById("endDate").value;
     const displayDiv = document.getElementById("transactionHistoryDisplay");
-
-    let filteredTransactions = transactions;
-
-    if (accNum) {
-      filteredTransactions = filteredTransactions.filter(
-        (tx) => tx.fromAccount === accNum || tx.toAccount === accNum
-      );
+    try {
+      const list = await apiClient.listTransactions({ account_number: accNum || undefined, start_date: startDateValue || undefined, end_date: endDateValue || undefined });
+      displayTransactions(list, displayDiv);
+    } catch(e) {
+      displayDiv.innerHTML = `<p>${e.message || 'Failed to load transactions'}</p>`;
     }
-
-    if (startDateValue && endDateValue) {
-      const startDate = new Date(startDateValue);
-      const endDate = new Date(endDateValue);
-      filteredTransactions = filteredTransactions.filter((tx) => {
-        const txDate = new Date(tx.date);
-        return txDate >= startDate && txDate <= endDate;
-      });
-    } else if (startDateValue || endDateValue) {
-      alert("Please select both a start and end date for filtering.");
-      return;
-    }
-
-    displayTransactions(filteredTransactions, displayDiv);
   };
 
-  const searchProfile = () => {
+  const searchProfile = async () => {
     const accNum = document.getElementById("searchAccNum").value.trim();
     const displayDiv = document.getElementById("searchProfileDisplay");
-    const account = accounts.find((acc) => acc.accountNumber === accNum);
-
-    if (!accNum) {
-      alert("Please enter an account number.");
-      return;
+    if (!accNum) { alert("Please enter an account number."); return; }
+    try {
+      const account = await apiClient.getAccount(accNum);
+      displayDiv.innerHTML = `
+        <div class="profile-info">
+          <h4>Profile Details for Account ${account.account_number}</h4>
+          <p><strong>Name:</strong> ${account.name}</p>
+          <p><strong>Mobile Number:</strong> ${account.mobile}</p>
+          <p><strong>Address:</strong> ${account.address}</p>
+          <p><strong>Date of Birth:</strong> ${account.dob}</p>
+          <p><strong>Aadhar Number:</strong> ${account.aadhar}</p>
+          <p><strong>Current Balance:</strong> ₹${account.balance.toFixed(2)}</p>
+          <p><strong>Wallet Balance:</strong> ₹${(account.wallet_balance || 0).toFixed(2)}</p>
+        </div>
+      `;
+    } catch(e) {
+      displayDiv.innerHTML = `<p>${e.message || 'No profile found with this account number.'}</p>`;
     }
-    if (!account) {
-      displayDiv.innerHTML = "<p>No profile found with this account number.</p>";
-      return;
-    }
-    displayDiv.innerHTML = `
-      <div class="profile-info">
-        <h4>Profile Details for Account ${account.accountNumber}</h4>
-        <p><strong>Name:</strong> ${account.name}</p>
-        <p><strong>Mobile Number:</strong> ${account.mobile}</p>
-        <p><strong>Address:</strong> ${account.address}</p>
-        <p><strong>Date of Birth:</strong> ${account.dob}</p>
-        <p><strong>Aadhar Number:</strong> ${account.aadhar}</p>
-        <p><strong>Current Balance:</strong> ₹${account.balance.toFixed(2)}</p>
-        <p><strong>Wallet Balance:</strong> ₹${(account.walletBalance || 0).toFixed(
-          2
-        )}</p>
-      </div>
-    `;
   };
 
   // --- Customer functions ---
@@ -1561,35 +1534,29 @@
     else if (op === "transfer") document.getElementById("btnTransfer").classList.add("active");
   };
 
-  const viewWalletBalance = () => {
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    if (!customer.walletBalance) customer.walletBalance = 0;
-    walletBalanceDisplay.textContent = `Wallet Balance: ₹${customer.walletBalance.toFixed(
-      2
-    )}`;
+  const viewWalletBalance = async () => {
+    try {
+      const acc = await apiClient.getAccount(currentUser.data.accountNumber);
+      walletBalanceDisplay.textContent = `Wallet Balance: ₹${(acc.wallet_balance || 0).toFixed(2)}`;
+      currentUser.data.walletBalance = acc.wallet_balance;
+    } catch(_) {}
   };
 
-  const showWalletBalance = () => {
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser?.data?.accountNumber
-    );
-    if (!customer) {
-      alert("Please login to view wallet balance.");
-      return;
-    }
-    if (!customer.walletBalance) customer.walletBalance = 0;
-    alert(`Wallet Balance: ₹${customer.walletBalance.toFixed(2)}`);
+  const showWalletBalance = async () => {
+    try {
+      const acc = await apiClient.getAccount(currentUser?.data?.accountNumber);
+      alert(`Wallet Balance: ₹${(acc.wallet_balance || 0).toFixed(2)}`);
+    } catch(e) { alert(e.message || 'Please login to view wallet balance.'); }
   };
 
-  const viewBalance = () => {
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    currentUser.data = customer;
-    balanceDisplay.textContent = `Account Balance: ₹${customer.balance.toFixed(2)}`;
-    viewWalletBalance();
+  const viewBalance = async () => {
+    try {
+      const acc = await apiClient.getAccount(currentUser.data.accountNumber);
+      currentUser.data.balance = acc.balance;
+      currentUser.data.walletBalance = acc.wallet_balance;
+      balanceDisplay.textContent = `Account Balance: ₹${acc.balance.toFixed(2)}`;
+      await viewWalletBalance();
+    } catch(_) {}
   };
 
   const recordTransaction = (type, amount, toAccNum = null, fromAccNum = null) => {
@@ -1604,123 +1571,92 @@
   };
 
   // Customer Transactions
-  const depositMoney = () => {
+  const depositMoney = async () => {
     const pin = document.getElementById("depositPin").value;
     const amount = parseFloat(document.getElementById("depositAmount").value);
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    if (pin !== customer.pin) {
-      alert("Invalid PIN.");
-      return;
-    }
+    const accNum = currentUser.data.accountNumber;
     if (isNaN(amount) || amount <= 0) {
       alert("Invalid amount.");
       return;
     }
-    customer.balance += amount;
-    currentUser.data = customer; // Update current user data
-    recordTransaction("deposit", amount, customer.accountNumber);
-    saveData();
-    alert(`₹${amount} deposited successfully.`);
-    viewBalance();
+    try {
+      await apiClient.deposit(accNum, amount, pin);
+      alert(`₹${amount} deposited successfully.`);
+      await viewBalance();
     
     // Update users page if it's currently active
-    const usersPage = document.getElementById("usersPage");
-    if (usersPage && usersPage.classList.contains("active")) {
-      updateUserStats();
-      displayUsersTable();
-    }
+      const usersPage = document.getElementById("usersPage");
+      if (usersPage && usersPage.classList.contains("active")) {
+        updateUserStats();
+        displayUsersTable();
+      }
     
     document.getElementById("depositPin").value = "";
     document.getElementById("depositAmount").value = "";
+    } catch(e){ alert(e.message || 'Deposit failed'); }
   };
 
-  const withdrawMoney = () => {
+  const withdrawMoney = async () => {
     const pin = document.getElementById("withdrawPin").value;
     const amount = parseFloat(document.getElementById("withdrawAmount").value);
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    if (pin !== customer.pin) {
-      alert("Invalid PIN.");
-      return;
-    }
-    if (isNaN(amount) || amount <= 0 || amount > customer.balance) {
+    const accNum = currentUser.data.accountNumber;
+    if (isNaN(amount) || amount <= 0) {
       alert("Invalid amount or insufficient balance.");
       return;
     }
-    customer.balance -= amount;
-    if (!customer.walletBalance) customer.walletBalance = 0;
-    customer.walletBalance += amount;
-    currentUser.data = customer; // Update current user data
-    recordTransaction("withdrawal-to-wallet", amount, null, customer.accountNumber);
-    saveData();
-    alert(`₹${amount} moved to Wallet successfully.`);
-    viewBalance();
+    try {
+      await apiClient.withdrawWallet(accNum, amount, pin);
+      alert(`₹${amount} moved to Wallet successfully.`);
+      await viewBalance();
     
     // Update users page if it's currently active
-    const usersPage = document.getElementById("usersPage");
-    if (usersPage && usersPage.classList.contains("active")) {
-      updateUserStats();
-      displayUsersTable();
-    }
+      const usersPage = document.getElementById("usersPage");
+      if (usersPage && usersPage.classList.contains("active")) {
+        updateUserStats();
+        displayUsersTable();
+      }
     
     document.getElementById("withdrawPin").value = "";
     document.getElementById("withdrawAmount").value = "";
+    } catch(e){ alert(e.message || 'Withdraw failed'); }
   };
 
-  const transferMoney = () => {
+  const transferMoney = async () => {
     const pin = document.getElementById("transferPin").value;
     const toAccNum = document.getElementById("transferAccNum").value.trim();
     const amount = parseFloat(document.getElementById("transferAmount").value);
-    const fromAcc = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    if (pin !== fromAcc.pin) {
-      alert("Invalid PIN.");
-      return;
-    }
-    if (fromAcc.accountNumber === toAccNum) {
+    const fromAccNum = currentUser.data.accountNumber;
+    if (fromAccNum === toAccNum) {
       alert("You cannot transfer money to your own account.");
       return;
     }
-    const toAcc = accounts.find((acc) => acc.accountNumber === toAccNum);
-    if (!toAcc) {
-      alert("Destination account not found.");
-      return;
-    }
-    if (isNaN(amount) || amount <= 0 || amount > fromAcc.balance) {
+    if (isNaN(amount) || amount <= 0) {
       alert("Invalid amount or insufficient balance.");
       return;
     }
-    fromAcc.balance -= amount;
-    toAcc.balance += amount;
-    currentUser.data = fromAcc; // Update current user data
-    recordTransaction("transfer", amount, toAccNum, fromAcc.accountNumber);
-    saveData();
-    alert(`₹${amount} transferred successfully to account ${toAccNum}.`);
-    viewBalance();
+    try {
+      await apiClient.transfer(fromAccNum, toAccNum, amount, pin);
+      alert(`₹${amount} transferred successfully to account ${toAccNum}.`);
+      await viewBalance();
     
     // Update users page if it's currently active
-    const usersPage = document.getElementById("usersPage");
-    if (usersPage && usersPage.classList.contains("active")) {
-      updateUserStats();
-      displayUsersTable();
-    }
+      const usersPage = document.getElementById("usersPage");
+      if (usersPage && usersPage.classList.contains("active")) {
+        updateUserStats();
+        displayUsersTable();
+      }
     
     document.getElementById("transferPin").value = "";
     document.getElementById("transferAccNum").value = "";
     document.getElementById("transferAmount").value = "";
+    } catch(e){ alert(e.message || 'Transfer failed'); }
   };
 
-  const viewCustomerTransactions = () => {
-    const userTransactions = transactions.filter(
-      (tx) =>
-        tx.fromAccount === currentUser.data.accountNumber ||
-        tx.toAccount === currentUser.data.accountNumber
-    );
-    displayTransactions(userTransactions, document.getElementById("customerTransactionHistoryDisplay"));
+  const viewCustomerTransactions = async () => {
+    try {
+      const list = await apiClient.listTransactions({ account_number: currentUser.data.accountNumber });
+      displayTransactions(list, document.getElementById("customerTransactionHistoryDisplay"));
+    } catch(_) { document.getElementById("customerTransactionHistoryDisplay").innerHTML = '<p>No transactions found.</p>'; }
   };
 
   const displayTransactions = (txList, element) => {
@@ -1785,20 +1721,12 @@
     qrVideo.srcObject = null;
   }
 
-  function payWithWallet(amount, merchant) {
-    const customer = accounts.find(
-      (acc) => acc.accountNumber === currentUser.data.accountNumber
-    );
-    if (!customer.walletBalance) customer.walletBalance = 0;
-    if (customer.walletBalance < amount) {
-      alert("Insufficient wallet balance!");
-      return;
-    }
-    customer.walletBalance -= amount;
-    recordTransaction("wallet-payment", amount, merchant, customer.accountNumber);
-    saveData();
-    alert(`Paid ₹${amount} to ${merchant} via Wallet.`);
-    viewWalletBalance();
+  async function payWithWallet(amount, merchant) {
+    try {
+      await apiClient.walletPay(currentUser.data.accountNumber, amount, merchant);
+      alert(`Paid ₹${amount} to ${merchant} via Wallet.`);
+      await viewWalletBalance();
+    } catch(e) { alert(e.message || 'Wallet payment failed'); }
   }
 </script>
 </body>
